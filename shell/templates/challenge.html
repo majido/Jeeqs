@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title> Interactive Shell </title>
+    <script type="text/javascript" src="/static/shell.js"></script>
+
+    {# prettifier    #}
+    <link href="/static/prettify.css" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" src="/static/prettify.js"></script>
+
+    {#Ace#}
+    <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/ace/mode-python.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/ace/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
+
+    <style type="text/css">
+        body {
+            font-family: monospace;
+            font-size: 10pt;
+        }
+
+        p {
+            margin: 0.5em;
+        }
+
+        a img {
+            border: none;
+        }
+
+        .prompt, #output {
+            width: 80%;
+            border: 1px solid silver;
+            background-color: #f5f5f5;
+            font-size: 10pt;
+            margin: 0.5em;
+            padding: 0.5em;
+            padding-right: 0em;
+            overflow-x: hidden;
+        }
+
+        #toolbar {
+            margin-left: 0.5em;
+            padding-left: 0.5em;
+        }
+
+        #ajax-status {
+            font-weight: bold;
+        }
+
+        .message {
+            color: #8AD;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .error {
+            color: #F44;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<script>
+    window.onload = function () {
+        prettyPrint();
+        window.editor = ace.edit("editor");
+        window.editor.setTheme("ace/theme/twilight");
+        var pythonMode = require("ace/mode/python").Mode;
+        window.editor.getSession().setMode(new pythonMode());
+        window.editor.getSession().setValue({{ template_code }});
+    };
+
+    function submitProgram() {
+        var program = window.editor.getSession().getValue();
+        shell.onRunKeyClick(program);
+    }
+</script>
+
+<body>
+
+<div style="border : 2px dotted red ;">
+    <p>{{ challenge_text }}</p>
+    {#    <p> Write a function that calculates the factorial of n, by completing the following program: </p>#}
+</div>
+<div id="content" style="clear:both; position:relative; top: 50px;">
+    <div style="width:45%; float:left">
+        <div id="editorContainer" style="position: relative; width: 500px; height: 300px;">
+            <div id="editor" style="width: 500px; height: 300px;">some text</div>
+        </div>
+        <br/>
+
+        <form id="answerForm" action="shell.runProgram" method="get">
+            <br/>
+            <button type="button" onclick="submitProgram()">Run</button>
+        </form>
+
+        <p id="ajax-status"></p>
+
+        <textarea id="output" rows="10" readonly="readonly" style="resize: none;">
+            Server Response >>>
+        </textarea>
+
+        <p/>
+    </div>
+
+    <div style="width:45%; float:left">
+        {% if user %}
+            <p>Your previous attempts : </p>
+            <pre class="prettyprint">
+{{ attempts_text }}
+            </pre>
+        {% endif %}
+    </div>
+</div>
+<div style="left:0; position:fixed; text-align:left; bottom:0; width:100%;">
+    <p id="toolbar">
+        {% if user %}
+            <span class="username">{{ user.nickname }}</span>
+            (<a href="{{ logout_url }}">log out</a>)
+        {% else %}
+            <a href="{{ login_url }}">log in</a>
+        {% endif %}
+        | <a href="http://code.google.com/appengine/">
+        <img src="/static/appengine_button_noborder.gif"
+             style="vertical-align: middle"/></a>
+    </p>
+</div>
+
+<script type="text/javascript">
+    document.getElementById('editor').focus();
+</script>
+
+</body>
+</html>
+
