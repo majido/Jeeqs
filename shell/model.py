@@ -21,3 +21,14 @@ class Challenge(db.Model):
     name = db.StringProperty()
     content = db.StringProperty(multiline=True)
     template_code = db.StringProperty(multiline=True)
+
+    '''
+    # initialization code
+from model import *
+
+c = Challenge()
+c.name = 'Factorial'
+c.content = 'Write a function that calculates the factorial of n'
+c.template_code = 'def factorial(n): \n'
+c.put()
+    '''
