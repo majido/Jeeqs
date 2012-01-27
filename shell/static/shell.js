@@ -140,6 +140,9 @@ shell.onRunKeyClick = function(program) {
     var value = escape(program).replace(/\+/g, '%2B'); // escape ignores +
     params += '&' + 'program' + '=' + value
 
+    var challenge_key = document.getElementById('challenge_key')
+    params += '&' + 'challenge_key' + '=' + challenge_key.value
+
     // send the request and tell the user.
     req.open(answerForm.method, answerForm.action + '?' + params, true);
     req.setRequestHeader('Content-type',

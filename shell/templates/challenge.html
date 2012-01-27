@@ -90,20 +90,18 @@
 </div>
 <div id="content" style="clear:both; position:relative; top: 50px;">
     <div style="width:45%; float:left">
-        <div id="editorContainer" style="position: relative; width: 500px; height: 300px;">
-            <div id="editor" style="width: 500px; height: 300px;">some text</div>
-        </div>
-        <br/>
-
         <form id="answerForm" action="shell.runProgram" method="get">
+            <div id="editorContainer" style="position: relative; width: 500px; height: 300px;">
+                <div id="editor" style="width: 500px; height: 300px;">some text</div>
+            </div>
             <br/>
+            <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
             <button type="button" onclick="submitProgram()">Run</button>
         </form>
 
         <p id="ajax-status"></p>
 
         <textarea id="output" rows="10" readonly="readonly" style="resize: none;">
-Server Response >>>
         </textarea>
 
         <p/>

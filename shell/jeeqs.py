@@ -81,7 +81,7 @@ class ChallengeHandler(webapp.RequestHandler):
                 users.get_current_user())
 
             for attempt in attempts:
-                attempts_text = attempts_text + attempt.content + '######## \n'
+                attempts_text = attempts_text + attempt.content + '====================== \n'
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
@@ -90,6 +90,7 @@ class ChallengeHandler(webapp.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts_text': attempts_text,
                 'challenge_text': challenge_text,
+                'challenge_key' : challenge.key(),
                 'template_code': template_code
         }
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
@@ -101,12 +102,20 @@ class ProgramHandler(webapp.RequestHandler):
     """
 
     def get(self):
-        logging.info('program is ' + self.request.get('program'))
         program = self.request.get('program')
-        self.response.headers['Content-Type'] = 'text/plain'
-
+        logging.info('program is ' + program)
         if not program:
             return
+
+        # retrieve the challenge
+        challenge_key = self.request.get('challenge_key')
+        if not challenge_key:
+            self.error(403)
+        challenge = Challenge.get(challenge_key);
+        if not challenge:
+            self.error(403)
+
+        self.response.headers['Content-Type'] = 'text/plain'
 
         # the python compiler doesn't like network line endings
         program = program.replace('\r\n', '\n')
@@ -153,11 +162,12 @@ class ProgramHandler(webapp.RequestHandler):
                     sys.stderr = self.response.out
                     exec compiled in program_module.__dict__
 
-                    #test program module
-                    if program_module.factorial(3) == 6:
-                        self.response.out.write("SUCCESS")
-                    else:
-                        self.response.out.write("FAILED ON factorial(6)")
+                    for test in challenge.testcases:
+                        result = eval(test.statement, program_module.__dict__)
+                        if (not str(result) == test.expected):
+                            self.response.out.write("FAILED ON TEST CASE " + test.statement + '\n')
+
+                    self.response.out.write("SUCCESS")
 
                 finally:
                     sys.stdout = old_stdout
