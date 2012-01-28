@@ -15,6 +15,10 @@
     <script src="/static/ace/mode-python.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/ace/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
 
+    {# MathJax #}
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
     <style type="text/css">
         body {
             font-family: monospace;
@@ -23,6 +27,7 @@
 
         p {
             margin: 0.5em;
+            font-family: arial;
         }
 
         a img {
@@ -73,7 +78,7 @@
         window.editor.setTheme("ace/theme/twilight");
         var pythonMode = require("ace/mode/python").Mode;
         window.editor.getSession().setMode(new pythonMode());
-        window.editor.getSession().setValue({{ template_code }});
+        window.editor.getSession().setValue("{{ template_code|escapejs }}");
     };
 
     function submitProgram() {
@@ -84,9 +89,9 @@
 
 <body>
 
-<div style="border : 2px dotted red ;">
-    <p>{{ challenge_text }}</p>
-    {#    <p> Write a function that calculates the factorial of n, by completing the following program: </p>#}
+<div style="border : 2px dotted red; width: 50%;">
+    <h1> {{ challenge_name }} </h1>
+    <p> {{ challenge_text|escape|linebreaks }} </p>
 </div>
 <div id="content" style="clear:both; position:relative; top: 50px;">
     <div style="width:45%; float:left">

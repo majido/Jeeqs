@@ -3,6 +3,11 @@
 """
 Model for challenges and solutions.
 
+In order to backup the local data store, first create DataStore stats using the local Admin console and then
+run the following command:
+
+appcfg.py download_data --url=http://localhost:8080/remote_api --filename=localdb
+
 """
 
 from google.appengine.ext import db
@@ -30,7 +35,7 @@ class Challenge(db.Model):
     '''
 
     name = db.StringProperty()
-    content = db.StringProperty(multiline=True)
+    content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
 
 class TestCase(db.Model):

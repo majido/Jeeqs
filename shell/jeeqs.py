@@ -16,6 +16,10 @@ from model import *
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
+
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+
 from google.appengine.ext.webapp import template
 
 
@@ -64,10 +68,7 @@ class ChallengeHandler(webapp.RequestHandler):
         if (not challenge):
             self.error(403)
 
-        challenge_text = challenge.content
-        template_code = '"' + challenge.template_code + '"'
-
-        logging.info("template code is : " + template_code)
+        logging.info("template code is : " + challenge.template_code)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'challenge.html')
@@ -89,9 +90,10 @@ class ChallengeHandler(webapp.RequestHandler):
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts_text': attempts_text,
-                'challenge_text': challenge_text,
+                'challenge_text': challenge.content,
+                'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
-                'template_code': template_code
+                'template_code': challenge.template_code
         }
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
