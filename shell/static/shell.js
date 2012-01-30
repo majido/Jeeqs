@@ -121,7 +121,10 @@ shell.onPromptKeyPress = function(event) {
  * text area.
  * @return {Boolean} false to tell the browser not to submit the form.
  */
-shell.onRunKeyClick = function(program) {
+shell.onRunKeyClick = function(program, isSubmission) {
+
+    isSubmission = (typeof isSubmission == "undefined") ? false: isSubmission;
+
     var answerForm = document.getElementById('answerForm');
 
     // build a XmlHttpRequest
@@ -143,11 +146,24 @@ shell.onRunKeyClick = function(program) {
     var challenge_key = document.getElementById('challenge_key')
     params += '&' + 'challenge_key' + '=' + challenge_key.value
 
+    if (isSubmission) {
+        params += '&is_submission=true'
+    }
+
     // send the request and tell the user.
     req.open(answerForm.method, answerForm.action + '?' + params, true);
     req.setRequestHeader('Content-type',
         'application/x-www-form-urlencoded;charset=UTF-8');
     req.send(null);
+};
+
+/**
+ * Runs the program written in the text area and returns stdout and stderror in "output"
+ * text area.
+ * @return {Boolean} false to tell the browser not to submit the form.
+ */
+shell.onSubmitKeyClick = function(program) {
+    shell.onRunKeyClick(program, true);
 };
 
 /**
@@ -161,7 +177,7 @@ shell.doneRunning = function(req) {
         // add the command to the shell output
         var output = document.getElementById('output');
 
-        output.value += '\n>>> Server ran the program';
+        output.value += '\n >>> Output: ';
 
         // add the command's result
         var result = req.responseText.replace(/^\s*|\s*$/g, '');  // trim whitespace

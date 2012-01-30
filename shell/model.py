@@ -14,13 +14,6 @@ from google.appengine.ext import db
 
 __author__ = 'akhavan'
 
-class Solution(db.Model):
-    """Models a Solution"""
-    author = db.UserProperty()
-    content = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
-
-
 class Challenge(db.Model):
     """Models a challenge"""
     '''
@@ -37,6 +30,16 @@ class Challenge(db.Model):
     name = db.StringProperty()
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
+
+class Attempt(db.Model):
+    """Models a Solution"""
+    challenge = db.ReferenceProperty(Challenge)
+    author = db.UserProperty()
+    content = db.StringProperty(multiline=True)
+    date = db.DateTimeProperty(auto_now_add=True)
+    stdout = db.StringProperty(multiline=True)
+    stderr = db.StringProperty(multiline=True)
+    is_submission = db.BooleanProperty(default=False)
 
 class TestCase(db.Model):
     """ Models a test case"""

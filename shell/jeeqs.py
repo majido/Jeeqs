@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
 """
-A program for managing challenges and solutions.
+A program for managing challenges, attempt and solutions.
 
 """
 
 import logging
 import new
 import os
+import StringIO
 import sys
 import traceback
 import wsgiref.handlers
@@ -73,23 +74,23 @@ class ChallengeHandler(webapp.RequestHandler):
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'challenge.html')
 
-        # show this user's previous submitted solutions
-        attempts_text = ''
+        # show this user's previous attempts
         if (users.get_current_user()):
-            attempts = db.GqlQuery(" SELECT * "
-                                   " FROM Solution "
-                                   " WHERE author = :1 ",
+            attempts_query = db.GqlQuery(" SELECT * "
+                                   " FROM Attempt "
+                                   " WHERE author = :1 "
+                                   " ORDER BY date DESC",
                 users.get_current_user())
+            attempts = attempts_query.fetch(20)
 
-            for attempt in attempts:
-                attempts_text = attempts_text + attempt.content + '====================== \n'
+
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'user': users.get_current_user(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
-                'attempts_text': attempts_text,
+                'attempts': attempts,
                 'challenge_text': challenge.content,
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
@@ -102,6 +103,19 @@ class ChallengeHandler(webapp.RequestHandler):
 class ProgramHandler(webapp.RequestHandler):
     """Evaluates a python program and returns the result.
     """
+
+    def run_testcases(self, challenge, program_module):
+        # Run test cases
+        test_num = 0
+        for test in challenge.testcases:
+            test_num = test_num + 1
+            result = eval(test.statement, program_module.__dict__)
+            if (not str(result) == test.expected):
+                self.response.out.write("FAILED ON TEST CASE " + test.statement + '\n')
+        if (test_num == 0):
+            self.response.out.write("No test cases to run!")
+        else:
+            self.response.out.write("SUCCESS")
 
     def get(self):
         program = self.request.get('program')
@@ -128,16 +142,17 @@ class ProgramHandler(webapp.RequestHandler):
 
         #persist the program
         if (users.get_current_user()):
-            solution = Solution(author=users.get_current_user())
-            solution.content = program
-            solution.put()
+            attempt = Attempt(author=users.get_current_user(), challenge=challenge)
+            attempt.content = program
+            if (self.request.get('is_submission')):
+                attempt.is_submission = True
 
         # log and compile the program up front
         try:
             logging.info('Compiling and evaluating:\n%s' % program)
             compiled = compile(program, '<string>', 'exec')
         except:
-            self.response.out.write(traceback.format_exc())
+            self.response.out.write('Compile error:' + traceback.format_exc())
             return
 
         # create a dedicated module to be used as this program's __main__
@@ -157,23 +172,30 @@ class ProgramHandler(webapp.RequestHandler):
 
             # run!
             try:
+                stdout_buffer = StringIO.StringIO()
+                stderr_buffer = StringIO.StringIO()
                 old_stdout = sys.stdout
                 old_stderr = sys.stderr
                 try:
-                    sys.stdout = self.response.out
-                    sys.stderr = self.response.out
+                    sys.stdout = stdout_buffer
+                    sys.stderr = stderr_buffer
                     exec compiled in program_module.__dict__
-
-                    for test in challenge.testcases:
-                        result = eval(test.statement, program_module.__dict__)
-                        if (not str(result) == test.expected):
-                            self.response.out.write("FAILED ON TEST CASE " + test.statement + '\n')
-
-                    self.response.out.write("SUCCESS")
 
                 finally:
                     sys.stdout = old_stdout
                     sys.stderr = old_stderr
+
+                    # Write the buffer to response
+                    self.response.out.write(stdout_buffer.getvalue())
+                    self.response.out.write(stderr_buffer.getvalue())
+
+                    attempt.stdout = stdout_buffer.getvalue()
+                    attempt.stderr = stderr_buffer.getvalue()
+                    attempt.put()
+
+                self.run_testcases(challenge, program_module)
+
+
             except:
                 self.response.out.write(traceback.format_exc())
                 return

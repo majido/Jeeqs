@@ -81,9 +81,14 @@
         window.editor.getSession().setValue("{{ template_code|escapejs }}");
     };
 
-    function submitProgram() {
+    function runProgram() {
         var program = window.editor.getSession().getValue();
         shell.onRunKeyClick(program);
+    }
+
+    function submitProgram() {
+        var program = window.editor.getSession().getValue()
+        shell.onSubmitKeyClick(program)
     }
 </script>
 
@@ -101,7 +106,8 @@
             </div>
             <br/>
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
-            <button type="button" onclick="submitProgram()">Run</button>
+            <button type="button" onclick="runProgram()">Run</button>
+            <button type="button" onclick="submitProgram()">Submit Solution</button>
         </form>
 
         <p id="ajax-status"></p>
@@ -114,10 +120,16 @@
 
     <div style="width:45%; float:left">
         {% if user %}
-            <p>Your previous attempts : </p>
-            <pre class="prettyprint">
-{{ attempts_text }}
-            </pre>
+            <p>Your Previous attempts : </p>
+            {% for attempt in attempts %}
+                <pre class="prettyprint">
+{{ attempt.content }}
+                </pre>
+                stdout: {{ attempt.stdout }}
+                <br/>
+                stderr: {{ attempt.stderr }}
+                <hr/>
+            {% endfor %}
         {% endif %}
     </div>
 </div>
