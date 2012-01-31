@@ -11,6 +11,7 @@ appcfg.py download_data --url=http://localhost:8080/remote_api --filename=locald
 """
 
 from google.appengine.ext import db
+from google.appengine.ext.db import polymodel
 
 __author__ = 'akhavan'
 
@@ -31,7 +32,7 @@ class Challenge(db.Model):
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
 
-class Attempt(db.Model):
+class Attempt(polymodel.PolyModel):
     """Models a Solution"""
     challenge = db.ReferenceProperty(Challenge)
     author = db.UserProperty()
@@ -39,7 +40,11 @@ class Attempt(db.Model):
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)
     stderr = db.StringProperty(multiline=True)
-    is_submission = db.BooleanProperty(default=False)
+
+class Submission(db.Model):
+    challenge = db.ReferenceProperty(Challenge)
+    author = db.UserProperty()
+    date = db.DateTimeProperty(auto_now_add=True)
 
 class TestCase(db.Model):
     """ Models a test case"""

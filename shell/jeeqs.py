@@ -119,7 +119,7 @@ class ProgramHandler(webapp.RequestHandler):
 
     def get(self):
         program = self.request.get('program')
-        logging.info('program is ' + program)
+        logging.debug('program is ' + program)
         if not program:
             return
 
@@ -144,8 +144,11 @@ class ProgramHandler(webapp.RequestHandler):
         if (users.get_current_user()):
             attempt = Attempt(author=users.get_current_user(), challenge=challenge)
             attempt.content = program
+            attempt.put()
             if (self.request.get('is_submission')):
-                attempt.is_submission = True
+                submission = Submission(author=users.get_current_user(), challenge=challenge, attempt=attempt)
+                submission.put()
+
 
         # log and compile the program up front
         try:
