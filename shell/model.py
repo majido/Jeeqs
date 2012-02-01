@@ -41,10 +41,8 @@ class Attempt(polymodel.PolyModel):
     stdout = db.StringProperty(multiline=True)
     stderr = db.StringProperty(multiline=True)
 
-class Submission(db.Model):
-    challenge = db.ReferenceProperty(Challenge)
-    author = db.UserProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
+class Submission(Attempt):
+    pass
 
 class TestCase(db.Model):
     """ Models a test case"""

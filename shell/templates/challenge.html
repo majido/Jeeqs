@@ -119,6 +119,16 @@
     </div>
 
     <div style="width:45%; float:left">
+        {% if submission %}
+            <p> Your Submission: </p>
+            <p> {{ submission.content }} </p>
+        {% else %}
+            <p> No submission found!</p>
+        {% endif %}
+
+    </div>
+
+    <div style="width:45%; float:left">
         {% if user %}
             <p>Your Previous attempts : </p>
             {% for attempt in attempts %}

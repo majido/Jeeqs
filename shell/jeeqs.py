@@ -75,15 +75,29 @@ class ChallengeHandler(webapp.RequestHandler):
             'challenge.html')
 
         # show this user's previous attempts
+        attempts = None
+        submission = None
+
         if (users.get_current_user()):
             attempts_query = db.GqlQuery(" SELECT * "
                                    " FROM Attempt "
                                    " WHERE author = :1 "
                                    " ORDER BY date DESC",
-                users.get_current_user())
+                                   users.get_current_user())
             attempts = attempts_query.fetch(20)
 
+            # fetch user's submission
+            submission_query = Submission.gql(" WHERE author = :1 "
+                                           " AND challenge = :2 "
+                                           " ORDER BY date DESC ",
+                                            users.get_current_user(),
+                                            challenge)
+            submissions = submission_query.fetch(10)
 
+            if (submissions):
+                submission = submissions[0]
+            else:
+                submission = None
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
@@ -94,7 +108,8 @@ class ChallengeHandler(webapp.RequestHandler):
                 'challenge_text': challenge.content,
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
-                'template_code': challenge.template_code
+                'template_code': challenge.template_code,
+                'submission' : submission
         }
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
@@ -142,12 +157,9 @@ class ProgramHandler(webapp.RequestHandler):
 
         #persist the program
         if (users.get_current_user()):
-            attempt = Attempt(author=users.get_current_user(), challenge=challenge)
-            attempt.content = program
-            attempt.put()
+            attempt = Attempt(author=users.get_current_user(), challenge=challenge, content=program)
             if (self.request.get('is_submission')):
-                submission = Submission(author=users.get_current_user(), challenge=challenge, attempt=attempt)
-                submission.put()
+                submission = Submission(author=users.get_current_user(), challenge=challenge, content=program)
 
 
         # log and compile the program up front
@@ -195,6 +207,11 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.stdout = stdout_buffer.getvalue()
                     attempt.stderr = stderr_buffer.getvalue()
                     attempt.put()
+
+                    if (self.request.get('is_submission')):
+                        submission.stdout = stdout_buffer.getvalue()
+                        submission.stderr = stderr_buffer.getvalue()
+                        submission.put()
 
                 self.run_testcases(challenge, program_module)
 
