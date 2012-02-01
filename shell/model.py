@@ -6,7 +6,11 @@ Model for challenges and solutions.
 In order to backup the local data store, first create DataStore stats using the local Admin console and then
 run the following command:
 
+Download from local datastore into a file
 appcfg.py download_data --url=http://localhost:8080/remote_api --filename=localdb
+
+Upload from a file into production:
+appcfg.py upload_data --url=http://jeeqsy.appspot.com/remote_api --filename=localdb
 
 """
 
@@ -32,7 +36,7 @@ class Challenge(db.Model):
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
 
-class Attempt(polymodel.PolyModel):
+class Attempt(db.Model):
     """Models a Solution"""
     challenge = db.ReferenceProperty(Challenge)
     author = db.UserProperty()
