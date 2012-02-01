@@ -7,6 +7,10 @@
 </head>
 <body>
 <h3> Review a Submission: </h3>
+{% for item in challenges.items %}
+    <a href="/review/?ch={{ item.1 }}">{{ item.0 }}</a>
+    <br/>
+{% endfor %}
 <h3> Take a Challenge: </h3>
 {% for item in challenges.items %}
     <a href="/challenge/?ch={{ item.1 }}">{{ item.0 }}</a>

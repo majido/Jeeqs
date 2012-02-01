@@ -122,6 +122,38 @@ class ChallengeHandler(webapp.RequestHandler):
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
+class ReviewHandler(webapp.RequestHandler):
+    """renders the solve_a_challenge.html template
+    """
+
+    def get(self):
+        # get the challenge
+        ch_key = self.request.get('ch')
+        if (not ch_key):
+            self.error(403)
+
+        challenge = Challenge.get(ch_key)
+        if (not challenge):
+            self.error(403)
+
+        logging.info("template code is : " + challenge.template_code)
+
+        template_file = os.path.join(os.path.dirname(__file__), 'templates',
+            'review_a_challenge.html')
+
+        vars = {'server_software': os.environ['SERVER_SOFTWARE'],
+                'python_version': sys.version,
+                'user': users.get_current_user(),
+                'login_url': users.create_login_url(self.request.url),
+                'logout_url': users.create_logout_url(self.request.url),
+                'challenge_text': challenge.content,
+                'challenge_name' : challenge.name,
+                'challenge_key' : challenge.key(),
+        }
+
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
+
 
 class ProgramHandler(webapp.RequestHandler):
     """Evaluates a python program and returns the result.
@@ -231,7 +263,8 @@ def main():
     application = webapp.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
-            ('/challenge/shell.runProgram', ProgramHandler)], debug=_DEBUG)
+            ('/challenge/shell.runProgram', ProgramHandler),
+            ('/review/', ReviewHandler)], debug=_DEBUG)
     wsgiref.handlers.CGIHandler().run(application)
 
 
