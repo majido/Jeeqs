@@ -19,7 +19,7 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 
 from google.appengine.dist import use_library
-use_library('django', '1.2')
+use_library('django', '1.3')
 
 from google.appengine.ext.webapp import template
 
@@ -31,7 +31,7 @@ __author__ = 'akhavan'
 
 
 class FrontPageHandler(webapp.RequestHandler):
-    """renders the challenges.html template
+    """renders the home.html template
     """
 
     def get(self):
@@ -47,16 +47,19 @@ class FrontPageHandler(webapp.RequestHandler):
 
         logging.info(challenges)
 
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'challenges.html')
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
-        vars = {'challenges': challenges}
+        vars = {'challenges': challenges,
+                'user': users.get_current_user(),
+                'login_url': users.create_login_url(self.request.url),
+                'logout_url': users.create_logout_url(self.request.url)}
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
 
 class ChallengeHandler(webapp.RequestHandler):
-    """renders the challenge.html template
+    """renders the solve_a_challenge.html template
     """
 
     def get(self):
@@ -72,7 +75,7 @@ class ChallengeHandler(webapp.RequestHandler):
         logging.info("template code is : " + challenge.template_code)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
-            'challenge.html')
+            'solve_a_challenge.html')
 
         # show this user's previous attempts
         attempts = None
@@ -82,17 +85,22 @@ class ChallengeHandler(webapp.RequestHandler):
             attempts_query = db.GqlQuery(" SELECT * "
                                    " FROM Attempt "
                                    " WHERE author = :1 "
+                                   " AND challenge = :2 "
                                    " ORDER BY date DESC",
-                                   users.get_current_user())
+                                   users.get_current_user(),
+                                   challenge)
             attempts = attempts_query.fetch(20)
 
             # fetch user's submission
-            submission_query = Submission.gql(" WHERE author = :1 "
+            submission_query = db.GqlQuery(" SELECT * "
+                                           " FROM Attempt "
+                                           " WHERE author = :1 "
                                            " AND challenge = :2 "
+                                           " AND is_submission = True "
                                            " ORDER BY date DESC ",
                                             users.get_current_user(),
                                             challenge)
-            submissions = submission_query.fetch(10)
+            submissions = submission_query.fetch(1)
 
             if (submissions):
                 submission = submissions[0]
@@ -159,7 +167,7 @@ class ProgramHandler(webapp.RequestHandler):
         if (users.get_current_user()):
             attempt = Attempt(author=users.get_current_user(), challenge=challenge, content=program)
             if (self.request.get('is_submission')):
-                submission = Submission(author=users.get_current_user(), challenge=challenge, content=program)
+                attempt.is_submission = True
 
 
         # log and compile the program up front
@@ -207,11 +215,6 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.stdout = stdout_buffer.getvalue()
                     attempt.stderr = stderr_buffer.getvalue()
                     attempt.put()
-
-                    if (self.request.get('is_submission')):
-                        submission.stdout = stdout_buffer.getvalue()
-                        submission.stderr = stderr_buffer.getvalue()
-                        submission.put()
 
                 self.run_testcases(challenge, program_module)
 

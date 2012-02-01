@@ -3,12 +3,15 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <title>Jeeq Directory</title>
+    <title>Jeeqs</title>
 </head>
 <body>
+<h3> Review a Submission: </h3>
+<h3> Take a Challenge: </h3>
 {% for item in challenges.items %}
     <a href="/challenge/?ch={{ item.1 }}">{{ item.0 }}</a>
     <br/>
 {% endfor %}
+{% include "user.html" %}
 </body>
 </html>
