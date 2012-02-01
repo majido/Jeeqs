@@ -5,7 +5,32 @@
     {% include "head.html" %}
 </head>
 
+<script>
+    window.onload = function () {
+        prettyPrint();
+    }
+</script>
+
+
 <body>
     {% include "challenge.html" %}
+
+    <br/>
+
+    <div style="width:45%; float:left">
+        {% if submissions|length == 0 %}
+            <p> No Submissions are available to review </p>
+        {% else %}
+            {% for submission in submissions %}
+                <h3>Submitted by {{ submission.author }} </h3>
+                <pre class="prettyprint">
+{{ submission.content }}
+                </pre>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% include "user.html" %}
+
 </body>
 </html>

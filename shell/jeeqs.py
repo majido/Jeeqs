@@ -136,7 +136,17 @@ class ReviewHandler(webapp.RequestHandler):
         if (not challenge):
             self.error(403)
 
-        logging.info("template code is : " + challenge.template_code)
+        # Retrieve other users' submissions
+        submissions_query = db.GqlQuery(" SELECT * "
+                                        " FROM Attempt "
+                                        " WHERE is_submission = True "
+                                        " AND challenge = :1 "
+                                        " ORDER BY date DESC ",
+                                        challenge)
+        submissions = submissions_query.fetch(20)
+
+        # TODO: replace this iteration with a data oriented approach
+        submissions[:] = [submission for submission in submissions if not submission.author == users.get_current_user()]
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
@@ -149,6 +159,7 @@ class ReviewHandler(webapp.RequestHandler):
                 'challenge_text': challenge.content,
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
+                'submissions' : submissions
         }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)

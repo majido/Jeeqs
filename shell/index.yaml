@@ -24,3 +24,10 @@ indexes:
   - name: is_submission
   - name: date
     direction: desc
+
+- kind: Attempt
+  properties:
+  - name: challenge
+  - name: is_submission
+  - name: date
+    direction: desc
