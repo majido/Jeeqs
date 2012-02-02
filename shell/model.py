@@ -15,7 +15,6 @@ appcfg.py upload_data --url=http://jeeqsy.appspot.com/remote_api --filename=loca
 """
 
 from google.appengine.ext import db
-from google.appengine.ext.db import polymodel
 
 __author__ = 'akhavan'
 
@@ -44,7 +43,15 @@ class Attempt(db.Model):
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)
     stderr = db.StringProperty(multiline=True)
-    is_submission = db.BooleanProperty(default=False)
+
+class Submission(db.Model):
+    """Models a Submission for a Challenge """
+    challenge = db.ReferenceProperty(Challenge)
+    author = db.UserProperty()
+    content = db.StringProperty(multiline=True)
+    date = db.DateTimeProperty(auto_now_add=True)
+    stdout = db.StringProperty(multiline=True)
+    stderr = db.StringProperty(multiline=True)
 
 class TestCase(db.Model):
     """ Models a test case"""

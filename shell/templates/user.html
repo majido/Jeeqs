@@ -1,11 +1,12 @@
 {# Shows the user's information as well as authentication links #}
 <div style="left:0; position:fixed; text-align:left; bottom:0; width:100%;">
     <p id="toolbar">
+        <a href="/">Home</a> |
         {% if user %}
             <span class="username">{{ user.nickname }}</span>
             (<a href="{{ logout_url }}">log out</a>)
         {% else %}
-            <a href="{{ login_url }}">log in</a>
+            <a href="{{ login_url }}">log in </a>
         {% endif %}
         | <a href="http://code.google.com/appengine/">
         <img src="/static/appengine_button_noborder.gif"

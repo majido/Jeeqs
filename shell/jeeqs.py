@@ -93,10 +93,9 @@ class ChallengeHandler(webapp.RequestHandler):
 
             # fetch user's submission
             submission_query = db.GqlQuery(" SELECT * "
-                                           " FROM Attempt "
+                                           " FROM Submission "
                                            " WHERE author = :1 "
                                            " AND challenge = :2 "
-                                           " AND is_submission = True "
                                            " ORDER BY date DESC ",
                                             users.get_current_user(),
                                             challenge)
@@ -138,9 +137,8 @@ class ReviewHandler(webapp.RequestHandler):
 
         # Retrieve other users' submissions
         submissions_query = db.GqlQuery(" SELECT * "
-                                        " FROM Attempt "
-                                        " WHERE is_submission = True "
-                                        " AND challenge = :1 "
+                                        " FROM Submission "
+                                        " WHERE challenge = :1 "
                                         " ORDER BY date DESC ",
                                         challenge)
         submissions = submissions_query.fetch(20)
@@ -210,7 +208,7 @@ class ProgramHandler(webapp.RequestHandler):
         if (users.get_current_user()):
             attempt = Attempt(author=users.get_current_user(), challenge=challenge, content=program)
             if (self.request.get('is_submission')):
-                attempt.is_submission = True
+                submission = Submission(author=users.get_current_user(), challenge=challenge, content=program)
 
 
         # log and compile the program up front
@@ -258,6 +256,11 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.stdout = stdout_buffer.getvalue()
                     attempt.stderr = stderr_buffer.getvalue()
                     attempt.put()
+
+                    if (self.request.get('is_submission')):
+                        submission.stdout = stdout_buffer.getvalue()
+                        submission.stderr = stderr_buffer.getvalue()
+                        submission.put()
 
                 self.run_testcases(challenge, program_module)
 
