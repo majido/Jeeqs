@@ -9,6 +9,17 @@
     window.onload = function () {
         prettyPrint();
     }
+
+    function submitCorrect(submission_key) {
+        $.ajax({
+            url: "/rpc",
+            data: "x=1",
+            success: function(response){
+                alert(response)
+            }
+        });
+    }
+
 </script>
 
 
@@ -26,6 +37,7 @@
                 <pre class="prettyprint">
 {{ submission.content }}
                 </pre>
+                <button type="button" id="button123" onclick="submitCorrect('{{ submission.key }}')">Correct</button>
             {% endfor %}
         {% endif %}
     </div>

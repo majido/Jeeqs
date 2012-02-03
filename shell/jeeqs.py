@@ -272,13 +272,21 @@ class ProgramHandler(webapp.RequestHandler):
         finally:
             sys.modules['__main__'] = old_main
 
+class RPCHandler(webapp.RequestHandler):
+    """renders the home.html template
+    """
+
+    def get(self):
+        self.response.out.write('Ajax response')
+
 
 def main():
     application = webapp.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
             ('/challenge/shell.runProgram', ProgramHandler),
-            ('/review/', ReviewHandler)], debug=_DEBUG)
+            ('/review/', ReviewHandler),
+            ('/rpc', RPCHandler)], debug=_DEBUG)
     wsgiref.handlers.CGIHandler().run(application)
 
 

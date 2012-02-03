@@ -230,7 +230,7 @@ shell.done = function(req) {
  * @return {Boolean} false to tell the browser not to submit the form.
  */
 shell.runStatement = function() {
-  var form = document.getElementById('form');
+  var form = $('#form')
 
   // build a XmlHttpRequest
   var req = this.getXmlHttpRequest();
@@ -253,7 +253,7 @@ shell.runStatement = function() {
   }
 
   // send the request and tell the user.
-  document.getElementById('statement').className = 'prompt processing';
+  $('#statement').className = 'prompt processing';
   req.open(form.method, form.action + '?' + params, true);
   req.setRequestHeader('Content-type',
                        'application/x-www-form-urlencoded;charset=UTF-8');
