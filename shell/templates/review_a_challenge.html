@@ -10,16 +10,18 @@
         prettyPrint();
     }
 
-    function submitCorrect(submission_key) {
-        $.ajax({
-            url: "/rpc",
-            data: "x=1",
-            success: function(response){
-                alert(response)
-            }
-        });
-    }
-
+    $(document).ready(function() {
+        $('.correct-vote').bind('click', function(e) {
+            $.ajax({
+                url: "/rpc",
+                type: "POST",
+                data: {'method': 'submit_correct', 'submission_key':$(this).attr('id')},
+                success: function(response){
+                    alert(response)
+                }
+            })
+        })
+    })
 </script>
 
 
@@ -28,7 +30,7 @@
 
     <br/>
 
-    <div style="width:45%; float:left">
+    <div id="submissions" style="width:45%; float:left">
         {% if submissions|length == 0 %}
             <p> No Submissions are available to review </p>
         {% else %}
@@ -37,7 +39,7 @@
                 <pre class="prettyprint">
 {{ submission.content }}
                 </pre>
-                <button type="button" id="button123" onclick="submitCorrect('{{ submission.key }}')">Correct</button>
+                <button id="{{ submission.key }}" class="correct-vote">Correct</button>
             {% endfor %}
         {% endif %}
     </div>

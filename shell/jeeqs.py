@@ -273,12 +273,49 @@ class ProgramHandler(webapp.RequestHandler):
             sys.modules['__main__'] = old_main
 
 class RPCHandler(webapp.RequestHandler):
-    """renders the home.html template
+    """Handles RPC calls
     """
 
-    def get(self):
-        self.response.out.write('Ajax response')
+    def post(self):
+        method = self.request.get('method')
+        if (not method):
+            self.error(403)
+        if (method == 'submit_correct'):
+            RPCHandler.submit_correct(self)
+#        elif (method == 'submit_incorrect'):
+#            RPCHandler.submit_incorrect(self)
 
+    def get_jeeqser(self, user):
+        jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
+        if (len(jeeqsers) == 0):
+            jeeqser = Jeeqser(user=user, username=user.nickname())
+            jeeqser.put()
+            return jeeqser
+        return jeeqsers[0]
+
+
+    def submit_correct(self):
+        submission_key = self.request.get('submission_key')
+        logging.debug('submission key is ' + submission_key)
+
+        # TODO: extract this out
+        user = users.get_current_user()
+        if (not user):
+            self.error(403)
+            return
+
+        #TODO: move this to an earlier stage - jeeqser should be available to everyone
+        jeeqser = self.get_jeeqser(user)
+
+        submission = Submission.get(submission_key)
+        if (not submission):
+            self.error(403)
+            return
+
+        if (not jeeqser.key() in submission.voted_correct):
+            submission.voted_correct.append(jeeqser.key())
+            submission.num_correct += 1
+            submission.put()
 
 def main():
     application = webapp.WSGIApplication(
