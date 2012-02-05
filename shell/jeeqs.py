@@ -126,6 +126,16 @@ class ReviewHandler(webapp.RequestHandler):
     """
 
     def get(self):
+
+        # TODO: extract this out
+        user = users.get_current_user()
+        if (not user):
+            self.response.out.write('You need to be logged in to be able to review')
+            return
+
+        #TODO: move this to an earlier stage - jeeqser should be available to everyone
+        jeeqser = get_jeeqser(user)
+
         # get the challenge
         ch_key = self.request.get('ch')
         if (not ch_key):
@@ -157,7 +167,8 @@ class ReviewHandler(webapp.RequestHandler):
                 'challenge_text': challenge.content,
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
-                'submissions' : submissions
+                'submissions' : submissions,
+                'jeeqser': jeeqser
         }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
@@ -272,6 +283,14 @@ class ProgramHandler(webapp.RequestHandler):
         finally:
             sys.modules['__main__'] = old_main
 
+def get_jeeqser(user):
+    jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
+    if (len(jeeqsers) == 0):
+        jeeqser = Jeeqser(user=user, username=user.nickname())
+        jeeqser.put()
+        return jeeqser
+    return jeeqsers[0]
+
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
     """
@@ -285,15 +304,6 @@ class RPCHandler(webapp.RequestHandler):
 #        elif (method == 'submit_incorrect'):
 #            RPCHandler.submit_incorrect(self)
 
-    def get_jeeqser(self, user):
-        jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
-        if (len(jeeqsers) == 0):
-            jeeqser = Jeeqser(user=user, username=user.nickname())
-            jeeqser.put()
-            return jeeqser
-        return jeeqsers[0]
-
-
     def submit_correct(self):
         submission_key = self.request.get('submission_key')
         logging.debug('submission key is ' + submission_key)
@@ -305,7 +315,7 @@ class RPCHandler(webapp.RequestHandler):
             return
 
         #TODO: move this to an earlier stage - jeeqser should be available to everyone
-        jeeqser = self.get_jeeqser(user)
+        jeeqser = get_jeeqser(user)
 
         submission = Submission.get(submission_key)
         if (not submission):

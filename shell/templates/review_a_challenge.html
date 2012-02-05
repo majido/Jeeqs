@@ -12,12 +12,13 @@
 
     $(document).ready(function() {
         $('.correct-vote').bind('click', function(e) {
+            $initiator = $(this)
             $.ajax({
                 url: "/rpc",
                 type: "POST",
                 data: {'method': 'submit_correct', 'submission_key':$(this).attr('id')},
                 success: function(response){
-                    alert(response)
+                    $initiator.attr("disabled", "disabled");
                 }
             })
         })
@@ -39,7 +40,11 @@
                 <pre class="prettyprint">
 {{ submission.content }}
                 </pre>
-                <button id="{{ submission.key }}" class="correct-vote">Correct</button>
+                {% if jeeqser.key in submission.voted_correct %}
+                    <button id="{{ submission.key }}" class="correct-vote" disabled="disabled">Correct</button>
+                {% else %}
+                    <button id="{{ submission.key }}" class="correct-vote" >Correct</button>
+                {% endif %}
             {% endfor %}
         {% endif %}
     </div>
