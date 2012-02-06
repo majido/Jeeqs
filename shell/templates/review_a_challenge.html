@@ -6,25 +6,60 @@
 </head>
 
 <script>
+    /**
+     * Renders a user friendly text for his opinion
+     * @param feedback
+     */
+    renderFeedback = function(feedback) {
+        switch (feedback) {
+            case 1:
+                return "Incorrect";
+                break;
+            case 2:
+                return "Slightly InCorrect";
+            case 3:
+                return "Correct";
+            case 4:
+                return "Elegant";
+        }
+    }
+
     window.onload = function () {
         prettyPrint();
     }
 
     $(document).ready(function() {
-        $('.correct-vote').bind('click', function(e) {
+        $('.submit-vote').bind('click', function(e) {
             $initiator = $(this)
-            $submission_id = $(this).closest('div').children("input[type='hidden']:first").val();
+            $submission_id = $(this).parent().parent().children("input[type='hidden']:first").val();
             $.ajax({
                 url: "/rpc",
                 type: "POST",
-                data: {'method': 'submit_correct', 'submission_key':$submission_id},
+                data: {'method': 'submit_vote', 'submission_key':$submission_id},
                 success: function(response){
                     $initiator.attr("disabled", "disabled");
+                    $initiator.siblings(".slider").slider("option", "disabled", true);
                 }
             })
         })
+
+        $( ".slider" ).slider({
+                value:3,
+                min: 1,
+                max: 4,
+                step: 1,
+                slide: function( event, ui ) {
+                    $(this).siblings('.slider-text').text(renderFeedback(ui.value));
+                }
+        });
     })
 </script>
+
+<style>
+    .submission-feedback { padding: 10px !important; width:50%;}
+    .slider-text {padding: 10px}
+</style>
+
 
 
 <body>
@@ -37,27 +72,14 @@
             <p> No Submissions are available to review </p>
         {% else %}
             {% for submission in submissions %}
-                <div>
+                <div class="submission-placeholder">
                     <input type="hidden" value="{{ submission.key }}"/>
                     <h3>Submitted by {{ submission.author }} </h3>
                     <pre class="prettyprint">{{ submission.content }}</pre>
-                    <button class="correct-vote" {{  submission.user_voted_correct|yesno:"disabled=true," }}>Correct</button>
-                    <div id="demo-frame">
-                        <div class="demo">
-
-                            <div id="slider"></div>
-
-                        </div><!-- End demo -->
-
-                        <style>
-                            #demo-frame > div.demo { padding: 10px !important; }
-                        </style>
-                        <script>
-                            $(function() {
-                                $( "#slider" ).slider();
-                            });
-                        </script>
-
+                    <div class="submission-feedback">
+                        <div class="slider"></div>
+                        <div id="slider-text" class="slider-text"></div>
+                        <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }}>Submit</button>
                     </div>
                 </div>
             {% endfor %}

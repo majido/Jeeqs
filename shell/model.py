@@ -60,10 +60,8 @@ class Submission(db.Model):
     stderr = db.StringProperty(multiline=True)
     num_correct = db.IntegerProperty(default=0)
     num_incorrect = db.IntegerProperty(default=0)
-    # List of users who voted correct for this submission
-    voted_correct = db.ListProperty(db.Key)
-    # List of users who voted incorrect for this submission
-    voted_incorrect = db.ListProperty(db.Key)
+    # List of users who voted for this submission
+    users_voted = db.ListProperty(db.Key)
 
 class TestCase(db.Model):
     """ Models a test case"""

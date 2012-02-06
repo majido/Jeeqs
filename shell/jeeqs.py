@@ -157,8 +157,8 @@ class ReviewHandler(webapp.RequestHandler):
         submissions[:] = [submission for submission in submissions if not submission.author == users.get_current_user()]
 
         for submission in submissions:
-            if jeeqser.key() in submission.voted_correct:
-                submission.user_voted_correct = True
+            if jeeqser.key() in submission.users_voted:
+                submission.voted = True
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
@@ -303,12 +303,10 @@ class RPCHandler(webapp.RequestHandler):
         method = self.request.get('method')
         if (not method):
             self.error(403)
-        if (method == 'submit_correct'):
-            RPCHandler.submit_correct(self)
-#        elif (method == 'submit_incorrect'):
-#            RPCHandler.submit_incorrect(self)
+        if (method == 'submit_vote'):
+            RPCHandler.submit_vote(self)
 
-    def submit_correct(self):
+    def submit_vote(self):
         submission_key = self.request.get('submission_key')
         logging.debug('submission key is ' + submission_key)
 
@@ -326,9 +324,8 @@ class RPCHandler(webapp.RequestHandler):
             self.error(403)
             return
 
-        if (not jeeqser.key() in submission.voted_correct):
-            submission.voted_correct.append(jeeqser.key())
-            submission.num_correct += 1
+        if (not jeeqser.key() in submission.users_voted):
+            submission.users_voted.append(jeeqser.key())
             submission.put()
 
 def main():
