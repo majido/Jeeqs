@@ -44,3 +44,8 @@ indexes:
   - name: challenge
   - name: date
     direction: desc
+
+- kind: Submission
+  properties:
+  - name: challenge
+  - name: vote_count

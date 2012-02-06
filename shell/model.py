@@ -58,10 +58,11 @@ class Submission(db.Model):
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)
     stderr = db.StringProperty(multiline=True)
-    num_correct = db.IntegerProperty(default=0)
-    num_incorrect = db.IntegerProperty(default=0)
     # List of users who voted for this submission
     users_voted = db.ListProperty(db.Key)
+    vote_count = db.IntegerProperty(default=0)
+    vote_sum = db.FloatProperty(default=float(0))
+    vote_average = db.FloatProperty(default=float(0))
 
 class TestCase(db.Model):
     """ Models a test case"""

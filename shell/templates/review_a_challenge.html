@@ -16,7 +16,7 @@
                 return "Incorrect";
                 break;
             case 2:
-                return "Slightly InCorrect";
+                return "Almost there!";
             case 3:
                 return "Correct";
             case 4:
@@ -32,10 +32,12 @@
         $('.submit-vote').bind('click', function(e) {
             $initiator = $(this)
             $submission_id = $(this).parent().parent().children("input[type='hidden']:first").val();
+            $vote = $(this).siblings('.slider').slider( "option", "value" );
+
             $.ajax({
                 url: "/rpc",
                 type: "POST",
-                data: {'method': 'submit_vote', 'submission_key':$submission_id},
+                data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote},
                 success: function(response){
                     $initiator.attr("disabled", "disabled");
                     $initiator.siblings(".slider").slider("option", "disabled", true);
@@ -43,15 +45,19 @@
             })
         })
 
-        $( ".slider" ).slider({
+        $( ".slider" ).each(function() {
+            $disabled = $(this).siblings('.submit-vote').attr('disabled');
+            $(this).slider({
                 value:3,
                 min: 1,
                 max: 4,
                 step: 1,
+                disabled: ($disabled == 'disabled' ? true : false),
                 slide: function( event, ui ) {
                     $(this).siblings('.slider-text').text(renderFeedback(ui.value));
                 }
-        });
+            });
+        })
     })
 </script>
 

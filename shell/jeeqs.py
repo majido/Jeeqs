@@ -149,7 +149,7 @@ class ReviewHandler(webapp.RequestHandler):
         submissions_query = db.GqlQuery(" SELECT * "
                                         " FROM Submission "
                                         " WHERE challenge = :1 "
-                                        " ORDER BY date DESC ",
+                                        " ORDER BY vote_count ASC ",
                                         challenge)
         submissions = submissions_query.fetch(20)
 
@@ -326,6 +326,9 @@ class RPCHandler(webapp.RequestHandler):
 
         if (not jeeqser.key() in submission.users_voted):
             submission.users_voted.append(jeeqser.key())
+            submission.vote_count += 1
+            submission.vote_sum += float(self.request.get('vote'))
+            submission.vote_average = float(submission.vote_sum / submission.vote_count)
             submission.put()
 
 def main():
