@@ -13,10 +13,11 @@
     $(document).ready(function() {
         $('.correct-vote').bind('click', function(e) {
             $initiator = $(this)
+            $submission_id = $(this).closest('div').children("input[type='hidden']:first").val();
             $.ajax({
                 url: "/rpc",
                 type: "POST",
-                data: {'method': 'submit_correct', 'submission_key':$(this).attr('id')},
+                data: {'method': 'submit_correct', 'submission_key':$submission_id},
                 success: function(response){
                     $initiator.attr("disabled", "disabled");
                 }
@@ -36,15 +37,29 @@
             <p> No Submissions are available to review </p>
         {% else %}
             {% for submission in submissions %}
-                <h3>Submitted by {{ submission.author }} </h3>
-                <pre class="prettyprint">
-{{ submission.content }}
-                </pre>
-                {% if jeeqser.key in submission.voted_correct %}
-                    <button id="{{ submission.key }}" class="correct-vote" disabled="disabled">Correct</button>
-                {% else %}
-                    <button id="{{ submission.key }}" class="correct-vote" >Correct</button>
-                {% endif %}
+                <div>
+                    <input type="hidden" value="{{ submission.key }}"/>
+                    <h3>Submitted by {{ submission.author }} </h3>
+                    <pre class="prettyprint">{{ submission.content }}</pre>
+                    <button class="correct-vote" {{  submission.user_voted_correct|yesno:"disabled=true," }}>Correct</button>
+                    <div id="demo-frame">
+                        <div class="demo">
+
+                            <div id="slider"></div>
+
+                        </div><!-- End demo -->
+
+                        <style>
+                            #demo-frame > div.demo { padding: 10px !important; }
+                        </style>
+                        <script>
+                            $(function() {
+                                $( "#slider" ).slider();
+                            });
+                        </script>
+
+                    </div>
+                </div>
             {% endfor %}
         {% endif %}
     </div>

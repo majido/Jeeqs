@@ -156,6 +156,10 @@ class ReviewHandler(webapp.RequestHandler):
         # TODO: replace this iteration with a data oriented approach
         submissions[:] = [submission for submission in submissions if not submission.author == users.get_current_user()]
 
+        for submission in submissions:
+            if jeeqser.key() in submission.voted_correct:
+                submission.user_voted_correct = True
+
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
 
