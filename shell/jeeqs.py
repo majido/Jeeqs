@@ -37,22 +37,27 @@ class FrontPageHandler(webapp.RequestHandler):
     def get(self):
         # get available challenges
 
-        query = Challenge.all()
-        results = query.fetch(20)
-
+        all_challenges_query = Challenge.all()
+        all_challenges_results = all_challenges_query.fetch(20)
         challenges = {}
-
-        for ch in results:
+        for ch in all_challenges_results:
             challenges[ch.name] = str(ch.key())
 
-        logging.info(challenges)
+        solved_challenges_keys=[]
+        submissions = Submission.all().filter("author = ", users.get_current_user()).fetch(20)
+        #TODO: very inefficient
+        for submission in submissions:
+            solved_challenges_keys.append(str(submission.challenge.key()))
+        logging.info(solved_challenges_keys)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
         vars = {'challenges': challenges,
                 'user': users.get_current_user(),
                 'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url)}
+                'logout_url': users.create_logout_url(self.request.url)
+                ,'solved_challenges_keys': solved_challenges_keys
+        }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)

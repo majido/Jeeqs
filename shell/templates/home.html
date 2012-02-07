@@ -6,17 +6,29 @@
     <title>Jeeqs</title>
     {% include "head.html" %}
 </head>
+<script>
+    $(document).ready(function () {
+        $('.submitted').button();
+        $('.ui-button-text').css("padding", "0px");
+    });
+</script>
+<style>
+    .submitted {width: 100px; height:15px; font-size:smaller; padding-bottom: 10px; vertical-align: middle; padding:0px;}
+</style>
 <body>
-<h3> Review a Submission: </h3>
-{% for item in challenges.items %}
-    <a href="/review/?ch={{ item.1 }}">{{ item.0 }}</a>
-    <br/>
-{% endfor %}
-<h3> Take a Challenge: </h3>
-{% for item in challenges.items %}
-    <a href="/challenge/?ch={{ item.1 }}">{{ item.0 }}</a>
-    <br/>
-{% endfor %}
-{% include "user.html" %}
+    <h3> Review a Submission: </h3>
+    {% for key, value in challenges.items %}
+        <a href="/review/?ch={{ value }}">{{ key }}</a>
+        <br/>
+    {% endfor %}
+    <h3> Take a Challenge: </h3>
+    {% for key, value in challenges.items %}
+        <a href="/challenge/?ch={{ value }}">{{ key }}</a>
+        {% if value in solved_challenges_keys %}
+            <button class="submitted" disabled="disabled">Submitted</button>
+        {% endif %}
+        <br/>
+    {% endfor %}
+    {% include "user.html" %}
 </body>
 </html>
