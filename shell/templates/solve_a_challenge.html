@@ -21,6 +21,7 @@
     }
 
     function submitProgram() {
+        $('#submitProgramButton').attr("disabled", "disabled");
         var program = window.editor.getSession().getValue()
         shell.onSubmitKeyClick(program)
     }
@@ -44,7 +45,7 @@
             <br/>
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
             <button type="button" onclick="runProgram()">Run</button>
-            <button type="button" onclick="submitProgram()">Submit Solution</button>
+            <button type="button" id = "submitProgramButton" onclick="submitProgram()">Submit Solution</button>
         </form>
 
         <p id="ajax-status"></p>
@@ -60,7 +61,7 @@
 
     <div style="width:45%; float:left">
         {% if submission %}
-            <h3> Your Submission: </h3>
+            <h3> Your Current Submission: </h3>
             <pre class="prettyprint">
 {{ submission.content }}
             </pre>
@@ -72,7 +73,7 @@
 
     <div style="width:45%; float:left">
         {% if user %}
-            <h3>Your Previous attempts : </h3>
+            <h3>Your Recent attempts : </h3>
             {% for attempt in attempts %}
                 <p> Attempted at: {{ attempt.date }}</p>
                 <pre class="prettyprint">

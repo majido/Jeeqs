@@ -12,6 +12,11 @@ indexes:
 
 - kind: Attempt
   properties:
+  - name: __key__
+    direction: desc
+
+- kind: Attempt
+  properties:
   - name: author
   - name: challenge
   - name: date
@@ -34,6 +39,11 @@ indexes:
 
 - kind: Submission
   properties:
+  - name: __key__
+    direction: desc
+
+- kind: Submission
+  properties:
   - name: author
   - name: challenge
   - name: date
@@ -44,6 +54,12 @@ indexes:
   - name: challenge
   - name: date
     direction: desc
+
+- kind: Submission
+  properties:
+  - name: challenge
+  - name: latest
+  - name: vote_count
 
 - kind: Submission
   properties:

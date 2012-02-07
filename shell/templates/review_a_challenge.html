@@ -47,8 +47,9 @@
 
         $( ".slider" ).each(function() {
             $disabled = $(this).siblings('.submit-vote').attr('disabled');
+            $defaultValue = 3
             $(this).slider({
-                value:3,
+                value:$defaultValue,
                 min: 1,
                 max: 4,
                 step: 1,
@@ -56,14 +57,15 @@
                 slide: function( event, ui ) {
                     $(this).siblings('.slider-text').text(renderFeedback(ui.value));
                 }
-            });
+            }).find('.ui-slider-handle')
+              .attr("title", "Slide me to score the submission");
         })
     })
 </script>
 
 <style>
     .submission-feedback { padding: 10px !important; width:50%;}
-    .slider-text {padding: 10px}
+    .slider-text {padding: 10px; padding-right:0px; color:#006666; font-size:smaller; float:right;}
 </style>
 
 
@@ -85,7 +87,7 @@
                     <div class="submission-feedback">
                         <div class="slider"></div>
                         <div id="slider-text" class="slider-text"></div>
-                        <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }}>Submit</button>
+                        <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }} style="margin-top:10px;">Submit</button>
                     </div>
                 </div>
             {% endfor %}

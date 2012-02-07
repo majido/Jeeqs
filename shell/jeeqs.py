@@ -37,18 +37,25 @@ class FrontPageHandler(webapp.RequestHandler):
     def get(self):
         # get available challenges
 
-        all_challenges_query = Challenge.all()
-        all_challenges_results = all_challenges_query.fetch(20)
+        all_challenges = Challenge.all().fetch(100)
         challenges = {}
-        for ch in all_challenges_results:
-            challenges[ch.name] = str(ch.key())
 
-        solved_challenges_keys=[]
-        submissions = Submission.all().filter("author = ", users.get_current_user()).fetch(20)
-        #TODO: very inefficient
-        for submission in submissions:
-            solved_challenges_keys.append(str(submission.challenge.key()))
-        logging.info(solved_challenges_keys)
+        for ch in all_challenges:
+            submitted = False
+            score = 0
+            #TODO: inefficient
+            submissions = Submission\
+                                .all()\
+                                .filter("author = ", users.get_current_user())\
+                                .filter("challenge = ", ch)\
+                                .filter('latest = ', True)\
+                                .fetch(1)
+            if (len(submissions) > 0):
+                submitted = True
+                score = submissions[0].vote_average
+
+            challenges[ch.name] = [str(ch.key()), submitted, score]
+
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
@@ -56,7 +63,6 @@ class FrontPageHandler(webapp.RequestHandler):
                 'user': users.get_current_user(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
-                ,'solved_challenges_keys': solved_challenges_keys
         }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
@@ -135,7 +141,7 @@ class ReviewHandler(webapp.RequestHandler):
         # TODO: extract this out
         user = users.get_current_user()
         if (not user):
-            self.response.out.write('You need to be logged in to be able to review')
+            self.redirect('/')
             return
 
         #TODO: move this to an earlier stage - jeeqser should be available to everyone
@@ -154,9 +160,10 @@ class ReviewHandler(webapp.RequestHandler):
         submissions_query = db.GqlQuery(" SELECT * "
                                         " FROM Submission "
                                         " WHERE challenge = :1 "
+                                        " AND latest = True "
                                         " ORDER BY vote_count ASC ",
                                         challenge)
-        submissions = submissions_query.fetch(20)
+        submissions = submissions_query.fetch(10)
 
         # TODO: replace this iteration with a data oriented approach
         submissions[:] = [submission for submission in submissions if not submission.author == users.get_current_user()]
@@ -278,6 +285,17 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.put()
 
                     if (self.request.get('is_submission')):
+                        #precompute latest
+                        previous_submissions = Submission.\
+                                                    all().\
+                                                    filter('author = ', users.get_current_user()).\
+                                                    filter('challenge = ', challenge).\
+                                                    filter('latest = ', True).\
+                                                    fetch(10)
+                        for previous_submission in previous_submissions:
+                            previous_submission.latest = False
+                            previous_submission.put()
+
                         submission.stdout = stdout_buffer.getvalue()
                         submission.stderr = stderr_buffer.getvalue()
                         submission.put()

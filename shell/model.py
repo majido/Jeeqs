@@ -6,6 +6,9 @@ Model for challenges and solutions.
 In order to backup the local data store, first create DataStore stats using the local Admin console and then
 run the following command:
 
+These commands are working on Python 2.5.4 as of now. There are known issues with default installations of
+python on MacOS and serialization of floats.
+
 Download from local datastore into a file
 appcfg.py download_data --url=http://localhost:8080/remote_api --filename=localdb
 
@@ -63,6 +66,8 @@ class Submission(db.Model):
     vote_count = db.IntegerProperty(default=0)
     vote_sum = db.FloatProperty(default=float(0))
     vote_average = db.FloatProperty(default=float(0))
+    # is this the latest submission on the challenge ?
+    latest = db.BooleanProperty(default=True)
 
 class TestCase(db.Model):
     """ Models a test case"""
