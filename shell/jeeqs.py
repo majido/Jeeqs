@@ -54,7 +54,7 @@ class FrontPageHandler(webapp.RequestHandler):
                 submitted = True
                 score = submissions[0].vote_average
 
-            challenges[ch.name] = [str(ch.key()), submitted, score]
+            challenges[ch.name] = [str(ch.key()), submitted, round(score, 2)]
 
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')

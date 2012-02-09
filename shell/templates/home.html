@@ -9,11 +9,13 @@
 <script>
     $(document).ready(function () {
         $('.submitted').button();
+        $('.score').button();
         $('.ui-button-text').css("padding", "0px");
     });
 </script>
 <style>
     .submitted {width: 100px; height:15px; font-size:smaller; padding-bottom: 10px; vertical-align: middle; padding:0px;}
+    .score {width: 100px; height:15px; font-size:smaller; padding-bottom: 10px; vertical-align: middle; padding:0px; color:#660000;}
 </style>
 <body>
     <h3> Review a Submission (Needs login): </h3>
@@ -25,7 +27,8 @@
     {% for key, value in challenges.items %}
         <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
         {% if value.1 %}
-            <button class="submitted" disabled="disabled">Submitted</button> {{ value.2 }}
+            <button class="submitted" disabled="disabled">Submitted</button>
+            <button class="score" disabled="disabled">{{ value.2 }}</button>
         {% endif %}
         <br/>
     {% endfor %}
