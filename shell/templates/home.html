@@ -27,8 +27,7 @@
     {% for key, value in challenges.items %}
         <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
         {% if value.1 %}
-            <button class="submitted" disabled="disabled">Submitted</button>
-            <button class="score" disabled="disabled">{{ value.2 }}</button>
+            <button class="submitted" disabled="disabled">Submitted ({{ value.2 }}) </button>
         {% endif %}
         <br/>
     {% endfor %}

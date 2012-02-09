@@ -22,8 +22,7 @@ from google.appengine.ext import db
 __author__ = 'akhavan'
 
 class Jeeqser(db.Model):
-    """ Holds information for a Jeeqs User """
-
+    """ A Jeeqs User """
     username = db.StringProperty()
     user = db.UserProperty()
 
@@ -47,7 +46,7 @@ class Challenge(db.Model):
 class Attempt(db.Model):
     """Models a Solution"""
     challenge = db.ReferenceProperty(Challenge)
-    author = db.UserProperty()
+    author = db.ReferenceProperty(Jeeqser)
     content = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)
@@ -56,7 +55,7 @@ class Attempt(db.Model):
 class Submission(db.Model):
     """Models a Submission for a Challenge """
     challenge = db.ReferenceProperty(Challenge)
-    author = db.UserProperty()
+    author = db.ReferenceProperty(Jeeqser)
     content = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)

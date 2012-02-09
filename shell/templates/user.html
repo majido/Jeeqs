@@ -2,8 +2,8 @@
 <div style="left:0; position:fixed; text-align:left; bottom:0; width:100%;">
     <p id="toolbar">
         <a href="/">Home</a> |
-        {% if user %}
-            <span class="username">{{ user.nickname }}</span>
+        {% if jeeqser %}
+            <span class="username">{{ jeeqser.user.nickname }}</span>
             (<a href="{{ logout_url }}">log out</a>)
         {% else %}
             <a href="{{ login_url }}">log in </a>

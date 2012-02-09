@@ -82,7 +82,7 @@
             {% for submission in submissions %}
                 <div class="submission-placeholder">
                     <input type="hidden" value="{{ submission.key }}"/>
-                    <h3>Submitted by {{ submission.author }} </h3>
+                    <h3>Submitted by {{ submission.author.user }} </h3>
                     <pre class="prettyprint">{{ submission.content }}</pre>
                     <div class="submission-feedback">
                         <div class="slider"></div>

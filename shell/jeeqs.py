@@ -30,6 +30,20 @@ _DEBUG = True
 __author__ = 'akhavan'
 
 
+# Gets Jeeqser entity related to the given authenticated user
+def get_jeeqser():
+    user = users.get_current_user()
+    if user is None:
+        return None
+
+    jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
+    if (len(jeeqsers) == 0):
+        jeeqser = Jeeqser(user=user, username=user.nickname())
+        jeeqser.put()
+        return jeeqser
+    return jeeqsers[0]
+
+
 class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
     """
@@ -40,19 +54,23 @@ class FrontPageHandler(webapp.RequestHandler):
         all_challenges = Challenge.all().fetch(100)
         challenges = {}
 
+        jeeqser = get_jeeqser()
+
         for ch in all_challenges:
             submitted = False
             score = 0
-            #TODO: inefficient
-            submissions = Submission\
-                                .all()\
-                                .filter("author = ", users.get_current_user())\
-                                .filter("challenge = ", ch)\
-                                .filter('latest = ', True)\
-                                .fetch(1)
-            if (len(submissions) > 0):
-                submitted = True
-                score = submissions[0].vote_average
+
+            if jeeqser:
+                #TODO: inefficient
+                submissions = Submission\
+                                    .all()\
+                                    .filter("author = ", jeeqser.key())\
+                                    .filter("challenge = ", ch)\
+                                    .filter('latest = ', True)\
+                                    .fetch(1)
+                if (len(submissions) > 0):
+                    submitted = True
+                    score = submissions[0].vote_average
 
             challenges[ch.name] = [str(ch.key()), submitted, round(score, 2)]
 
@@ -60,7 +78,7 @@ class FrontPageHandler(webapp.RequestHandler):
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
         vars = {'challenges': challenges,
-                'user': users.get_current_user(),
+                'jeeqser': get_jeeqser(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -92,13 +110,15 @@ class ChallengeHandler(webapp.RequestHandler):
         attempts = None
         submission = None
 
-        if (users.get_current_user()):
+        jeeqser = get_jeeqser()
+
+        if (jeeqser):
             attempts_query = db.GqlQuery(" SELECT * "
                                    " FROM Attempt "
                                    " WHERE author = :1 "
                                    " AND challenge = :2 "
                                    " ORDER BY date DESC",
-                                   users.get_current_user(),
+                                   jeeqser.key(),
                                    challenge)
             attempts = attempts_query.fetch(20)
 
@@ -108,7 +128,7 @@ class ChallengeHandler(webapp.RequestHandler):
                                            " WHERE author = :1 "
                                            " AND challenge = :2 "
                                            " ORDER BY date DESC ",
-                                            users.get_current_user(),
+                                            jeeqser.key(),
                                             challenge)
             submissions = submission_query.fetch(1)
 
@@ -119,7 +139,7 @@ class ChallengeHandler(webapp.RequestHandler):
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
-                'user': users.get_current_user(),
+                'jeeqser': jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
@@ -144,8 +164,7 @@ class ReviewHandler(webapp.RequestHandler):
             self.redirect('/')
             return
 
-        #TODO: move this to an earlier stage - jeeqser should be available to everyone
-        jeeqser = get_jeeqser(user)
+        jeeqser = get_jeeqser()
 
         # get the challenge
         ch_key = self.request.get('ch')
@@ -166,7 +185,8 @@ class ReviewHandler(webapp.RequestHandler):
         submissions = submissions_query.fetch(10)
 
         # TODO: replace this iteration with a data oriented approach
-        submissions[:] = [submission for submission in submissions if not submission.author == users.get_current_user()]
+        # each .author is one query!! copy the username to the submission entity
+        submissions[:] = [submission for submission in submissions if not submission.author.key() == jeeqser.key()]
 
         for submission in submissions:
             if jeeqser.key() in submission.users_voted:
@@ -177,14 +197,13 @@ class ReviewHandler(webapp.RequestHandler):
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
-                'user': users.get_current_user(),
+                'jeeqser': jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'challenge_text': challenge.content,
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
-                'jeeqser': jeeqser
         }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
@@ -232,10 +251,11 @@ class ProgramHandler(webapp.RequestHandler):
         program += '\n\n'
 
         #persist the program
-        if (users.get_current_user()):
-            attempt = Attempt(author=users.get_current_user(), challenge=challenge, content=program)
+        jeeqser = get_jeeqser()
+        if (jeeqser):
+            attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=program)
             if (self.request.get('is_submission')):
-                submission = Submission(author=users.get_current_user(), challenge=challenge, content=program)
+                submission = Submission(author=jeeqser.key(), challenge=challenge, content=program)
 
 
         # log and compile the program up front
@@ -288,7 +308,7 @@ class ProgramHandler(webapp.RequestHandler):
                         #precompute latest
                         previous_submissions = Submission.\
                                                     all().\
-                                                    filter('author = ', users.get_current_user()).\
+                                                    filter('author = ', get_jeeqser().key()).\
                                                     filter('challenge = ', challenge).\
                                                     filter('latest = ', True).\
                                                     fetch(10)
@@ -309,14 +329,6 @@ class ProgramHandler(webapp.RequestHandler):
 
         finally:
             sys.modules['__main__'] = old_main
-
-def get_jeeqser(user):
-    jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
-    if (len(jeeqsers) == 0):
-        jeeqser = Jeeqser(user=user, username=user.nickname())
-        jeeqser.put()
-        return jeeqser
-    return jeeqsers[0]
 
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
@@ -340,7 +352,7 @@ class RPCHandler(webapp.RequestHandler):
             return
 
         #TODO: move this to an earlier stage - jeeqser should be available to everyone
-        jeeqser = get_jeeqser(user)
+        jeeqser = get_jeeqser()
 
         submission = Submission.get(submission_key)
         if (not submission):
