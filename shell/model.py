@@ -28,31 +28,12 @@ class Jeeqser(db.Model):
 
 class Challenge(db.Model):
     """Models a challenge"""
-    '''
-    # initialization code
-    from model import *
-
-    c = Challenge()
-    c.name = 'Factorial'
-    c.content = 'Write a function that calculates the factorial of n'
-    c.template_code = 'def factorial(n): \n'
-    c.put()
-    '''
 
     name = db.StringProperty()
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
 
 class Attempt(db.Model):
-    """Models a Solution"""
-    challenge = db.ReferenceProperty(Challenge)
-    author = db.ReferenceProperty(Jeeqser)
-    content = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
-    stdout = db.StringProperty(multiline=True)
-    stderr = db.StringProperty(multiline=True)
-
-class Submission(db.Model):
     """Models a Submission for a Challenge """
     challenge = db.ReferenceProperty(Challenge)
     author = db.ReferenceProperty(Jeeqser)
@@ -65,8 +46,9 @@ class Submission(db.Model):
     vote_count = db.IntegerProperty(default=0)
     vote_sum = db.FloatProperty(default=float(0))
     vote_average = db.FloatProperty(default=float(0))
-    # is this the latest submission on the challenge ?
-    latest = db.BooleanProperty(default=True)
+    # is this the active submission for review ?
+    active = db.BooleanProperty(default=True)
+    submitted = db.BooleanProperty(default=False)
 
 class TestCase(db.Model):
     """ Models a test case"""

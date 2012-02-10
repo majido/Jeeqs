@@ -62,11 +62,11 @@ class FrontPageHandler(webapp.RequestHandler):
 
             if jeeqser:
                 #TODO: inefficient
-                submissions = Submission\
+                submissions = Attempt\
                                     .all()\
                                     .filter("author = ", jeeqser.key())\
                                     .filter("challenge = ", ch)\
-                                    .filter('latest = ', True)\
+                                    .filter('active = ', True)\
                                     .fetch(1)
                 if (len(submissions) > 0):
                     submitted = True
@@ -124,9 +124,10 @@ class ChallengeHandler(webapp.RequestHandler):
 
             # fetch user's submission
             submission_query = db.GqlQuery(" SELECT * "
-                                           " FROM Submission "
+                                           " FROM Attempt  "
                                            " WHERE author = :1 "
                                            " AND challenge = :2 "
+                                           " AND active = True "
                                            " ORDER BY date DESC ",
                                             jeeqser.key(),
                                             challenge)
@@ -177,9 +178,9 @@ class ReviewHandler(webapp.RequestHandler):
 
         # Retrieve other users' submissions
         submissions_query = db.GqlQuery(" SELECT * "
-                                        " FROM Submission "
+                                        " FROM Attempt "
                                         " WHERE challenge = :1 "
-                                        " AND latest = True "
+                                        " AND active = True "
                                         " ORDER BY vote_count ASC ",
                                         challenge)
         submissions = submissions_query.fetch(10)
@@ -255,7 +256,20 @@ class ProgramHandler(webapp.RequestHandler):
         if (jeeqser):
             attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=program)
             if (self.request.get('is_submission')):
-                submission = Submission(author=jeeqser.key(), challenge=challenge, content=program)
+                previous_submissions = Attempt\
+                                        .all()\
+                                        .filter('author = ', get_jeeqser().key())\
+                                        .filter('challenge = ', challenge)\
+                                        .filter('active = ', True)\
+                                        .filter('submitted = ', True)\
+                                        .fetch(10)
+                # there should be only one previous submission.
+                for previous_submission in previous_submissions:
+                    previous_submission.active = False
+                    previous_submission.put()
+
+                attempt.submitted = True
+                attempt.active = True
 
 
         # log and compile the program up front
@@ -304,21 +318,6 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.stderr = stderr_buffer.getvalue()
                     attempt.put()
 
-                    if (self.request.get('is_submission')):
-                        #precompute latest
-                        previous_submissions = Submission.\
-                                                    all().\
-                                                    filter('author = ', get_jeeqser().key()).\
-                                                    filter('challenge = ', challenge).\
-                                                    filter('latest = ', True).\
-                                                    fetch(10)
-                        for previous_submission in previous_submissions:
-                            previous_submission.latest = False
-                            previous_submission.put()
-
-                        submission.stdout = stdout_buffer.getvalue()
-                        submission.stderr = stderr_buffer.getvalue()
-                        submission.put()
 
                 self.run_testcases(challenge, program_module)
 
@@ -354,7 +353,7 @@ class RPCHandler(webapp.RequestHandler):
         #TODO: move this to an earlier stage - jeeqser should be available to everyone
         jeeqser = get_jeeqser()
 
-        submission = Submission.get(submission_key)
+        submission = Attempt.get(submission_key)
         if (not submission):
             self.error(403)
             return
