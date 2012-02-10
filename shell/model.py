@@ -47,7 +47,7 @@ class Attempt(db.Model):
     vote_sum = db.FloatProperty(default=float(0))
     vote_average = db.FloatProperty(default=float(0))
     # is this the active submission for review ?
-    active = db.BooleanProperty(default=True)
+    active = db.BooleanProperty(default=False)
     submitted = db.BooleanProperty(default=False)
 
 class TestCase(db.Model):

@@ -30,6 +30,13 @@
         var output = document.getElementById('output');
         output.value = '';
     }
+
+    $(document).ready(function() {
+        $('#console').accordion({
+            collapsible: true
+        });
+        $(':button').button();
+    })
 </script>
 
 <body>
@@ -44,17 +51,21 @@
             </div>
             <br/>
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
-            <button type="button" onclick="runProgram()">Run</button>
             <button type="button" id = "submitProgramButton" onclick="submitProgram()">Submit Solution</button>
         </form>
 
         <p id="ajax-status"></p>
 
-        <textarea id="output" rows="10" readonly="readonly" style="resize: none;">
-        </textarea>
-        <br/>
-        <button type="button" onclick="clearOutput()">Clear Console</button>
-
+        <div id="console" style="width: 500px; margin-top:20px;">
+            <h3>Python Console</h3>
+            <div>
+                <textarea id="output" rows="10" readonly="readonly">
+                </textarea>
+                <br/>
+                <button type="button" onclick="clearOutput()">Clear Console</button>
+                <button type="button" onclick="runProgram()">Run</button>
+            </div>
+        </div>
 
         <p/>
     </div>
@@ -79,9 +90,6 @@
                 <pre class="prettyprint">
 {{ attempt.content }}
                 </pre>
-                stdout: {{ attempt.stdout }}
-                <br/>
-                stderr: {{ attempt.stderr }}
                 <hr/>
             {% endfor %}
         {% endif %}

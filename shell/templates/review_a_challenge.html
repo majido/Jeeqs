@@ -13,14 +13,14 @@
     renderFeedback = function(feedback) {
         switch (feedback) {
             case 1:
-                return "Incorrect";
+                return "Incorrect!";
                 break;
             case 2:
-                return "Almost there!";
+                return "Incomplete!";
             case 3:
                 return "Correct";
             case 4:
-                return "Elegant";
+                return "Perfetto!";
         }
     }
 
@@ -49,6 +49,7 @@
             $disabled = $(this).siblings('.submit-vote').attr('disabled');
             $defaultValue = 3
             $(this).slider({
+                animate: true,
                 value:$defaultValue,
                 min: 1,
                 max: 4,

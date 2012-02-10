@@ -50,3 +50,16 @@ indexes:
   - name: is_submission
   - name: date
     direction: desc
+
+- kind: Submission
+  properties:
+  - name: author
+  - name: challenge
+  - name: date
+    direction: desc
+
+- kind: Submission
+  properties:
+  - name: challenge
+  - name: latest
+  - name: vote_count
