@@ -98,8 +98,7 @@
                         <div>
                             <textarea id="response_{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
                         </div>
-                        <br/>
-                        <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }} style="margin-top:10px;">Submit</button>
+                        <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }} style="float:right">Submit</button>
                     </div>
                 </div>
             {% endfor %}
