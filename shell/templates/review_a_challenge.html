@@ -29,7 +29,7 @@
     }
 
     $(document).ready(function() {
-        $('.submit-vote').bind('click', function(e) {
+        $('.submit-vote').bind('click', function() {
             $initiator = $(this)
             $submission_id = $(this).parent().parent().children("input[type='hidden']:first").val();
             $vote = $(this).siblings('.slider').slider( "option", "value" );
@@ -45,28 +45,26 @@
             })
         })
 
-        $( ".slider" ).each(function() {
-            $disabled = $(this).siblings('.submit-vote').attr('disabled');
-            $defaultValue = 3
-            $(this).slider({
-                animate: true,
-                value:$defaultValue,
-                min: 1,
-                max: 4,
-                step: 1,
-                disabled: ($disabled == 'disabled' ? true : false),
-                slide: function( event, ui ) {
-                    $(this).siblings('.slider-text').text(renderFeedback(ui.value));
-                }
-            }).find('.ui-slider-handle')
-              .attr("title", "Slide me to score the submission");
-        })
+        $( ".correct-button" ).button({
+            icons: {
+                primary: "ui-icon-check"
+            },
+            text: false
+        }).bind('click', function() {
+            $(this).css("color", "green");
+        });
+
+        $(":button").button();
+
+        $(".feedback-buttons").buttonset();
     })
 </script>
 
 <style>
-    .submission-feedback { padding: 10px !important; width:50%;}
+    .submission-feedback { padding: 10px !important; }
     .slider-text {padding: 10px; padding-right:0px; color:#006666; font-size:smaller; float:right;}
+    .ui-state-active.genius_label {background: yellow;}
+    .ui-state-active {background:green}
 </style>
 
 
@@ -86,8 +84,21 @@
                     <h3>Submitted by {{ submission.author.user }} </h3>
                     <pre class="prettyprint">{{ submission.content }}</pre>
                     <div class="submission-feedback">
-                        <div class="slider"></div>
-                        <div id="slider-text" class="slider-text"></div>
+                        <span class="feedback-buttons">
+                            <input type="radio" id="correct_{{ submission.key }}" name="feedback_{{ submission.key }}" class="correct_checkbox"/>
+                            <label for="correct_{{ submission.key }}" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
+
+                            <input type="radio" id="incorrect_{{ submission.key }}" name="feedback_{{ submission.key }}" class="incorrect_checkbox"/>
+                            <label for="incorrect_{{ submission.key }}" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+
+                            <input type="radio" id="genius_{{ submission.key }}" name="feedback_{{ submission.key }}" class="genius_checkbox"/>
+                            <label for="genius_{{ submission.key }}" title="Genius!" class="genius_label"><span class="ui-icon ui-icon-lightbulb"></span></label>
+
+                        </span>
+                        <div>
+                            <textarea id="response_{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
+                        </div>
+                        <br/>
                         <button class="submit-vote" {{ submission.voted|yesno:'disabled=disabled,' }} style="margin-top:10px;">Submit</button>
                     </div>
                 </div>
