@@ -44,6 +44,7 @@
 
             $.ajax({
                 url: "/rpc",
+                async: false,
                 type: "POST",
                 data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
                 success: function(response){
@@ -91,6 +92,7 @@
             {% if submissions|length == 0 %}
                 <p> No Submissions are available to review </p>
             {% else %}
+                <h2>Submissions available for review: </h2>
                 {% for submission in submissions %}
                     <div class="submission-placeholder">
                         <h3>Submitted by {{ submission.author.user }} </h3>
