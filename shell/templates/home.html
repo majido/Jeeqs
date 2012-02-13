@@ -18,6 +18,9 @@
     .score {width: 100px; height:15px; font-size:smaller; padding-bottom: 10px; vertical-align: middle; padding:0px; color:#660000;}
 </style>
 <body>
+
+    {% include "user.html" %}
+
     <h3> Review a Submission (Needs login): </h3>
     {% for key, value in challenges.items %}
         <a href="/review/?ch={{ value.0 }}">{{ key }}</a>
@@ -31,6 +34,5 @@
         {% endif %}
         <br/>
     {% endfor %}
-    {% include "user.html" %}
 </body>
 </html>

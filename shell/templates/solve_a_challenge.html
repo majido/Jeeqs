@@ -41,10 +41,12 @@
 
 <body>
 
-{% include "challenge.html" %}
+{% include "user.html" %}
 
-<div id="content" style="clear:both; position:relative; top: 50px;">
-    <div style="width:45%; float:left">
+<div id="content">
+    {% include "challenge.html" %}
+
+    <div style="width:45%; float:left; margin-top: 30px;">
         <form id="answerForm" action="shell.runProgram" method="get">
             <div id="editorContainer" style="position: relative; width: 500px; height: 300px;">
                 <div id="editor" style="width: 500px; height: 300px;">some text</div>
@@ -95,7 +97,7 @@
         {% endif %}
     </div>
 </div>
-{% include "user.html" %}
+
 <script type="text/javascript">
     document.getElementById('editor').focus();
 </script>
