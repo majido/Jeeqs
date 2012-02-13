@@ -130,8 +130,6 @@ shell.onRunKeyClick = function(program, isSubmission) {
     // build a XmlHttpRequest
     var req = this.getXmlHttpRequest();
     if (!req) {
-        document.getElementById('ajax-status').innerHTML =
-            "<span class='error'>Your browser doesn't support AJAX. :(</span>";
         return false;
     }
 
@@ -235,8 +233,6 @@ shell.runStatement = function() {
   // build a XmlHttpRequest
   var req = this.getXmlHttpRequest();
   if (!req) {
-    document.getElementById('ajax-status').innerHTML =
-        "<span class='error'>Your browser doesn't support AJAX. :(</span>";
     return false;
   }
 

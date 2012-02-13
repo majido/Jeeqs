@@ -32,9 +32,11 @@
     }
 
     $(document).ready(function() {
-        $('#console').accordion({
-            collapsible: true
+        $('.accordion').accordion({
+            collapsible: true,
+            active: false
         });
+
         $(':button').button();
     })
 </script>
@@ -53,21 +55,19 @@
             </div>
             <br/>
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
+            <div id="console" class="accordion" style="width: 500px; margin-top:20px;">
+                <h3><a href="#">Python Console</a></h3>
+                <div>
+                    <textarea id="output" rows="10" readonly="readonly">
+                    </textarea>
+                    <br/>
+                    <button type="button" onclick="clearOutput()">Clear Console</button>
+                    <button type="button" onclick="runProgram()">Run</button>
+                </div>
+            </div>
+            <br/>
             <button type="button" id = "submitProgramButton" onclick="submitProgram()">Submit Solution</button>
         </form>
-
-        <p id="ajax-status"></p>
-
-        <div id="console" style="width: 500px; margin-top:20px;">
-            <h3><a href="#">Python Console</a></h3>
-            <div>
-                <textarea id="output" rows="10" readonly="readonly">
-                </textarea>
-                <br/>
-                <button type="button" onclick="clearOutput()">Clear Console</button>
-                <button type="button" onclick="runProgram()">Run</button>
-            </div>
-        </div>
 
         <p/>
     </div>
@@ -84,17 +84,30 @@
         {% endif %}
     </div>
 
-    <div style="width:45%; float:left">
-        {% if jeeqser %}
-            <h3>Your Recent attempts : </h3>
-            {% for attempt in attempts %}
-                <p> Attempted at: {{ attempt.date }}</p>
-                <pre class="prettyprint">
-{{ attempt.content }}
-                </pre>
-                <hr/>
-            {% endfor %}
-        {% endif %}
+    <div id="recent-attempts" class="accordion" style="width:45%; float:left">
+        <h3><a href="#">Feedbacks</a></h3>
+        <div>
+            {% if feedbacks|length > 0 %}
+                {% for feedback in feedbacks %}
+                    <p>vote: {{ feedback.vote }}</p>
+                    <p>{{ feedback.content }}</p>
+                    <p>submitted by {{ feedback.author.username }}</p>
+                    <hr/>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <h3><a href="#">Your Recent Attempts</a></h3>
+        <div>
+            {% if jeeqser %}
+                {% for attempt in attempts %}
+                    <p> Attempted at: {{ attempt.date }}</p>
+                    <pre class="prettyprint">
+    {{ attempt.content }}
+                    </pre>
+                    <hr/>
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
 </div>
 

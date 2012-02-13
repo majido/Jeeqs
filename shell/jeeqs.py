@@ -109,6 +109,7 @@ class ChallengeHandler(webapp.RequestHandler):
         # show this user's previous attempts
         attempts = None
         submission = None
+        feedbacks = None
 
         jeeqser = get_jeeqser()
 
@@ -138,6 +139,11 @@ class ChallengeHandler(webapp.RequestHandler):
             else:
                 submission = None
 
+            if submission:
+                feedbacks = Feedback.all()\
+                                    .filter('attempt = ', submission)\
+                                    .fetch(10)
+
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': jeeqser,
@@ -148,7 +154,8 @@ class ChallengeHandler(webapp.RequestHandler):
                 'challenge_name' : challenge.name,
                 'challenge_key' : challenge.key(),
                 'template_code': challenge.template_code,
-                'submission' : submission
+                'submission' : submission,
+                'feedbacks' : feedbacks
         }
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
