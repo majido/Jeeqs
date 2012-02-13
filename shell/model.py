@@ -50,6 +50,16 @@ class Attempt(db.Model):
     active = db.BooleanProperty(default=False)
     submitted = db.BooleanProperty(default=False)
 
+class Feedback(db.Model):
+    """Models feedback for submission """
+    attempt = db.ReferenceProperty(Attempt)
+    author = db.ReferenceProperty(Jeeqser, collection_name='feedback_out')
+    # Denormalizing the attempt author
+    attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')
+    content = db.StringProperty(multiline=True)
+    date = db.DateTimeProperty(auto_now_add=True)
+    vote = db.StringProperty()
+
 class TestCase(db.Model):
     """ Models a test case"""
     challenge = db.ReferenceProperty(Challenge, collection_name='testcases')

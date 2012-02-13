@@ -187,11 +187,7 @@ class ReviewHandler(webapp.RequestHandler):
 
         # TODO: replace this iteration with a data oriented approach
         # each .author is one query!! copy the username to the submission entity
-        submissions[:] = [submission for submission in submissions if not submission.author.key() == jeeqser.key()]
-
-        for submission in submissions:
-            if jeeqser.key() in submission.users_voted:
-                submission.voted = True
+        submissions[:] = [submission for submission in submissions if not (submission.author.key() == jeeqser.key() or jeeqser.key() in submission.users_voted)]
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
@@ -274,7 +270,7 @@ class ProgramHandler(webapp.RequestHandler):
 
         # log and compile the program up front
         try:
-            logging.info('Compiling and evaluating:\n%s' % program)
+            logging.debug('Compiling and evaluating:\n%s' % program)
             compiled = compile(program, '<string>', 'exec')
         except:
             self.response.out.write('Compile error:' + traceback.format_exc())
@@ -340,6 +336,15 @@ class RPCHandler(webapp.RequestHandler):
         if (method == 'submit_vote'):
             RPCHandler.submit_vote(self)
 
+    @staticmethod
+    def get_vote_numeric_value(vote):
+        if vote == 'correct':
+            return 2
+        elif vote == 'incorrect':
+            return 0
+        else:
+            return 4 # genius
+
     def submit_vote(self):
         submission_key = self.request.get('submission_key')
         logging.debug('submission key is ' + submission_key)
@@ -361,9 +366,19 @@ class RPCHandler(webapp.RequestHandler):
         if (not jeeqser.key() in submission.users_voted):
             submission.users_voted.append(jeeqser.key())
             submission.vote_count += 1
-            submission.vote_sum += float(self.request.get('vote'))
+            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(self.request.get('vote')))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
             submission.put()
+
+            # put in transaction ?
+            feedback = Feedback(
+                attempt=submission,
+                author=jeeqser,
+                attempt_author=submission.author,
+                content=self.request.get('response'),
+                vote=self.request.get('vote'))
+            feedback.put()
+
 
 def main():
     application = webapp.WSGIApplication(
