@@ -2,7 +2,6 @@
 <title> Challenge: {{ challenge_name }} </title>
 
 {# jquery #}
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 {#<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.17/themes/ui-darkness/jquery-ui.css" type="text/css" rel="stylesheet"/>#}
@@ -17,7 +16,7 @@
 <script type="text/javascript" src="/static/prettify.js"></script>
 
 {#Ace#}
-{# Compressed ace is not working on Safari #}
+{# Compressed ace is not working on Safari see https://github.com/ajaxorg/ace/issues/612 #}
 <script src="/static/ace/ace-uncompressed.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/ace/mode-python.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/ace/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
