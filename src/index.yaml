@@ -60,4 +60,3 @@ indexes:
   properties:
   - name: __key__
     direction: desc
-
