@@ -56,6 +56,12 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: Feedback
+  properties:
+  - name: attempt
+  - name: date
+    direction: desc
+
 - kind: Jeeqser
   properties:
   - name: __key__

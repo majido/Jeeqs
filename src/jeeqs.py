@@ -142,15 +142,19 @@ class ChallengeHandler(webapp.RequestHandler):
             if submission:
                 feedbacks = Feedback.all()\
                                     .filter('attempt = ', submission)\
+                                    .order('-date')\
                                     .fetch(10)
 
             for feedback in feedbacks:
                 if feedback.vote == 'correct':
                     feedback.icon = 'ui-icon-check'
+                    feedback.background = 'lightgreen'
                 elif feedback.vote == 'incorrect':
                     feedback.icon = 'ui-icon-closethick'
+                    feedback.background = 'lightcoral'
                 else:
                     feedback.icon = 'ui-icon-lightbulb'
+                    feedback.background = 'yellowgreen'
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,

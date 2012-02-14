@@ -89,8 +89,9 @@
         <div>
             {% if feedbacks|length > 0 %}
                 {% for feedback in feedbacks %}
-                    <div>
-                        <div class="ui-icon {{ feedback.icon }}" style="float:right; margin-left:10px;"></div><div style="float:right">submitted by {{ feedback.author.username }}</div>
+                    <div style="background: {{ feedback.background }}">
+                        <div class="ui-icon {{ feedback.icon }}" style="float:left;"></div>
+                        <div style="float:right; font-size:small">submitted by {{ feedback.author.username }} @ {{ feedback.date }} </div>
                         <br/>
                         <p>{{ feedback.content }}</p>
                         <hr/>
