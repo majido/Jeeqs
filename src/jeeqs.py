@@ -144,6 +144,14 @@ class ChallengeHandler(webapp.RequestHandler):
                                     .filter('attempt = ', submission)\
                                     .fetch(10)
 
+            for feedback in feedbacks:
+                if feedback.vote == 'correct':
+                    feedback.icon = 'ui-icon-check'
+                elif feedback.vote == 'incorrect':
+                    feedback.icon = 'ui-icon-closethick'
+                else:
+                    feedback.icon = 'ui-icon-lightbulb'
+
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': jeeqser,

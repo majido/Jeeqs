@@ -89,10 +89,12 @@
         <div>
             {% if feedbacks|length > 0 %}
                 {% for feedback in feedbacks %}
-                    <p>vote: {{ feedback.vote }}</p>
-                    <p>{{ feedback.content }}</p>
-                    <p>submitted by {{ feedback.author.username }}</p>
-                    <hr/>
+                    <div>
+                        <div class="ui-icon {{ feedback.icon }}" style="float:right; margin-left:10px;"></div><div style="float:right">submitted by {{ feedback.author.username }}</div>
+                        <br/>
+                        <p>{{ feedback.content }}</p>
+                        <hr/>
+                    </div>
                 {% endfor %}
             {% endif %}
         </div>
