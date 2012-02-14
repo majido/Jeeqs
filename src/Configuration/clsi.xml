@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compile>
+<token>ddaf4caa134b05157e242819b476005f</token>
+<resources root-resource-path="book.tex">
+    <resource path="book.tex">
+        <![CDATA[
+                \documentclass{report}
+
+                \begin{document}
+
+                Hi, this is an example of LaTeX in use.
+
+                \input{chapters/chapter1.tex}
+
+                \end{document}
+                ]]>
+    </resource>
+    <resource url="https://raw.github.com/gist/1830357/6839f87d4ce94be018cc22c708970c3405aec737/clsitest" path="chapters/chapter1" modified="Sat Jan 16 15:33:07 +0000 2010">
+    </resource>
+</resources>
+</compile>
