@@ -19,20 +19,23 @@
 </style>
 <body>
 
-    {% include "user.html" %}
+    <div id="container">
 
-    <h3> Review a Submission (Needs login): </h3>
-    {% for key, value in challenges.items %}
-        <a href="/review/?ch={{ value.0 }}">{{ key }}</a>
-        <br/>
-    {% endfor %}
-    <h3> Take a Challenge: </h3>
-    {% for key, value in challenges.items %}
-        <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
-        {% if value.1 %}
-            <button class="submitted" disabled="disabled">Submitted ({{ value.2 }}) </button>
-        {% endif %}
-        <br/>
-    {% endfor %}
+        {% include "user.html" %}
+
+        <h3> Review a Submission (Needs login): </h3>
+        {% for key, value in challenges.items %}
+            <a href="/review/?ch={{ value.0 }}">{{ key }}</a>
+            <br/>
+        {% endfor %}
+        <h3> Take a Challenge: </h3>
+        {% for key, value in challenges.items %}
+            <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
+            {% if value.1 %}
+                <button class="submitted" disabled="disabled">Submitted ({{ value.2 }}) </button>
+            {% endif %}
+            <br/>
+        {% endfor %}
+    </div>
 </body>
 </html>

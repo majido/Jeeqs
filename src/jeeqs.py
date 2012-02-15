@@ -148,13 +148,13 @@ class ChallengeHandler(webapp.RequestHandler):
             for feedback in feedbacks:
                 if feedback.vote == 'correct':
                     feedback.icon = 'ui-icon-check'
-                    feedback.background = 'lightgreen'
+                    feedback.background = '#EBFFEB'
                 elif feedback.vote == 'incorrect':
                     feedback.icon = 'ui-icon-closethick'
-                    feedback.background = 'lightcoral'
+                    feedback.background = '#FFE3E3'
                 else:
                     feedback.icon = 'ui-icon-lightbulb'
-                    feedback.background = 'yellowgreen'
+                    feedback.background = '#FFFFE6'
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,

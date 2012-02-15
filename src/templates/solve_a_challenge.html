@@ -32,10 +32,17 @@
     }
 
     $(document).ready(function() {
-        $('.accordion').accordion({
+        $('#console').accordion({
             collapsible: true,
             active: false
         });
+
+        $('#recent-attempts').accordion({
+            collapsible: true,
+            active: false
+        })
+
+        $('#feedbacks').accordion({collapsible:true});
 
         $(':button').button();
     })
@@ -43,22 +50,22 @@
 
 <body>
 
-{% include "user.html" %}
+<div id="container">
+    {% include "user.html" %}
 
-<div id="content">
     {% include "challenge.html" %}
 
     <div style="width:45%; float:left; margin-top: 30px;">
         <form id="answerForm" action="shell.runProgram" method="get">
-            <div id="editorContainer" style="position: relative; width: 500px; height: 300px;">
-                <div id="editor" style="width: 500px; height: 300px;">some text</div>
-            </div>
-            <br/>
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
             <div id="console" class="accordion" style="width: 500px; margin-top:20px;">
-                <h3><a href="#">Python Console</a></h3>
+                <h3><a href="#">Python Ace Editor</a></h3>
                 <div>
-                    <textarea id="output" rows="10" readonly="readonly">
+                    <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                        <div id="editor" style="width: 100%; height: 300px;">some text</div>
+                    </div>
+                    <br/>
+                    <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
                     </textarea>
                     <br/>
                     <button type="button" onclick="clearOutput()">Clear Console</button>
@@ -72,7 +79,7 @@
         <p/>
     </div>
 
-    <div style="width:45%; float:left">
+    <div id="submission" style="width:45%; float:right; margin-right:3em;">
         {% if submission %}
             <h3> Your Current Submission: </h3>
             <pre class="prettyprint">
@@ -84,8 +91,8 @@
         {% endif %}
     </div>
 
-    <div id="recent-attempts" class="accordion" style="width:45%; float:left">
-        <h3><a href="#">Feedbacks</a></h3>
+    <div id="feedbacks" class="accordion" style="width:45%; float:right; margin-right:3em; clear:right">
+        <h3><a href="#">Jeeqs In</a></h3>
         <div>
             {% if feedbacks|length > 0 %}
                 {% for feedback in feedbacks %}
@@ -93,24 +100,27 @@
                         <div class="ui-icon {{ feedback.icon }}" style="float:left;"></div>
                         <div style="float:right; font-size:small">submitted by {{ feedback.author.username }} @ {{ feedback.date }} </div>
                         <br/>
-                        <p>{{ feedback.content }}</p>
+                        {{ feedback.content }}
                         <hr/>
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
-        <h3><a href="#">Your Recent Attempts</a></h3>
+    </div>
+    <div id="recent-attempts" class="accordion" style="width:45%; float:right; clear:right; margin-right:3em;">
+        <h3><a href="#">Your Recent Jeeqs</a></h3>
         <div>
             {% if jeeqser %}
-                {% for attempt in attempts %}
-                    <p> Attempted at: {{ attempt.date }}</p>
+            {% for attempt in attempts %}
+            <p> Attempted at: {{ attempt.date }}</p>
                     <pre class="prettyprint">
     {{ attempt.content }}
                     </pre>
-                    <hr/>
-                {% endfor %}
+            <hr/>
+            {% endfor %}
             {% endif %}
         </div>
+
     </div>
 </div>
 
