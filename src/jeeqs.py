@@ -145,16 +145,17 @@ class ChallengeHandler(webapp.RequestHandler):
                                     .order('-date')\
                                     .fetch(10)
 
-            for feedback in feedbacks:
-                if feedback.vote == 'correct':
-                    feedback.icon = 'ui-icon-check'
-                    feedback.background = '#EBFFEB'
-                elif feedback.vote == 'incorrect':
-                    feedback.icon = 'ui-icon-closethick'
-                    feedback.background = '#FFE3E3'
-                else:
-                    feedback.icon = 'ui-icon-lightbulb'
-                    feedback.background = '#FFFFE6'
+            if feedbacks:
+                for feedback in feedbacks:
+                    if feedback.vote == 'correct':
+                        feedback.icon = 'ui-icon-check'
+                        feedback.background = '#EBFFEB'
+                    elif feedback.vote == 'incorrect':
+                        feedback.icon = 'ui-icon-closethick'
+                        feedback.background = '#FFE3E3'
+                    else:
+                        feedback.icon = 'ui-icon-lightbulb'
+                        feedback.background = '#FFFFE6'
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,

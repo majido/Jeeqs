@@ -45,6 +45,12 @@
         $('#feedbacks').accordion({collapsible:true});
 
         $(':button').button();
+
+        {% if not jeeqser %}
+            $('#submitProgramButton').
+                   button('option', 'disabled', 'disabled').
+                    button('option', 'label', 'login to Submit');
+        {% endif %}
     })
 </script>
 
