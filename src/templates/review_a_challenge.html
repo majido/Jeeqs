@@ -1,128 +1,116 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    {% include "head.html" %}
-</head>
+{% extends "base_twoColumn.html" %}
 
-<script>
-    /**
-     * Renders a user friendly text for his opinion
-     * @param feedback
-     */
-    renderFeedback = function(feedback) {
-        switch (feedback) {
-            case 1:
-                return "Incorrect!";
-                break;
-            case 2:
-                return "Incomplete!";
-            case 3:
-                return "Correct";
-            case 4:
-                return "Perfetto!";
-        }
-    }
-
-    window.onload = function () {
-        prettyPrint();
-    }
-
-    $(document).ready(function() {
-        $('.submit-vote').bind('click', function() {
-            $submission_id = $(this).attr("id").split("_")[1];
-            $response = $('#response_'+$submission_id).val();
-            $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
-
-            if (!$vote || $response.length < 10) {
-                alert('Please enter your vote and a 10 character minimum response!');
-                return;
+{% block script %}
+    <script>
+        /**
+         * Renders a user friendly text for his opinion
+         * @param feedback
+         */
+        renderFeedback = function(feedback) {
+            switch (feedback) {
+                case 1:
+                    return "Incorrect!";
+                    break;
+                case 2:
+                    return "Incomplete!";
+                case 3:
+                    return "Correct";
+                case 4:
+                    return "Perfetto!";
             }
+        }
 
-            $(this).attr("disabled", "disabled");
-            $initiator = $(this)
+        window.onload = function () {
+            prettyPrint();
+        }
 
-            $.ajax({
-                url: "/rpc",
-                async: false,
-                type: "POST",
-                data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
-                success: function(response){
-                    $initiator.button("option", "label", "Submitted");
-                    // Disable the other controls
-                    $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
-                    $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
-                    $initiator.parent().css("background", "bisque");
+        $(document).ready(function() {
+            $('.submit-vote').bind('click', function() {
+                $submission_id = $(this).attr("id").split("_")[1];
+                $response = $('#response_'+$submission_id).val();
+                $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
+
+                if (!$vote || $response.length < 10) {
+                    alert('Please enter your vote and a 10 character minimum response!');
+                    return;
                 }
+
+                $(this).attr("disabled", "disabled");
+                $initiator = $(this)
+
+                $.ajax({
+                    url: "/rpc",
+                    async: false,
+                    type: "POST",
+                    data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
+                    success: function(response){
+                        $initiator.button("option", "label", "Submitted");
+                        // Disable the other controls
+                        $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
+                        $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
+                        $initiator.parent().css("background", "bisque");
+                    }
+                })
             })
+
+            $( ".correct-button" ).button({
+                icons: {
+                    primary: "ui-icon-check"
+                },
+                text: false
+            }).bind('click', function() {
+                $(this).css("color", "green");
+            });
+
+            $(":button").button();
+
+            $(".feedback-buttons").buttonset();
         })
+    </script>
 
-        $( ".correct-button" ).button({
-            icons: {
-                primary: "ui-icon-check"
-            },
-            text: false
-        }).bind('click', function() {
-            $(this).css("color", "green");
-        });
+    <style>
+        .submission-feedback { padding: 10px !important; }
+        .slider-text {padding: 10px; padding-right:0px; color:#006666; font-size:smaller; float:right;}
+        .ui-state-active.genius_label {background: yellow;}
+        .ui-state-active {background:green}
+    </style>
 
-        $(":button").button();
+{% endblock script %}
+{% block column1 %}
+    {% include "challenge.html" %}
 
-        $(".feedback-buttons").buttonset();
-    })
-</script>
+    <br/>
+    <div id="submissions">
+        {% if submissions|length == 0 %}
+            <p> No Submissions are available to review </p>
+        {% else %}
+            <h2>Submissions available for review: </h2>
+            {% for submission in submissions %}
+                <div class="submission-placeholder">
+                    <h3>Submitted by {{ submission.author.user }} </h3>
+                    <pre class="prettyprint">{{ submission.content }}</pre>
+                    <div class="submission-feedback">
+                        <span class="feedback-buttons">
+                            <input type="radio" id="incorrect_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                                   value="incorrect" class="incorrect_checkbox"/>
+                            <label for="incorrect_{{ submission.key }}" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
 
-<style>
-    .submission-feedback { padding: 10px !important; }
-    .slider-text {padding: 10px; padding-right:0px; color:#006666; font-size:smaller; float:right;}
-    .ui-state-active.genius_label {background: yellow;}
-    .ui-state-active {background:green}
-</style>
+                            <input type="radio" id="correct_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                                   value="correct" class="correct_checkbox"/>
+                            <label for="correct_{{ submission.key }}" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
 
+                            <input type="radio" id="genius_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                                   value="genius" class="genius_checkbox"/>
+                            <label for="genius_{{ submission.key }}" title="Genius!" class="genius_label"><span class="ui-icon ui-icon-lightbulb"></span></label>
 
-
-<body>
-    {% include "user.html" %}
-
-    <div id="container">
-
-        {% include "challenge.html" %}
-
-        <br/>
-        <div id="submissions" style="width:45%;">
-            {% if submissions|length == 0 %}
-                <p> No Submissions are available to review </p>
-            {% else %}
-                <h2>Submissions available for review: </h2>
-                {% for submission in submissions %}
-                    <div class="submission-placeholder">
-                        <h3>Submitted by {{ submission.author.user }} </h3>
-                        <pre class="prettyprint">{{ submission.content }}</pre>
-                        <div class="submission-feedback">
-                            <span class="feedback-buttons">
-                                <input type="radio" id="incorrect_{{ submission.key }}" name="feedback_{{ submission.key }}"
-                                       value="incorrect" class="incorrect_checkbox"/>
-                                <label for="incorrect_{{ submission.key }}" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
-
-                                <input type="radio" id="correct_{{ submission.key }}" name="feedback_{{ submission.key }}"
-                                       value="correct" class="correct_checkbox"/>
-                                <label for="correct_{{ submission.key }}" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
-
-                                <input type="radio" id="genius_{{ submission.key }}" name="feedback_{{ submission.key }}"
-                                       value="genius" class="genius_checkbox"/>
-                                <label for="genius_{{ submission.key }}" title="Genius!" class="genius_label"><span class="ui-icon ui-icon-lightbulb"></span></label>
-
-                            </span>
-                            <div>
-                                <textarea id="response_{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
-                            </div>
-                            <button class="submit-vote" id="submit_{{ submission.key }}" style="float:right">{{ submission.voted|yesno:'Submitted,Submit' }}</button>
+                        </span>
+                        <div>
+                            <textarea id="response_{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
                         </div>
+                        <button class="submit-vote" id="submit_{{ submission.key }}" style="float:right">{{ submission.voted|yesno:'Submitted,Submit' }}</button>
                     </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
-</body>
-</html>
+{% endblock column1 %}

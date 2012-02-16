@@ -1,37 +1,28 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <title>Jeeqs</title>
-    {% include "head.html" %}
-</head>
-<script>
-    $(document).ready(function () {
-        $('button').button();
-        $('.ui-button-text').css("padding", "0px");
-    });
-</script>
-<style>
-    .button {font-size:smaller; padding: 2px 5px 2px 5px; vertical-align: middle; white-space: pre;}
-</style>
-<body>
+{% extends "base_twoColumn.html" %}
 
-    {% include "user.html" %}
+{% block script %}
 
-    <div id="container">
+    <script>
+        $(document).ready(function () {
+            $('button').button();
+            $('.ui-button-text').css("padding", "0px");
+        });
+    </script>
+    <style>
+        .button {font-size:smaller; padding: 2px 5px 2px 5px; vertical-align: middle; white-space: pre;}
+    </style>
+{% endblock script %}
 
-        <h3> Challenges: </h3>
-        {% for key, value in challenges.items %}
-            <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
-            {% if value.1 %}
-                <button class="submitted button" disabled="disabled">Submitted ({{ value.2 }}) </button>
-            {% endif %}
-            {% if jeeqser %}
-                <button class="review button"><a href="/review/?ch={{ value.0 }}">Review</a></button>
-            {% endif %}
-            <br/>
-        {% endfor %}
-    </div>
-</body>
-</html>
+{% block column1 %}
+    <h3> Challenges: </h3>
+    {% for key, value in challenges.items %}
+        <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
+        {% if value.1 %}
+            <button class="submitted button" disabled="disabled">Submitted ({{ value.2 }}) </button>
+        {% endif %}
+        {% if jeeqser %}
+            <button class="review button"><a href="/review/?ch={{ value.0 }}">Review</a></button>
+        {% endif %}
+        <br/>
+    {% endfor %}
+{% endblock column1 %}

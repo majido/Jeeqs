@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    {% include "head.html" %}
+    <title> {% block title %} Jeeqs {% endblock %} </title>
+</head>
+{% block script %}
+{% endblock script %}
+<body style="width: 100%; margin: 0px;">
+    {% include "user.html" %}
+    <div id="container" style="float:left; width:80%">
+        {% block container %}
+        {% endblock %}
+    </div>
+</body>
+</html>
