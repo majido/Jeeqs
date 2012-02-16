@@ -1,4 +1,18 @@
-<div class="challenge-div">
-    <h1> {{ challenge_name }} </h1>
-    <p> {{ challenge_text|escape|linebreaks }} </p>
+<div class="challenge-div" style="float:left; width:100%;">
+    <h1> {{ challenge.name }} </h1>
+        <p> {{ challenge.content|escape|linebreaks }} </p>
+    <br/>
+    <div id="attribution" class="accordion-closed" style="float:left">
+        <h4><a href="#">Attribution</a></h4>
+        <div>
+            {% if challenge.attribution %}
+                <p> <strong>Attribution</strong>
+                    <br/><small>{{ challenge.attribution }}</small></p>
+            {% endif %}
+            {% if challenge.source %}
+                <p> <strong>Source</strong>
+                <br/><small>{{ challenge.source }} </small></p>
+            {% endif %}
+        </div>
+    </div>
 </div>

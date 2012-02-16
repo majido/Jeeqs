@@ -42,6 +42,11 @@
             active: false
         })
 
+        $('.accordion-closed').accordion({
+            collapsible: true,
+            active: false
+        })
+
         $('#feedbacks').accordion({collapsible:true});
 
         $(':button').button();
@@ -55,53 +60,56 @@
 </script>
 
 <body>
-
-<div id="container">
     {% include "user.html" %}
 
-    {% include "challenge.html" %}
+    <div id="container" style="float:left; width:80%">
 
-    <div style="width:45%; float:left; margin-top: 30px;">
-        <form id="answerForm" action="shell.runProgram" method="get">
-            <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
-            <div id="console" class="accordion" style="width: 500px; margin-top:20px;">
-                <h3><a href="#">Python Ace Editor</a></h3>
-                <div>
-                    <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                        <div id="editor" style="width: 100%; height: 300px;">some text</div>
+        <div id="column1" style="width: 50%; float:left">
+            {% include "challenge.html" %}
+
+            <div style="width:100%; float:left; margin-top: 30px; clear:left;">
+                <form id="answerForm" action="shell.runProgram" method="get">
+                    <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
+                    <div id="console" class="accordion" style="width:100%; margin-top:20px;">
+                        <h3><a href="#">Python Ace Editor</a></h3>
+                        <div>
+                            <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                                <div id="editor" style="width: 100%; height: 300px;">some text</div>
+                            </div>
+                            <br/>
+                            <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
+                            </textarea>
+                            <br/>
+                            <button type="button" onclick="clearOutput()">Clear Console</button>
+                            <button type="button" onclick="runProgram()">Run</button>
+                        </div>
                     </div>
                     <br/>
-                    <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
-                    </textarea>
-                    <br/>
-                    <button type="button" onclick="clearOutput()">Clear Console</button>
-                    <button type="button" onclick="runProgram()">Run</button>
-                </div>
+                    <button type="button" id = "submitProgramButton" onclick="submitProgram()">Submit Solution</button>
+                </form>
+
+                <p/>
             </div>
-            <br/>
-            <button type="button" id = "submitProgramButton" onclick="submitProgram()">Submit Solution</button>
-        </form>
-
-        <p/>
-    </div>
-
-    <div id="submission" style="width:45%; float:right; margin-right:3em;">
-        {% if submission %}
-            <h3> Your Current Submission: </h3>
-            <pre class="prettyprint">
+        </div>
+        <div id="column2" style="width:40%; float:right">
+            <div id="submission" style="width:100%; float:right;">
+                {% if submission %}
+                <h3> Submitted Jeeqs for review:  </h3>
+                <pre class="prettyprint">
 {{ submission.content }}
-            </pre>
-            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-        {% else %}
-            <p> No submission found!</p>
-        {% endif %}
-    </div>
+                </pre>
+                <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+                {% else %}
+                <p> No submission found!</p>
+                {% endif %}
+            </div>
 
-    <div id="feedbacks" class="accordion" style="width:45%; float:right; margin-right:3em; clear:right">
-        <h3><a href="#">Jeeqs In</a></h3>
-        <div>
-            {% if feedbacks|length > 0 %}
-                {% for feedback in feedbacks %}
+
+            <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right">
+                <h3><a href="#">Jeeqs In</a></h3>
+                <div>
+                    {% if feedbacks|length > 0 %}
+                    {% for feedback in feedbacks %}
                     <div style="background: {{ feedback.background }}">
                         <div class="ui-icon {{ feedback.icon }}" style="float:left;"></div>
                         <div style="float:right; font-size:small">submitted by {{ feedback.author.username }} @ {{ feedback.date }} </div>
@@ -109,26 +117,27 @@
                         {{ feedback.content }}
                         <hr/>
                     </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-    <div id="recent-attempts" class="accordion" style="width:45%; float:right; clear:right; margin-right:3em;">
-        <h3><a href="#">Your Recent Jeeqs</a></h3>
-        <div>
-            {% if jeeqser %}
-            {% for attempt in attempts %}
-            <p> Attempted at: {{ attempt.date }}</p>
-                    <pre class="prettyprint">
-    {{ attempt.content }}
-                    </pre>
-            <hr/>
-            {% endfor %}
-            {% endif %}
-        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
 
+            <div id="recent-attempts" class="accordion" style="width:100%; float:right; clear:right;">
+                <h3><a href="#">Your Recent Jeeqs</a></h3>
+                <div>
+                    {% if jeeqser %}
+                    {% for attempt in attempts %}
+                    <p> Attempted at: {{ attempt.date }}</p>
+                        <pre class="prettyprint">
+{{ attempt.content }}
+                        </pre>
+                    <hr/>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
 <script type="text/javascript">
     document.getElementById('editor').focus();

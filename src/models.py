@@ -32,6 +32,8 @@ class Challenge(db.Model):
     name = db.StringProperty()
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
+    attribution = db.StringProperty(multiline=True)
+    source = db.LinkProperty()
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """

@@ -17,9 +17,9 @@
 </style>
 <body>
 
-    <div id="container">
+    {% include "user.html" %}
 
-        {% include "user.html" %}
+    <div id="container">
 
         <h3> Challenges: </h3>
         {% for key, value in challenges.items %}

@@ -13,7 +13,7 @@ import sys
 import traceback
 import wsgiref.handlers
 from google.appengine.ext.db import Key
-from model import *
+from models import *
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -163,8 +163,7 @@ class ChallengeHandler(webapp.RequestHandler):
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
-                'challenge_text': challenge.content,
-                'challenge_name' : challenge.name,
+                'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'template_code': challenge.template_code,
                 'submission' : submission,
@@ -174,7 +173,7 @@ class ChallengeHandler(webapp.RequestHandler):
         self.response.out.write(rendered)
 
 class ReviewHandler(webapp.RequestHandler):
-    """renders the solve_a_challenge.html template
+    """renders the review template
     """
 
     def get(self):
@@ -217,8 +216,7 @@ class ReviewHandler(webapp.RequestHandler):
                 'jeeqser': jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
-                'challenge_text': challenge.content,
-                'challenge_name' : challenge.name,
+                'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
         }
