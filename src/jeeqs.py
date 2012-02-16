@@ -86,6 +86,16 @@ class FrontPageHandler(webapp.RequestHandler):
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
+class UserHandler(webapp.RequestHandler):
+    """Renders User's profile page"""
+
+    def get(self):
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
+        vars = {'jeeqser' : get_jeeqser()}
+
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
+
 
 class ChallengeHandler(webapp.RequestHandler):
     """renders the solve_a_challenge.html template
@@ -404,7 +414,8 @@ def main():
             ('/challenge/', ChallengeHandler),
             ('/challenge/shell.runProgram', ProgramHandler),
             ('/review/', ReviewHandler),
-            ('/rpc', RPCHandler)], debug=_DEBUG)
+            ('/rpc', RPCHandler),
+            ('/user/', UserHandler)], debug=_DEBUG)
     wsgiref.handlers.CGIHandler().run(application)
 
 

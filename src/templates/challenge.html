@@ -2,6 +2,8 @@
     <h1> {{ challenge.name }} </h1>
         <p> {{ challenge.content|escape|linebreaks }} </p>
     <br/>
+
+    {% if challenge.attribution %}
     <div id="attribution" class="accordion-closed" style="float:left">
         <h4><a href="#">Attribution</a></h4>
         <div>
@@ -15,4 +17,5 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
