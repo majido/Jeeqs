@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
 {% block container %}
-    User: {{ jeeqser.user.email }}
+    <h1> Jeeqser {{ jeeqser.username }} </h1>
+    <h3>username</h3> {{ jeeqser.username }}
+    <h3>Email</h3> {{ jeeqser.user.email }}
 {% endblock container %}
