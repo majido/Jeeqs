@@ -1,13 +1,12 @@
 application: jeeqsy
-version: 1
-
+version: alpha
 runtime: python
 api_version: 1
 
 handlers:
 - url: /static
   static_dir: static
-  expiration: 1d
+  expiration: 7d
 
 - url: /remote_api
   script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py

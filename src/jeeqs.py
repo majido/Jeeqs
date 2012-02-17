@@ -415,6 +415,10 @@ class RPCHandler(webapp.RequestHandler):
                 vote=self.request.get('vote'))
             feedback.put()
 
+            # update stats
+            jeeqser.reviews_out_num += 1
+            jeeqser.put()
+
 
 def main():
     application = webapp.WSGIApplication(

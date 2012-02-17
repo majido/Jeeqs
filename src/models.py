@@ -25,13 +25,21 @@ class Jeeqser(db.Model):
     """ A Jeeqs User """
     user = db.UserProperty()
     displayname_persisted = db.StringProperty()
+    reviews_out_num = db.IntegerProperty(default=0)
+    reviews_in_num = db.IntegerProperty(default=0)
+    submissions_num = db.IntegerProperty(default=0)
 
-    @property
-    def displayname(self):
+    def getdisplayname(self):
         if self.displayname_persisted is None:
             self.displayname_persisted = self.user.email()
             self.put()
         return self.displayname_persisted
+
+    def setdisplayname(self, value):
+        self.displayname_persisted = value
+
+    # Proxy for persisted displayname # TODO: upgrade to property decorator in python 2.7
+    displayname = property(getdisplayname, setdisplayname, "Display name")
 
 class Challenge(db.Model):
     """Models a challenge"""
