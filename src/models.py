@@ -23,8 +23,15 @@ __author__ = 'akhavan'
 
 class Jeeqser(db.Model):
     """ A Jeeqs User """
-    displayname = db.StringProperty()
     user = db.UserProperty()
+    displayname_persisted = db.StringProperty()
+
+    @property
+    def displayname(self):
+        if self.displayname_persisted is None:
+            self.displayname_persisted = self.user.email()
+            self.put()
+        return self.displayname_persisted
 
 class Challenge(db.Model):
     """Models a challenge"""
