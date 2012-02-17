@@ -107,7 +107,7 @@
             {% for feedback in feedbacks %}
             <div style="background: {{ feedback.background }}">
                 <div class="ui-icon {{ feedback.icon }}" style="float:left;"></div>
-                <div style="float:right; font-size:small">submitted by {{ feedback.author.username }} @ {{ feedback.date }} </div>
+                <div style="float:right; font-size:small">submitted by {{ feedback.author.displayname }} @ {{ feedback.date }} </div>
                 <br/>
                 {{ feedback.content }}
                 <hr/>

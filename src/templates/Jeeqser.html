@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $("#updateDisplayName").button().bind('click', function() {
+            $displayname = $('#displayname').val();
+            $(this).button("option", "label", "...");
+            $initiator = $(this);
+
+            $.ajax({
+                url: "/rpc",
+                async: false,
+                type: "POST",
+                data: {'method': 'update_displayname', 'display_name':$displayname, 'key':'{{ jeeqser.key }}'},
+                success: function(response){
+                    $initiator.button("option", "label", "Updated to " + $displayname);
+                }
+            })
+
+        });
+    })
+</script>
+{% endblock script %}
+
 {% block container %}
-    <h1> Jeeqser {{ jeeqser.username }} </h1>
-    <h3>username</h3> {{ jeeqser.username }}
+    <h1> Jeeqser {{ jeeqser.displayname }} </h1>
+    <h3>Display name</h3>
+    <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
+    <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
+
     <h3>Email</h3> {{ jeeqser.user.email }}
 {% endblock container %}

@@ -23,7 +23,7 @@ __author__ = 'akhavan'
 
 class Jeeqser(db.Model):
     """ A Jeeqs User """
-    username = db.StringProperty()
+    displayname = db.StringProperty()
     user = db.UserProperty()
 
 class Challenge(db.Model):

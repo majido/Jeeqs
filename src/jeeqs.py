@@ -37,8 +37,9 @@ def get_jeeqser():
         return None
 
     jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
+
     if (len(jeeqsers) == 0):
-        jeeqser = Jeeqser(user=user, username=user.nickname())
+        jeeqser = Jeeqser(user=user, displayname=user.nickname())
         jeeqser.put()
         return jeeqser
     return jeeqsers[0]
@@ -361,8 +362,10 @@ class RPCHandler(webapp.RequestHandler):
         method = self.request.get('method')
         if (not method):
             self.error(403)
-        if (method == 'submit_vote'):
-            RPCHandler.submit_vote(self)
+        if method == 'submit_vote':
+            self.submit_vote()
+        elif method == 'update_displayname':
+            self.update_displayname()
 
     @staticmethod
     def get_vote_numeric_value(vote):
@@ -372,6 +375,11 @@ class RPCHandler(webapp.RequestHandler):
             return 0
         else:
             return 4 # genius
+
+    def update_displayname(self):
+        jeeqser = Jeeqser.get(self.request.get('key'))
+        jeeqser.displayname = self.request.get('display_name')
+        jeeqser.put()
 
     def submit_vote(self):
         submission_key = self.request.get('submission_key')

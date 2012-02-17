@@ -8,7 +8,7 @@
     <p id="toolbar">
         <a href="/">Home</a> |
         {% if jeeqser %}
-            <span class="username"><a href="/user/">{{ jeeqser.user.nickname }}</a></span>
+            <span class="username"><a href="/user/">{{ jeeqser.displayname }}</a></span>
             | <a href="{{ logout_url }}">log out</a>
         {% else %}
             | <a href="{{ login_url }}">log in </a>
