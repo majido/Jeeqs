@@ -172,6 +172,8 @@ shell.onSubmitKeyClick = function(program) {
 shell.doneRunning = function(req) {
     if (req.readyState == this.DONE_STATE) {
 
+        $('#submitProgramButton').button("option", "label", "Submitted");
+
         // add the command to the shell output
         var output = document.getElementById('output');
 

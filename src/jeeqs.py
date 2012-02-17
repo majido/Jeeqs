@@ -343,6 +343,9 @@ class ProgramHandler(webapp.RequestHandler):
                     attempt.stderr = stderr_buffer.getvalue()
                     attempt.put()
 
+                    #update stats
+                    jeeqser.submissions_num += 1
+                    jeeqser.put()
 
                 self.run_testcases(challenge, program_module)
 
@@ -406,7 +409,6 @@ class RPCHandler(webapp.RequestHandler):
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
             submission.put()
 
-            # put in transaction ?
             feedback = Feedback(
                 attempt=submission,
                 author=jeeqser,
@@ -419,6 +421,8 @@ class RPCHandler(webapp.RequestHandler):
             jeeqser.reviews_out_num += 1
             jeeqser.put()
 
+            submission.author.reviews_in_num +=1
+            submission.author.put()
 
 def main():
     application = webapp.WSGIApplication(

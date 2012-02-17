@@ -30,5 +30,14 @@
     <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
 
     <h3>Email</h3> {{ jeeqser.user.email }}
-    <h3>Review Count: </h3> {{ jeeqser.reviews_out_num }}
+
+    <h3>Reviews Out : </h3>
+        {{ jeeqser.reviews_out_num|default_if_none:"0" }}
+
+    <h3>Reviews In: </h3>
+        {{ jeeqser.reviews_in_num|default_if_none:"0" }}
+
+    <h3>Submissions: </h3>
+        {{ jeeqser.submissions_num|default_if_none:"0" }}
+
 {% endblock container %}
