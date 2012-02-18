@@ -4,11 +4,6 @@
     <script>
         window.onload = function () {
             prettyPrint();
-            window.editor = ace.edit("editor");
-            window.editor.setTheme("ace/theme/twilight");
-            var pythonMode = require("ace/mode/python").Mode;
-            window.editor.getSession().setMode(new pythonMode());
-            window.editor.getSession().setValue("{{ template_code|escapejs }}");
         };
 
         function runProgram() {
@@ -28,10 +23,27 @@
         }
 
         $(document).ready(function() {
+
+            $consoleInitialized = false
+
+            $('#solutionContainer').accordion({
+                collapsible: false
+            })
+
             $('#console').accordion({
                 collapsible: true,
                 active: false
-            });
+            }).bind('accordionchange', function(event, ui) {
+                        if (!$consoleInitialized) {
+                            window.editor = ace.edit("editor");
+                            window.editor.setTheme("ace/theme/twilight");
+                            var pythonMode = require("ace/mode/python").Mode;
+                            window.editor.getSession().setMode(new pythonMode());
+                            window.editor.getSession().setValue("{{ template_code|escapejs }}");
+
+                            $consoleInitialized = true;
+                        }
+                    });
 
             $('#recent-attempts').accordion({
                 collapsible: true,
@@ -64,11 +76,20 @@
     <div style="width:100%; float:left; margin-top: 30px; clear:left;">
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
+
+            <div id="solutionContainer" class="accordion" style="width:100%; margin-top:20px;">
+                <h3><a href="#">Solution</a></h3>
+                <div>
+                    <textarea id="solution" rows="10"  style="width: 100%;"></textarea>
+                    <br/>
+                </div>
+            </div>
+
             <div id="console" class="accordion" style="width:100%; margin-top:20px;">
                 <h3><a href="#">Python Ace Editor</a></h3>
                 <div>
                     <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                        <div id="editor" style="width: 100%; height: 300px;">some text</div>
+                        <div id="editor" style="width: 100%; height: 300px;"></div>
                     </div>
                     <br/>
                     <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
