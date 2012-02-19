@@ -73,7 +73,7 @@
 {% block column1 %}
     {% include "challenge.html" %}
 
-    <div style="width:100%; float:left; margin-top: 30px; clear:left;">
+    <div style="width:100%; float:left; clear:left;">
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
 
@@ -85,7 +85,15 @@
                 </div>
             </div>
 
-            <div id="console" class="accordion" style="width:100%; margin-top:20px;">
+            <div id="submitButton" style="margin-top: 10px;">
+                {% if jeeqser.reviews_out_num >= jeeqser.submissions_num %}
+                    <button type="button" id = "submitProgramButton" style="color:green;" onclick="submitProgram()">Submit Solution</button>
+                {% else %}
+                    <button type="button" id="submitProgramButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first">Submit Solution</button>
+                {% endif %}
+            </div>
+
+            <div id="console" class="accordion" style="width:100%; margin-top:10px;">
                 <h3><a href="#">Python Ace Editor</a></h3>
                 <div>
                     <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
@@ -95,17 +103,12 @@
                     <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
                     </textarea>
                     <br/>
+                    <br/>
                     <button type="button" onclick="clearOutput()">Clear Console</button>
                     <button type="button" onclick="runProgram()">Run</button>
                 </div>
             </div>
             <br/>
-
-            {% if jeeqser.reviews_out_num >= jeeqser.submissions_num %}
-                <button type="button" id = "submitProgramButton" style="color:green;" onclick="submitProgram()">Submit Solution</button>
-            {% else %}
-                <button type="button" id="submitProgramButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first">Submit Solution</button>
-            {% endif %}
         </form>
 
         <p/>
