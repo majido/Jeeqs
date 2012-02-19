@@ -12,22 +12,21 @@ import StringIO
 import sys
 import traceback
 import wsgiref.handlers
-from google.appengine.ext.db import Key
 from models import *
+from markdown import markdown
+from pygments import highlight
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
 
 from google.appengine.dist import use_library
+
 use_library('django', '1.2')
 
 from google.appengine.ext.webapp import template
 
-
 # Set to True if stack traces should be shown in the browser, etc.
 _DEBUG = True
-
-__author__ = 'akhavan'
 
 
 # Gets Jeeqser entity related to the given authenticated user
@@ -147,6 +146,7 @@ class ChallengeHandler(webapp.RequestHandler):
 
             if (submissions):
                 submission = submissions[0]
+
             else:
                 submission = None
 
@@ -255,7 +255,6 @@ class ProgramHandler(webapp.RequestHandler):
 
     def get(self):
         program = self.request.get('program')
-        logging.debug('program is ' + program)
         if not program:
             return
 
@@ -279,7 +278,7 @@ class ProgramHandler(webapp.RequestHandler):
         #persist the program
         jeeqser = get_jeeqser()
         if (jeeqser):
-            attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=program)
+            attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown(program))
             if (self.request.get('is_submission')):
                 previous_submissions = Attempt\
                                         .all()\
@@ -369,6 +368,8 @@ class RPCHandler(webapp.RequestHandler):
             self.submit_vote()
         elif method == 'update_displayname':
             self.update_displayname()
+        elif method== 'submit_solution':
+            self.submit_solution()
 
     @staticmethod
     def get_vote_numeric_value(vote):
@@ -378,6 +379,37 @@ class RPCHandler(webapp.RequestHandler):
             return 0
         else:
             return 4 # genius
+
+    def submit_solution(self):
+        solution = self.request.get('solution')
+        if not solution:
+            return
+
+        # retrieve the challenge
+        challenge_key = self.request.get('challenge_key')
+        if not challenge_key:
+            self.error(403)
+        challenge = Challenge.get(challenge_key);
+        jeeqser = get_jeeqser()
+        if not challenge or not jeeqser:
+            self.error(403)
+
+        attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown(solution, ['codehilite']), submitted=True, active=True)
+
+        previous_submissions = Attempt\
+            .all()\
+            .filter('author = ', get_jeeqser().key())\
+            .filter('challenge = ', challenge)\
+            .filter('active = ', True)\
+            .filter('submitted = ', True)\
+            .fetch(10)
+
+        # there should be only one previous submission.
+        for previous_submission in previous_submissions:
+            previous_submission.active = False
+            previous_submission.put()
+
+        attempt.put()
 
     def update_displayname(self):
         jeeqser = Jeeqser.get(self.request.get('key'))

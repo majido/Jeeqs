@@ -2,19 +2,9 @@
 
 {% block script %}
     <script>
-        window.onload = function () {
-            prettyPrint();
-        };
-
         function runProgram() {
             var program = window.editor.getSession().getValue();
             shell.onRunKeyClick(program);
-        }
-
-        function submitProgram() {
-            $('#submitProgramButton').attr("disabled", "disabled");
-            var program = window.editor.getSession().getValue()
-            shell.onSubmitKeyClick(program)
         }
 
         function clearOutput() {
@@ -28,6 +18,23 @@
 
             $('#solutionContainer').accordion({
                 collapsible: false
+            })
+
+            $('#submitSolutionButton').bind('click', function(event, ui) {
+                $(this).attr("disabled", "disabled");
+                var $solution = $('#solution') .val();
+                var $challengeKey = $('#challenge_key').val();
+                $initiator = $(this)
+
+                $.ajax({
+                    url: "/rpc",
+                    async: false,
+                    type: "POST",
+                    data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
+                    success: function(response){
+                        $initiator.button("option", "label", "Submitted");
+                    }
+                })
             })
 
             $('#console').accordion({
@@ -60,12 +67,10 @@
             $(':button').button();
 
             {% if not jeeqser %}
-                $('#submitProgramButton').
+                $('#submitSolutionButton').
                        button('option', 'disabled', 'disabled')
                        .button('option', 'label', 'login to Submit');
             {% endif %}
-
-            document.getElementById('editor').focus();
         })
     </script>
 {% endblock script %}
@@ -87,9 +92,9 @@
 
             <div id="submitButton" style="margin-top: 10px;">
                 {% if jeeqser.reviews_out_num >= jeeqser.submissions_num %}
-                    <button type="button" id = "submitProgramButton" style="color:green;" onclick="submitProgram()">Submit Solution</button>
+                    <button type="button" id ="submitSolutionButton" style="color:green;">Submit Solution</button>
                 {% else %}
-                    <button type="button" id="submitProgramButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first">Submit Solution</button>
+                    <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first">Submit Solution</button>
                 {% endif %}
             </div>
 
@@ -119,9 +124,9 @@
     <div id="submission" style="width:100%; float:right;">
         {% if submission %}
         <h3> Submitted Jeeqs for review:  </h3>
-        <pre class="prettyprint">
-{{ submission.content }}
-        </pre>
+{#        <pre class="prettyprint">#}
+{{ submission.content|safe}}
+{#        </pre>#}
         <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
         {% else %}
         <p> No submission found!</p>
