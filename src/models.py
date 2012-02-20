@@ -54,7 +54,10 @@ class Attempt(db.Model):
     """Models a Submission for a Challenge """
     challenge = db.ReferenceProperty(Challenge)
     author = db.ReferenceProperty(Jeeqser)
+    #compiled markdown
     content = db.TextProperty()
+    #non-compiled markdown
+    markdown = db.TextProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     stdout = db.StringProperty(multiline=True)
     stderr = db.StringProperty(multiline=True)

@@ -3,9 +3,10 @@ body {
 }
 
 #userInfo {
-    float:right;
+    float: right;
     background: #f0f8ff;
 }
+
 p {
     margin: 0.5em;
     font-family: arial;
@@ -54,7 +55,8 @@ a img {
 }
 
 .challenge-div {
-    border-right : 2px dotted #f0f8ff; width: 40%;
+    border-right: 2px dotted #f0f8ff;
+    width: 40%;
 }
 
 /*.ui-accordion .ui-accordion-content {*/
@@ -74,4 +76,14 @@ a img {
 
 .codehilite {
     background: #EED;
+}
+
+.recent-jeeqs {
+    font-size: small;
+    font-family: monospace;
+}
+
+#solution {
+    font-size: small;
+    font-family: monospace;
 }

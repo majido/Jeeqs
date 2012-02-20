@@ -15,6 +15,9 @@
                 data: {'method': 'update_displayname', 'display_name':$displayname, 'key':'{{ jeeqser.key }}'},
                 success: function(response){
                     $initiator.button("option", "label", "Updated to " + $displayname);
+                },
+                error: function(response) {
+                    $initiator.button("option", "label", "Ooops. Perhaps not unique !? Try again!")
                 }
             })
 
@@ -31,10 +34,10 @@
 
     <h3>Email</h3> {{ jeeqser.user.email }}
 
-    <h3>Reviews Out : </h3>
+    <h3>Jeeqs Out : </h3>
         {{ jeeqser.reviews_out_num|default_if_none:"0" }}
 
-    <h3>Reviews In: </h3>
+    <h3>Jeeqs In: </h3>
         {{ jeeqser.reviews_in_num|default_if_none:"0" }}
 
     <h3>Submissions: </h3>

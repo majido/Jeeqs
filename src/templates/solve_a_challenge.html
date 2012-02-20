@@ -125,9 +125,7 @@
     <div id="submission" style="width:100%; float:right;">
         {% if submission %}
         <h3> Submitted Jeeqs for review:  </h3>
-{#        <pre class="prettyprint">#}
 {{ submission.content|safe}}
-{#        </pre>#}
         <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
         {% else %}
         <p> No submission found!</p>
@@ -154,13 +152,11 @@
 
     <div id="recent-attempts" class="accordion" style="width:100%; float:right; clear:right;">
         <h3><a href="#">Your Recent Jeeqs</a></h3>
-        <div>
+        <div class="recent-jeeqs">
             {% if jeeqser %}
             {% for attempt in attempts %}
             <p> Attempted at: {{ attempt.date }}</p>
-                <pre class="prettyprint">
-{{ attempt.content }}
-                </pre>
+{{ attempt.content|safe }}
             <hr/>
             {% endfor %}
             {% endif %}

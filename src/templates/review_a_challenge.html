@@ -20,10 +20,6 @@
             }
         }
 
-        window.onload = function () {
-            prettyPrint();
-        }
-
         $(document).ready(function() {
             $('.submit-vote').bind('click', function() {
                 $submission_id = $(this).attr("id").split("_")[1];

@@ -93,8 +93,15 @@ class UserHandler(webapp.RequestHandler):
     """Renders User's profile page"""
 
     def get(self):
+        jeeqser = get_jeeqser()
+        if not jeeqser:
+            self.redirect("/")
+
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
-        vars = {'jeeqser' : get_jeeqser()}
+        vars = {'jeeqser' : jeeqser,
+                'login_url': users.create_login_url(self.request.url),
+                'logout_url': users.create_logout_url(self.request.url)
+        }
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
@@ -368,7 +375,13 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge or not jeeqser:
             self.error(403)
 
-        attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown.markdown(solution, ['codehilite']), submitted=True, active=True)
+        attempt = Attempt(
+                    author=jeeqser.key(),
+                    challenge=challenge,
+                    content=markdown.markdown(solution, ['codehilite']),
+                    markdown=solution,
+                    submitted=True,
+                    active=True)
 
         previous_submissions = Attempt\
             .all()\
@@ -385,10 +398,22 @@ class RPCHandler(webapp.RequestHandler):
 
         attempt.put()
 
-    def update_displayname(self):
-        jeeqser = Jeeqser.get(self.request.get('key'))
-        jeeqser.displayname = self.request.get('display_name')
+        jeeqser.submissions_num += 1
         jeeqser.put()
+
+    def update_displayname(self):
+        displayname = self.request.get('display_name')
+        jeeqser = Jeeqser.get(self.request.get('key'))
+
+        if displayname == jeeqser.displayname_persisted:
+            return;
+
+        exists = len(Jeeqser.all().filter('displayname_persisted = ', displayname).fetch(1)) > 0
+        if not exists:
+            jeeqser.displayname = displayname
+            jeeqser.put()
+        else:
+            self.error(403)
 
     def submit_vote(self):
         submission_key = self.request.get('submission_key')
