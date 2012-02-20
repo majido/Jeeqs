@@ -278,27 +278,6 @@ class ProgramHandler(webapp.RequestHandler):
         # single-line expressions such as 'class Foo: pass' evaluate happily.
         program += '\n\n'
 
-        #persist the program
-        jeeqser = get_jeeqser()
-        if (jeeqser):
-            attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown(program))
-            if (self.request.get('is_submission')):
-                previous_submissions = Attempt\
-                                        .all()\
-                                        .filter('author = ', get_jeeqser().key())\
-                                        .filter('challenge = ', challenge)\
-                                        .filter('active = ', True)\
-                                        .filter('submitted = ', True)\
-                                        .fetch(10)
-                # there should be only one previous submission.
-                for previous_submission in previous_submissions:
-                    previous_submission.active = False
-                    previous_submission.put()
-
-                attempt.submitted = True
-                attempt.active = True
-
-
         # log and compile the program up front
         try:
             logging.debug('Compiling and evaluating:\n%s' % program)
@@ -340,14 +319,6 @@ class ProgramHandler(webapp.RequestHandler):
                     # Write the buffer to response
                     self.response.out.write(stdout_buffer.getvalue())
                     self.response.out.write(stderr_buffer.getvalue())
-
-                    attempt.stdout = stdout_buffer.getvalue()
-                    attempt.stderr = stderr_buffer.getvalue()
-                    attempt.put()
-
-                    #update stats
-                    jeeqser.submissions_num += 1
-                    jeeqser.put()
 
                 self.run_testcases(challenge, program_module)
 

@@ -1,19 +1,19 @@
 {# Shows the user's information as well as authentication links #}
 
 <style>
-    a { text-decoration: none;}
+    a.noline { text-decoration: none;}
 </style>
 
 <div id="userInfo" style="width:100%; text-align: right">
     <p id="toolbar">
-        <a href="/">Home</a> |
+        <a class="noline" href="/">Home</a> |
         {% if jeeqser %}
-            <span class="username"><a href="/user/">{{ jeeqser.displayname }}</a></span>
-            | <a href="{{ logout_url }}">log out</a>
+            <span class="username"><a class="noline" href="/user/">{{ jeeqser.displayname }}</a></span>
+            | <a class="noline" href="{{ logout_url }}">log out</a>
         {% else %}
-            <a href="{{ login_url }}">log in </a>
+            <a class="noline" href="{{ login_url }}">log in </a>
         {% endif %}
-        | <a href="http://code.google.com/appengine/">
+        | <a class="noline" href="http://code.google.com/appengine/">
         <img src="/static/appengine_button_noborder.gif"
              style="vertical-align: middle"/></a>
     </p>
