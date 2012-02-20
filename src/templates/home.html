@@ -15,14 +15,28 @@
 
 {% block column1 %}
     <h3> Challenges: </h3>
+    <table style="padding: 2em; width:100%; text-align: left; font-family: monaco">
     {% for key, value in challenges.items %}
-        <a href="/challenge/?ch={{ value.0 }}">{{ key }}</a>
-        {% if value.1 %}
-            <button class="submitted button" disabled="disabled">Submitted ({{ value.2 }}) </button>
-        {% endif %}
-        {% if jeeqser %}
-            <button class="review button"><a href="/review/?ch={{ value.0 }}">Review</a></button>
-        {% endif %}
-        <br/>
+        <tr>
+            <td>
+                {{ key }}
+            </td>
+            <td>
+                <a class="noline" href="/challenge/?ch={{ value.0 }}">&ltSolve&gt</a>
+            </td>
+            <td>
+                {% if value.1 %}
+                    <button class="submitted button" style="width:80%;" disabled="disabled">Submitted ({{ value.2 }}) </button>
+                {% endif %}
+            </td>
+            <td>
+                {% if jeeqser %}
+{#                    <button class="review button"><a href="/review/?ch={{ value.0 }}">Review</a></button>#}
+                    <a class="noline" href="/review/?ch={{ value.0 }}">Review</a>
+                {% endif %}
+            </td>
+            <br/>
+        </tr>
     {% endfor %}
+    </table>
 {% endblock column1 %}
