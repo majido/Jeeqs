@@ -13,8 +13,8 @@ import sys
 import traceback
 import wsgiref.handlers
 from models import *
-from markdown import markdown
-from pygments import highlight
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -24,6 +24,9 @@ from google.appengine.dist import use_library
 use_library('django', '1.2')
 
 from google.appengine.ext.webapp import template
+
+import lib.markdown as markdown
+
 
 # Set to True if stack traces should be shown in the browser, etc.
 _DEBUG = True
@@ -394,7 +397,7 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge or not jeeqser:
             self.error(403)
 
-        attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown(solution, ['codehilite']), submitted=True, active=True)
+        attempt = Attempt(author=jeeqser.key(), challenge=challenge, content=markdown.markdown(solution, ['codehilite']), submitted=True, active=True)
 
         previous_submissions = Attempt\
             .all()\
