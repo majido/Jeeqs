@@ -15,27 +15,30 @@
 
 {% block column1 %}
     <h3> Challenges: </h3>
-    <table style="padding: 2em; width:100%; text-align: left; font-family: monaco">
-    {% for key, value in challenges.items %}
+    <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px;">
+    {% for challenge in challenges %}
         <tr>
             <td>
-                {{ key }}
+                {{ challenge.name }}
             </td>
             <td>
-                <a class="noline" href="/challenge/?ch={{ value.0 }}">&ltSolve&gt</a>
+                <a class="noline" href="/challenge/?ch={{ challenge.key }}">&ltSolve&gt</a>
             </td>
             <td>
-                {% if value.1 %}
-                    <button class="submitted button" style="width:80%;" disabled="disabled">Submitted ({{ value.2 }}) </button>
+                {% if challenge.submitted %}
+                    <button class="submitted button" style="width:80%;" disabled="disabled">Submitted ({{ challenge.score }}) </button>
                 {% endif %}
             </td>
             <td>
                 {% if jeeqser %}
-{#                    <button class="review button"><a href="/review/?ch={{ value.0 }}">Review</a></button>#}
-                    <a class="noline" href="/review/?ch={{ value.0 }}">Review</a>
+                    <a class="noline" href="/review/?ch={{ challenge.key }}">Review</a>
                 {% endif %}
             </td>
-            <br/>
+            <td>
+                {% if challenge.course %}
+                    <small>{{ challenge.course.code }}, {{ challenge.course.program.name }}, {{ challenge.course.program.university.name }}</small>
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
     </table>

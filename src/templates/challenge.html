@@ -7,9 +7,18 @@
     <div id="challenge-info" class="accordion-closed" style="float:left">
         <h4><a href="#">Details</a></h4>
         <div>
+            {% if challenge.course %}
+                <p>
+                <strong>Course</strong>
+                <br/>
+                <small>{{ challenge.course.program.university.name }}, {{ challenge.course.program.name }} : {{ challenge.course.name }}</small>
+                </p>
+            {%  endif %}
             {% if challenge.attribution %}
                 <p> <strong>Attribution</strong>
-                    <br/><small>{{ challenge.attribution }}</small></p>
+                    <br/>
+                    <small>{{ challenge.attribution }}</small>
+                </p>
             {% endif %}
             {% if challenge.source %}
                 <p> <strong>Source</strong>

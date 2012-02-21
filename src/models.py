@@ -53,6 +53,24 @@ class Jeeqser(db.Model):
     displayname = property(get_displayname, set_displayname, "Display name")
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
 
+class University(db.Model):
+    name = db.StringProperty()
+    fullname = db.StringProperty()
+
+class Program(db.Model):
+    name = db.StringProperty()
+    fullname = db.StringProperty()
+    university = db.ReferenceProperty(University, collection_name='programs')
+
+class Course(db.Model):
+    name = db.StringProperty()
+    code = db.StringProperty()
+    description = db.TextProperty()
+    level = db.StringProperty(choices=['undergraduate, graduate'])
+    program = db.ReferenceProperty(Program, collection_name='courses')
+    yearOffered = db.IntegerProperty()
+    monthOffered = db.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
+
 class Challenge(db.Model):
     """Models a challenge"""
 
@@ -61,6 +79,7 @@ class Challenge(db.Model):
     template_code = db.StringProperty(multiline=True)
     attribution = db.StringProperty(multiline=True)
     source = db.LinkProperty()
+    course = db.ReferenceProperty(Course, collection_name='challenges')
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """
@@ -98,20 +117,6 @@ class TestCase(db.Model):
     statement = db.StringProperty(multiline=True)
     expected = db.StringProperty(multiline=True)
 
-class University(db.Model):
-    name = db.StringProperty()
-
-class Program(db.Model):
-    name = db.StringProperty()
-    university = db.ReferenceProperty(University, collection_name='programs')
-
-class Course(db.Model):
-    name = db.StringProperty()
-    description = db.TextProperty()
-    level = db.StringProperty(choices=['undergraduate, graduate'])
-    program = db.ReferenceProperty(Program, collection_name='courses')
-    yearOffered = db.IntegerProperty()
-    monthOffered = db.IntegerProperty()
 
     '''
     c = Challenge.get('agpkZXZ-amVlcXN5cg8LEglDaGFsbGVuZ2UYAQw')

@@ -68,7 +68,7 @@ class FrontPageHandler(webapp.RequestHandler):
                 #TODO: inefficient
                 submissions = Attempt\
                                     .all()\
-                                    .filter("author = ", jeeqser.key())\
+                                    .filter("author = ", jeeqser)\
                                     .filter("challenge = ", ch)\
                                     .filter('active = ', True)\
                                     .fetch(1)
@@ -76,12 +76,13 @@ class FrontPageHandler(webapp.RequestHandler):
                     submitted = True
                     score = submissions[0].vote_average
 
-            challenges[ch.name] = [str(ch.key()), submitted, round(score, 2)]
+            ch.submitted = submitted
+            ch.score = round(score, 2)
 
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
-        vars = {'challenges': challenges,
+        vars = {'challenges': all_challenges,
                 'jeeqser': get_jeeqser(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
