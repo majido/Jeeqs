@@ -259,3 +259,10 @@ shell.runStatement = function() {
 
   return false;
 };
+
+$(document).ready(function() {
+    $('.accordion-closed').accordion({
+        collapsible: true,
+        active: false
+    })
+});

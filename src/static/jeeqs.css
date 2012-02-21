@@ -72,6 +72,9 @@ a img {
     margin-bottom: 5em;
     margin-left: 5em;
     margin-right: 5em;
+    float:left;
+    width:80%;
+    padding:2em;
 }
 
 .codehilite {
@@ -85,5 +88,20 @@ a img {
 
 #solution {
     font-size: small;
-    font-family: monospace;
+    font-family: sans-serif;
+}
+
+.submission-feedback { padding: 10px !important; }
+div.submission-feedback .ui-state-active.genius_label {background: yellow;}
+div.submission-feedback .ui-state-active.correct_label {background:green}
+div.submission-feedback .ui-state-active.incorrect_label {background: #ff5967}
+
+#column1 > div {
+    float:left;
+    /* Floating causes width to shrink*/
+    width: 100%;
+}
+
+.jeeqser-value {
+    margin-left: 20px;
 }

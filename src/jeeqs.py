@@ -13,6 +13,7 @@ import sys
 import traceback
 import wsgiref.handlers
 from models import *
+from gravatar import get_profile_url
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -96,9 +97,11 @@ class UserHandler(webapp.RequestHandler):
         jeeqser = get_jeeqser()
         if not jeeqser:
             self.redirect("/")
+            return;
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
         vars = {'jeeqser' : jeeqser,
+                'gravatar_url' : jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -106,6 +109,20 @@ class UserHandler(webapp.RequestHandler):
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
+class AboutHandler(webapp.RequestHandler):
+    """Renders the About page """
+    def get(self):
+        jeeqser = get_jeeqser()
+
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'about.html')
+        vars = {'jeeqser' : jeeqser,
+                'gravatar_url' : jeeqser.gravatar_url if jeeqser else None,
+                'login_url': users.create_login_url(self.request.url),
+                'logout_url': users.create_logout_url(self.request.url)
+        }
+
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
 
 class ChallengeHandler(webapp.RequestHandler):
     """renders the solve_a_challenge.html template
@@ -462,7 +479,8 @@ def main():
             ('/challenge/shell.runProgram', ProgramHandler),
             ('/review/', ReviewHandler),
             ('/rpc', RPCHandler),
-            ('/user/', UserHandler)], debug=_DEBUG)
+            ('/user/', UserHandler),
+            ('/about/', AboutHandler)], debug=_DEBUG)
     wsgiref.handlers.CGIHandler().run(application)
 
 

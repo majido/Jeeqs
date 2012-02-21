@@ -66,8 +66,3 @@ indexes:
   properties:
   - name: __key__
     direction: desc
-
-- kind: Jeeqser
-  properties:
-  - name: displayname_persisted
-    direction: desc

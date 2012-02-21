@@ -29,18 +29,37 @@
 {% block container %}
     <h1> Jeeqser {{ jeeqser.displayname }} </h1>
     <h3>Display name</h3>
-    <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
-    <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
+    <div class="jeeqser-value">
+        <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
+        <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
+    </div>
 
-    <h3>Email</h3> {{ jeeqser.user.email }}
+    <h3>Profile Picture</h3>
+    <div class="jeeqser-value">
+        <img src="{{ gravatar_url }}"/>
+        <br/>
+        <br/>
+        <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email }}</small>
+    </div>
+
+    <h3>Email</h3>
+    <div class="jeeqser-value">
+    {{ jeeqser.user.email }}
+    </div>
 
     <h3>Jeeqs Out : </h3>
+    <div class="jeeqser-value">
         {{ jeeqser.reviews_out_num|default_if_none:"0" }}
+    </div>
 
     <h3>Jeeqs In: </h3>
+    <div class="jeeqser-value">
         {{ jeeqser.reviews_in_num|default_if_none:"0" }}
+    </div>
 
     <h3>Submissions: </h3>
+    <div class="jeeqser-value">
         {{ jeeqser.submissions_num|default_if_none:"0" }}
+    </div>
 
 {% endblock container %}

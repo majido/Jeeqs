@@ -8,13 +8,13 @@
     <p id="toolbar">
         <a class="noline" href="/">Home</a> |
         {% if jeeqser %}
-            <span class="username"><a class="noline" href="/user/">{{ jeeqser.displayname }}</a></span>
+            <span>
+                <img width="20px" height="20px" src="{{ jeeqser.gravatar_url }}"/></span>
+                <span class="username"><a class="noline" href="/user/">{{ jeeqser.displayname }}</a></span>
             | <a class="noline" href="{{ logout_url }}">log out</a>
         {% else %}
             <a class="noline" href="{{ login_url }}">log in </a>
         {% endif %}
-        | <a class="noline" href="http://code.google.com/appengine/">
-        <img src="/static/appengine_button_noborder.gif"
-             style="vertical-align: middle"/></a>
+        | <a class="noline" href="/about/">About</a>
     </p>
 </div>
