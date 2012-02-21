@@ -9,8 +9,13 @@
         <a class="noline" href="/">Home</a> |
         {% if jeeqser %}
             <span>
-                <img width="20px" height="20px" src="{{ jeeqser.gravatar_url }}"/></span>
-                <span class="username"><a class="noline" href="/user/">{{ jeeqser.displayname }}</a></span>
+                <span>
+                    <img width="25px" height="25px" src="{{ jeeqser.gravatar_url }}"/>
+                </span>
+                <span class="username">
+                    <a class="noline" href="/user/">{{ jeeqser.displayname }}</a>
+                </span>
+            </span>
             | <a class="noline" href="{{ logout_url }}">log out</a>
         {% else %}
             <a class="noline" href="{{ login_url }}">log in </a>
