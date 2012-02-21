@@ -98,6 +98,21 @@ class TestCase(db.Model):
     statement = db.StringProperty(multiline=True)
     expected = db.StringProperty(multiline=True)
 
+class University(db.Model):
+    name = db.StringProperty()
+
+class Program(db.Model):
+    name = db.StringProperty()
+    university = db.ReferenceProperty(University, collection_name='programs')
+
+class Course(db.Model):
+    name = db.StringProperty()
+    description = db.TextProperty()
+    level = db.StringProperty(choices=['undergraduate, graduate'])
+    program = db.ReferenceProperty(Program, collection_name='courses')
+    yearOffered = db.IntegerProperty()
+    monthOffered = db.IntegerProperty()
+
     '''
     c = Challenge.get('agpkZXZ-amVlcXN5cg8LEglDaGFsbGVuZ2UYAQw')
     test = TestCase(challenge=c, statement='factorial(3)')
