@@ -396,7 +396,7 @@ class RPCHandler(webapp.RequestHandler):
         attempt = Attempt(
                     author=jeeqser.key(),
                     challenge=challenge,
-                    content=markdown.markdown(solution, ['codehilite']),
+                    content=markdown.markdown(solution, ['codehilite(force_linenos=True)']),
                     markdown=solution,
                     submitted=True,
                     active=True)
