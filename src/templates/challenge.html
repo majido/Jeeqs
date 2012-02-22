@@ -7,11 +7,11 @@
     <div id="challenge-info" class="accordion-closed" style="float:left">
         <h4><a href="#">Details</a></h4>
         <div>
-            {% if challenge.course %}
+            {% if challenge.exercise %}
                 <p>
                 <strong>Course</strong>
                 <br/>
-                <small>{{ challenge.course.program.university.name }}, {{ challenge.course.program.name }} : {{ challenge.course.name }}</small>
+                <small>{{ challenge.exercise.course.program.university.name }}, {{ challenge.exercise.course.program.name }} : {{ challenge.exercise.course.name }}</small>
                 </p>
             {%  endif %}
             {% if challenge.attribution %}

@@ -265,4 +265,9 @@ $(document).ready(function() {
         collapsible: true,
         active: false
     })
+
+
+    $('.accordion-open').accordion({
+        collapsible: false
+    })
 });

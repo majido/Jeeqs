@@ -1,5 +1,9 @@
 {% extends "base_twoColumn.html" %}
 
+{% block column1-width %}
+    width: 60%;
+{% endblock %}
+
 {% block script %}
 
     <script>
@@ -14,32 +18,50 @@
 {% endblock script %}
 
 {% block column1 %}
-    <h3> Challenges: </h3>
-    <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px;">
-    {% for challenge in challenges %}
-        <tr>
-            <td>
-                {{ challenge.name }}
-            </td>
-            <td>
-                <a class="noline" href="/challenge/?ch={{ challenge.key }}">&ltSolve&gt</a>
-            </td>
-            <td>
-                {% if challenge.submitted %}
-                    <button class="submitted button" style="width:80%;" disabled="disabled">Submitted ({{ challenge.score }}) </button>
-                {% endif %}
-            </td>
-            <td>
-                {% if jeeqser %}
-                    <a class="noline" href="/review/?ch={{ challenge.key }}">Review</a>
-                {% endif %}
-            </td>
-            <td>
-                {% if challenge.course %}
-                    <small>{{ challenge.course.code }}, {{ challenge.course.program.name }}, {{ challenge.course.program.university.name }}</small>
-                {% endif %}
-            </td>
-        </tr>
-    {% endfor %}
-    </table>
+    <div id="challenge-list" class="accordion accordion-open" style="float:left">
+    <h3><a href="#">Challenges</a></h3>
+    <div class="challenge-list-div">
+        <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
+        {% for challenge in challenges %}
+            <tr {% if challenge.correct_count > challenge.incorrect_count %} style="background: #90ee90"{% endif %}>
+                <td>
+                    {{ challenge.name }}
+                </td>
+                <td>
+                    <span>
+                        <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
+                            {% if challenge.correct_count > challenge.incorrect_count %}
+                                <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
+                            {% else %}
+                                <span class="ui-icon ui-icon-locked" style="float:left"></span>
+                            {% endif %}
+                        </a>
+                    </span>
+                </td>
+                <td>
+                    {% if challenge.submitted %}
+                        <span>
+                            <span class="ui-icon ui-icon-check" style="float:left"></span>
+                            <span style="color:green; float:left;">{{ challenge.correct_count }}</span>
+                            <span class="ui-icon ui-icon-closethick" style="float:left"></span>
+                            <span style="color:red; float:left">{{ challenge.incorrect_count }}</span>
+                            <span class="ui-icon ui-icon-lightbulb" style="float:left"></span>
+                            <span style="color:gold; float:left">{{ challenge.genius_count }}</span>
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if jeeqser %}
+                        <a class="noline" href="/review/?ch={{ challenge.key }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if challenge.exercise %}
+                        <small>{{ challenge.exercise.course.code }}, {{ challenge.exercise.course.program.name }}, {{ challenge.exercise.course.program.university.name }}</small>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
 {% endblock column1 %}

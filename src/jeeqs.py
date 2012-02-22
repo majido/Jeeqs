@@ -73,12 +73,17 @@ class FrontPageHandler(webapp.RequestHandler):
                                     .filter('active = ', True)\
                                     .fetch(1)
                 if (len(submissions) > 0):
-                    submitted = True
-                    score = submissions[0].vote_average
+                    submission = submissions[0]
+                    ch.submitted = True
+                    ch.score = round(submission.vote_average, 2)
+                    ch.correct_count = submission.correct_count
+                    ch.incorrect_count = submission.incorrect_count
+                    ch.genius_count = submission.genius_count
 
-            ch.submitted = submitted
-            ch.score = round(score, 2)
-
+                else:
+                    ch.submitted = False
+                    ch.score = 0
+                    ch.correct_count = ch.incorrect_count = ch.genius_count = 0
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
@@ -379,6 +384,15 @@ class RPCHandler(webapp.RequestHandler):
         else:
             return 4 # genius
 
+    @staticmethod
+    def updateSubmission(submission, vote):
+        if vote == 'correct':
+            submission.correct_count += 1
+        elif vote == 'incorrect':
+            submission.incorrect_count += 1
+        elif vote == 'genius':
+            submission.genius_count += 1
+
     def submit_solution(self):
         solution = self.request.get('solution')
         if not solution:
@@ -454,8 +468,11 @@ class RPCHandler(webapp.RequestHandler):
         if (not jeeqser.key() in submission.users_voted):
             submission.users_voted.append(jeeqser.key())
             submission.vote_count += 1
-            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(self.request.get('vote')))
+            vote = self.request.get('vote')
+
+            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
+            RPCHandler.updateSubmission(submission, vote)
             submission.put()
 
             feedback = Feedback(
@@ -463,7 +480,7 @@ class RPCHandler(webapp.RequestHandler):
                 author=jeeqser,
                 attempt_author=submission.author,
                 content=self.request.get('response'),
-                vote=self.request.get('vote'))
+                vote=vote)
             feedback.put()
 
             # update stats

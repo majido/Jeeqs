@@ -1,5 +1,6 @@
 body {
     font-family: monospace;
+    font-size: 14px;
 }
 
 #userInfo {
@@ -104,4 +105,8 @@ div.submission-feedback .ui-state-active.incorrect_label {background: #ff5967}
 
 .jeeqser-value {
     margin-left: 20px;
+}
+
+.challenge-list-div {
+    font-size: 14px;
 }

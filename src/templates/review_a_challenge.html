@@ -76,7 +76,9 @@
             {% for submission in submissions %}
                 <div class="submission-placeholder">
                     <h3>Submitted by {{ submission.author.displayname }} </h3>
-                    {{ submission.content|safe }}
+                    <div style="overflow: scroll">
+                        {{ submission.content|safe }}
+                    </div>
                     <div class="submission-feedback">
                         <span class="feedback-buttons">
                             <input type="radio" id="incorrect_{{ submission.key }}" name="feedback_{{ submission.key }}"

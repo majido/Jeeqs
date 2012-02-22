@@ -33,7 +33,7 @@ class Jeeqser(db.Model):
 
     def get_displayname(self):
         if self.displayname_persisted is None:
-            self.displayname_persisted = self.user.email()
+            self.displayname_persisted = self.user.nickname().split('@')[0]
             self.put()
         return self.displayname_persisted
 
@@ -71,15 +71,21 @@ class Course(db.Model):
     yearOffered = db.IntegerProperty()
     monthOffered = db.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
 
+class Exercise(db.Model):
+    # Exercise number like
+    name = db.StringProperty()
+    number = db.StringProperty()
+    course = db.ReferenceProperty(Course, collection_name='exercises')
+
 class Challenge(db.Model):
     """Models a challenge"""
-
     name = db.StringProperty()
     content = db.TextProperty()
     template_code = db.StringProperty(multiline=True)
     attribution = db.StringProperty(multiline=True)
     source = db.LinkProperty()
-    course = db.ReferenceProperty(Course, collection_name='challenges')
+    # one to one relationship
+    exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """
@@ -95,8 +101,15 @@ class Attempt(db.Model):
     # List of users who voted for this submission
     users_voted = db.ListProperty(db.Key)
     vote_count = db.IntegerProperty(default=0)
+
+    correct_count = db.IntegerProperty(default=0)
+    incorrect_count = db.IntegerProperty(default=0)
+    genius_count = db.IntegerProperty(default=0)
+
+    #vote quantization TODO: might be removed !?
     vote_sum = db.FloatProperty(default=float(0))
     vote_average = db.FloatProperty(default=float(0))
+
     # is this the active submission for review ?
     active = db.BooleanProperty(default=False)
     submitted = db.BooleanProperty(default=False)
@@ -109,7 +122,7 @@ class Feedback(db.Model):
     attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')
     content = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
-    vote = db.StringProperty()
+    vote = db.StringProperty(choices=['correct', 'incorrect', 'genius'])
 
 class TestCase(db.Model):
     """ Models a test case"""
