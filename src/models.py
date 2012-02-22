@@ -116,7 +116,7 @@ class Attempt(db.Model):
 
 class Feedback(db.Model):
     """Models feedback for submission """
-    attempt = db.ReferenceProperty(Attempt)
+    attempt = db.ReferenceProperty(Attempt, collection_name='feedbacks')
     author = db.ReferenceProperty(Jeeqser, collection_name='feedback_out')
     # Denormalizing the attempt author
     attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')

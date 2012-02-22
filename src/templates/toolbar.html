@@ -4,22 +4,22 @@
     a.noline { text-decoration: none;}
 </style>
 
-<div id="userInfo" style="width:100%; text-align: right">
-    <p id="toolbar">
-        <a class="noline" href="/">Home</a> |
-        {% if jeeqser %}
-            <span>
+<div id="userInfo" style="width:100%; text-align: right;">
+    <div style="float:right; margin: 5px;">
+        <span>
+            <a class="noline" href="/">Home</a> |
+            {% if jeeqser %}
                 <span>
-                    <img width="25px" height="25px" src="{{ jeeqser.gravatar_url }}"/>
+                    <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle"/>
+                    <span class="username">
+                        <a class="noline" href="/user/">{{ jeeqser.displayname }}</a>
+                    </span>
                 </span>
-                <span class="username">
-                    <a class="noline" href="/user/">{{ jeeqser.displayname }}</a>
-                </span>
-            </span>
-            | <a class="noline" href="{{ logout_url }}">log out</a>
-        {% else %}
-            <a class="noline" href="{{ login_url }}">log in </a>
-        {% endif %}
-        | <a class="noline" href="/about/">About</a>
-    </p>
+                | <a class="noline" href="{{ logout_url }}">log out</a>
+            {% else %}
+                <a class="noline" href="{{ login_url }}">log in </a>
+            {% endif %}
+            | <a class="noline" href="/about/">About</a>
+        </span>
+    </div>
 </div>

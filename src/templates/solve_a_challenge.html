@@ -3,7 +3,7 @@
 {% block script %}
     <script>
         function runProgram() {
-            var program = window.editor.getSession().getValue();
+            var program = $editor.getSession().getValue();
             shell.onRunKeyClick(program);
         }
 
@@ -38,11 +38,11 @@
                 active: false
             }).bind('accordionchange', function(event, ui) {
                         if (!$consoleInitialized) {
-                            window.editor = ace.edit("editor");
-                            window.editor.setTheme("ace/theme/twilight");
+                            $editor = ace.edit("editor");
+                            $editor.setTheme("ace/theme/twilight");
                             var pythonMode = require("ace/mode/python").Mode;
-                            window.editor.getSession().setMode(new pythonMode());
-                            window.editor.getSession().setValue("{{ template_code|escapejs }}");
+                            $editor.getSession().setMode(new pythonMode());
+                            $editor.getSession().setValue("{{ template_code|escapejs }}");
 
                             $consoleInitialized = true;
                         }
@@ -62,6 +62,14 @@
                        button('option', 'disabled', 'disabled')
                        .button('option', 'label', 'login to Submit');
             {% endif %}
+
+            $('#insertProgram').bind('click', function() {
+                $('#solution').val(
+                                $('#solution').val()
+                                + '\n    :::python\n'
+                                + '    '
+                                + $editor.getSession().getValue());
+            })
         })
     </script>
 {% endblock script %}
@@ -104,6 +112,7 @@
                     <br/>
                     <button type="button" onclick="clearOutput()">Clear Console</button>
                     <button type="button" onclick="runProgram()">Run</button>
+                    <button id = "insertProgram" type=button>Use</button>
                 </div>
             </div>
             <br/>
@@ -128,27 +137,9 @@
 
 
     <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right">
-        <h3><a href="#">Jeeqs In</a></h3>
+        <h3><a href="#">In Jeeqs</a></h3>
         <div>
-            {% if feedbacks|length > 0 %}
-            {% for feedback in feedbacks %}
-            <div style="background: {{ feedback.background }}; float:left; width:100%; margin: 5px;">
-                <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
-                <div style="float:right; font-size:small;">
-                    <span>
-                        <img height="20px" width="20px" style="margin-right: 5px; " src="{{ feedback.author.gravatar_url }}"/>
-                    </span>
-                    <span>
-                        submitted by {{ feedback.author.displayname }} @ {{ feedback.date }}
-                    </span>
-                </div>
-                <br/>
-                <div style="margin-top: 10px; float:left; clear:both">
-                    {{ feedback.content }}
-                </div>
-            </div>
-            {% endfor %}
-            {% endif %}
+            {% include "in_jeeqs_list.html" %}
         </div>
     </div>
 

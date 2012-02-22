@@ -22,7 +22,7 @@ from google.appengine.ext import webapp
 
 from google.appengine.dist import use_library
 
-use_library('django', '1.2')
+use_library('django', '1.3')
 
 from google.appengine.ext.webapp import template
 
@@ -47,6 +47,20 @@ def get_jeeqser():
         return jeeqser
     return jeeqsers[0]
 
+# Adds icons and background to feedback objects
+def prettify_injeeqs(injeeqs):
+    for jeeq in injeeqs:
+        if jeeq.vote == 'correct':
+            jeeq.icon = 'ui-icon-check'
+            jeeq.background = '#EBFFEB'
+        elif jeeq.vote == 'incorrect':
+            jeeq.icon = 'ui-icon-closethick'
+            jeeq.background = '#FFE3E3'
+        else:
+            jeeq.icon = 'ui-icon-lightbulb'
+            jeeq.background = '#FFFFE6'
+
+
 
 class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
@@ -56,9 +70,9 @@ class FrontPageHandler(webapp.RequestHandler):
         # get available challenges
 
         all_challenges = Challenge.all().fetch(100)
-        challenges = {}
 
         jeeqser = get_jeeqser()
+        injeeqs = None
 
         for ch in all_challenges:
             submitted = False
@@ -79,15 +93,22 @@ class FrontPageHandler(webapp.RequestHandler):
                     ch.correct_count = submission.correct_count
                     ch.incorrect_count = submission.incorrect_count
                     ch.genius_count = submission.genius_count
-
                 else:
                     ch.submitted = False
                     ch.score = 0
                     ch.correct_count = ch.incorrect_count = ch.genius_count = 0
 
+                injeeqs = Feedback\
+                                .all()\
+                                .filter('attempt_author = ', jeeqser)\
+                                .order('-date')\
+                                .fetch(10)
+                prettify_injeeqs(injeeqs)
+
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
         vars = {'challenges': all_challenges,
+                'injeeqs': injeeqs,
                 'jeeqser': get_jeeqser(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
@@ -190,16 +211,7 @@ class ChallengeHandler(webapp.RequestHandler):
                                     .fetch(10)
 
             if feedbacks:
-                for feedback in feedbacks:
-                    if feedback.vote == 'correct':
-                        feedback.icon = 'ui-icon-check'
-                        feedback.background = '#EBFFEB'
-                    elif feedback.vote == 'incorrect':
-                        feedback.icon = 'ui-icon-closethick'
-                        feedback.background = '#FFE3E3'
-                    else:
-                        feedback.icon = 'ui-icon-lightbulb'
-                        feedback.background = '#FFFFE6'
+                prettify_injeeqs(feedbacks)
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
