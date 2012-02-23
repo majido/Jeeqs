@@ -1,5 +1,16 @@
 {% extends "base_twoColumn.html" %}
 
+{% block load_scripts %}
+{#  Pagedown  #}
+
+    <link rel="stylesheet" type="text/css" href="/static/pagedown/demo/browser/demo.css" />
+
+    <script type="text/javascript" src="/static/pagedown/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="/static/pagedown/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="/static/pagedown/Markdown.Editor.js"></script>
+
+{% endblock %}
+
 {% block script %}
     <script>
         function runProgram() {
@@ -14,11 +25,18 @@
 
         $(document).ready(function() {
 
+            var converter1 = Markdown.getSanitizingConverter();
+            var editor1 = new Markdown.Editor(converter1);
+            editor1.run();
+
+            // Resize the accordion to accomodate the preview
+            $('#solutionContainer').accordion("resize");
+
             $consoleInitialized = false
 
             $('#submitSolutionButton').bind('click', function(event, ui) {
                 $(this).attr("disabled", "disabled");
-                var $solution = $('#solution') .val();
+                var $solution = $('#wmd-input') .val();
                 var $challengeKey = $('#challenge_key').val();
                 $initiator = $(this)
 
@@ -64,12 +82,13 @@
             {% endif %}
 
             $('#insertProgram').bind('click', function() {
-                $('#solution').val(
-                                $('#solution').val()
+                $('#wmd-input').val(
+                                $('#wmd-input').val()
                                 + '\n    :::python\n'
                                 + '    '
                                 + $editor.getSession().getValue());
             })
+
         })
     </script>
 {% endblock script %}
@@ -84,9 +103,12 @@
             <div id="solutionContainer" class="accordion accordion-open" style="width:100%; margin-top:20px;">
                 <h3><a href="#">Solution</a></h3>
                 <div>
-                    <textarea id="solution" rows="10"  style="width: 100%;"></textarea>
-                    <br/>
-                    <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> is supported.</div>
+                    <div class="wmd-panel">
+                        <div id="wmd-button-bar"></div>
+                        <textarea class="wmd-input" id="wmd-input"></textarea>
+                        <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> is supported.</div>
+                    </div>
+                    <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
                 </div>
             </div>
 
@@ -123,27 +145,25 @@
 {% endblock column1 %}
 
 {% block column2 %}
-    <div id="submission" style="width:100%; float:right;">
+    <div id="submission" style="width:100%; float:right; padding:15px;">
         {% if submission %}
-        <h3> Submitted for review:  </h3>
-        <div id="submission-content" style="overflow:scroll">
-            {{ submission.content|safe}}
-        </div>
-        <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+            <h3> Submitted for review (Active) </h3>
+            <div id="submission-content" style="overflow:scroll">
+                {{ submission.content|safe}}
+            </div>
+            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+            <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right">
+                <h3><a href="#">In Jeeqs</a></h3>
+                <div>
+                    {% include "in_jeeqs_list.html" %}
+                </div>
+            </div>
         {% else %}
         <p> No submission found!</p>
         {% endif %}
     </div>
 
-
-    <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right">
-        <h3><a href="#">In Jeeqs</a></h3>
-        <div>
-            {% include "in_jeeqs_list.html" %}
-        </div>
-    </div>
-
-    <div id="recent-attempts" class="accordion accordion-closed" style="width:100%; float:right; clear:right;">
+    <div id="recent-attempts" class="accordion accordion-closed" style="width:100%; float:right; clear:right; padding:15px;">
         <h3><a href="#">Your Recent Submissions</a></h3>
         <div class="recent-jeeqs">
             {% if jeeqser %}

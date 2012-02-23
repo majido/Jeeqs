@@ -3,6 +3,8 @@
 <html>
 <head>
     {% include "head.html" %}
+    {% block load_scripts %}
+    {% endblock %}
     <title> {% block title %} Jeeqs {% endblock %} </title>
 </head>
 {% block script %}
