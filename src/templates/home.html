@@ -18,10 +18,23 @@
 {% endblock script %}
 
 {% block column1 %}
-    <div id="challenge-list" class="accordion accordion-open" style="float:left">
+    <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
             <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <span>
+                            <span class="ui-icon ui-icon-check" style="float:left"></span>
+                            <span class="ui-icon ui-icon-closethick" style="float:left"></span>
+                            <span class="ui-icon ui-icon-lightbulb" style="float:left"></span>
+                            <span class="ui-icon ui-icon-flag" style="float:left"></span>
+                        </span>
+                    </td>
+                    <td></td>
+                </tr>
                 {% for challenge in challenges %}
                     <tr {% if challenge.correct_count > challenge.incorrect_count %} style="background: #90ee90"{% endif %}>
                         <td>
@@ -41,12 +54,10 @@
                         <td>
                             {% if challenge.submitted %}
                                 <span>
-                                    <span class="ui-icon ui-icon-check" style="float:left"></span>
-                                    <span style="color:green; float:left;">{{ challenge.correct_count }}</span>
-                                    <span class="ui-icon ui-icon-closethick" style="float:left"></span>
-                                    <span style="color:red; float:left">{{ challenge.incorrect_count }}</span>
-                                    <span class="ui-icon ui-icon-lightbulb" style="float:left"></span>
-                                    <span style="color:gold; float:left">{{ challenge.genius_count }}</span>
+                                    <span style="color:green; float:left;">{{ challenge.correct_count }}&nbsp;</span>
+                                    <span style="color:red; float:left">{{ challenge.incorrect_count }}&nbsp;</span>
+                                    <span style="color:gold; float:left">{{ challenge.genius_count }}&nbsp;</span>
+                                    <span style="color:grey; float:left">{{ challenge.flag_count }}&nbsp;</span>
                                 </span>
                             {% endif %}
                         </td>
@@ -57,7 +68,7 @@
                         </td>
                         <td>
                             {% if challenge.exercise %}
-                                <small>{{ challenge.exercise.course.code }}, {{ challenge.exercise.course.program.name }}, {{ challenge.exercise.course.program.university.name }}</small>
+                                <small>{{ challenge.exercise.number }} > {{ challenge.exercise.course.code }} > {{ challenge.exercise.course.program.name }} > {{ challenge.exercise.course.program.university.name }}</small>
                             {% endif %}
                         </td>
                     </tr>
@@ -66,7 +77,7 @@
         </div>
     </div>
 
-    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left">
+    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px;">
         <h3><a href="#">In Jeeqs</a></h3>
         <div class="jeeqs-list">
             {% include "in_jeeqs_list.html" with feedbacks=injeeqs write_challenge_name='true'%}

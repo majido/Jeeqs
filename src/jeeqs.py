@@ -56,11 +56,12 @@ def prettify_injeeqs(injeeqs):
         elif jeeq.vote == 'incorrect':
             jeeq.icon = 'ui-icon-closethick'
             jeeq.background = '#FFE3E3'
-        else:
+        elif jeeq.vote == 'genius':
             jeeq.icon = 'ui-icon-lightbulb'
             jeeq.background = '#FFFFE6'
-
-
+        elif jeeq.vote == 'flag':
+            jeeq.icon = 'ui-icon-flag'
+            jeeq.background = 'lightgrey'
 
 class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
@@ -93,6 +94,7 @@ class FrontPageHandler(webapp.RequestHandler):
                     ch.correct_count = submission.correct_count
                     ch.incorrect_count = submission.incorrect_count
                     ch.genius_count = submission.genius_count
+                    ch.flag_count = submission.flag_count
                 else:
                     ch.submitted = False
                     ch.score = 0
@@ -256,12 +258,12 @@ class ReviewHandler(webapp.RequestHandler):
                                         " FROM Attempt "
                                         " WHERE challenge = :1 "
                                         " AND active = True "
+                                        " AND flagged = False "
                                         " ORDER BY vote_count ASC ",
                                         challenge)
-        submissions = submissions_query.fetch(10)
+        submissions = submissions_query.fetch(20)
 
         # TODO: replace this iteration with a data oriented approach
-        # each .author is one query!! copy the username to the submission entity
         submissions[:] = [submission for submission in submissions if not (submission.author.key() == jeeqser.key() or jeeqser.key() in submission.users_voted)]
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
@@ -393,17 +395,24 @@ class RPCHandler(webapp.RequestHandler):
             return 2
         elif vote == 'incorrect':
             return 0
+        elif vote == 'genius':
+            return 4
         else:
-            return 4 # genius
+            return 0 # flag
 
     @staticmethod
-    def updateSubmission(submission, vote):
+    def updateSubmission(submission, vote, voter):
         if vote == 'correct':
             submission.correct_count += 1
         elif vote == 'incorrect':
             submission.incorrect_count += 1
         elif vote == 'genius':
             submission.genius_count += 1
+        elif vote == 'flag':
+            submission.flag_count += 1
+            if submission.flag_count > 2:
+                submission.flagged = True
+            submission.flagged_by.append(voter.key())
 
     def submit_solution(self):
         solution = self.request.get('solution')
@@ -484,7 +493,7 @@ class RPCHandler(webapp.RequestHandler):
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.updateSubmission(submission, vote)
+            RPCHandler.updateSubmission(submission, vote, jeeqser)
             submission.put()
 
             feedback = Feedback(

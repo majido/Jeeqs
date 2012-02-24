@@ -114,6 +114,12 @@ class Attempt(db.Model):
     active = db.BooleanProperty(default=False)
     submitted = db.BooleanProperty(default=False)
 
+    # Spam ?
+    flagged_by = db.ListProperty(db.Key)
+    flag_count = db.IntegerProperty(default=0)
+    # if True, this attempt is blocked. Become true, once flag_count goes above a threshold
+    flagged = db.BooleanProperty(default=False)
+
 class Feedback(db.Model):
     """Models feedback for submission """
     attempt = db.ReferenceProperty(Attempt, collection_name='feedbacks')
@@ -122,7 +128,7 @@ class Feedback(db.Model):
     attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')
     content = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
-    vote = db.StringProperty(choices=['correct', 'incorrect', 'genius'])
+    vote = db.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])
 
 class TestCase(db.Model):
     """ Models a test case"""

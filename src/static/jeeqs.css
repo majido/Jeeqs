@@ -99,6 +99,7 @@ a img {
 div.submission-feedback .ui-state-active.genius_label {background: yellow;}
 div.submission-feedback .ui-state-active.correct_label {background:green}
 div.submission-feedback .ui-state-active.incorrect_label {background: #ff5967}
+div.submission-feedback .ui-state-active.flag_label {background: grey;}
 
 #column1 > div {
     float:left;

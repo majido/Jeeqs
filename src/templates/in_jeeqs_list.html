@@ -1,6 +1,6 @@
 {% if feedbacks and feedbacks|length > 0 %}
     {% for feedback in feedbacks %}
-        <div style="background: {{ feedback.background }}; float:left; width:100%; margin: 5px;">
+        <div style='background: {{ feedback.background }}; float:left; width:100%; margin: 5px; {%if feedback.vote == 'flag' %}background-image: url("/static/flagged.png"){% endif %}'>
             <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
             <div style="float:right; font-size:small;">
                 <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle " src="{{ feedback.author.gravatar_url }}"/>
