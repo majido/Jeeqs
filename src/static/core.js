@@ -271,3 +271,21 @@ $(document).ready(function() {
         collapsible: false
     })
 });
+
+$(document).ready(function() {
+    $('.feedback-flag-button').bind('click', function(event) {
+        event.preventDefault();
+        var $feedback_key = $(this).parent().siblings('input[name=feedback-id]').val()
+        $initiator = $(this)
+        $.ajax({
+            url: "/rpc",
+            async: false,
+            type: "POST",
+            data: {'method': 'flag_feedback', 'feedback_key': $feedback_key},
+            success: function(response){
+                $initiator.parent().fadeTo("slow", 0.25);
+                $initiator.parent().parent().css('background-image', 'url("/static/flagged.png")');
+            }
+        })
+    })
+})
