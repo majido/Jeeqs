@@ -130,6 +130,12 @@ class Feedback(db.Model):
     date = db.DateTimeProperty(auto_now_add=True)
     vote = db.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])
 
+    # Spam ?
+    flagged_by = db.ListProperty(db.Key)
+    flag_count = db.IntegerProperty(default=0)
+    # if True, this feedback is blocked. Becomes true, once flag_count goes above a threshold
+    flagged = db.BooleanProperty(default=False)
+
 class TestCase(db.Model):
     """ Models a test case"""
     challenge = db.ReferenceProperty(Challenge, collection_name='testcases')

@@ -386,8 +386,10 @@ class RPCHandler(webapp.RequestHandler):
             self.submit_vote()
         elif method == 'update_displayname':
             self.update_displayname()
-        elif method== 'submit_solution':
+        elif method == 'submit_solution':
             self.submit_solution()
+        elif method == 'flag_feedback':
+            self.flag_feedback()
 
     @staticmethod
     def get_vote_numeric_value(vote):
@@ -470,15 +472,12 @@ class RPCHandler(webapp.RequestHandler):
 
     def submit_vote(self):
         submission_key = self.request.get('submission_key')
-        logging.debug('submission key is ' + submission_key)
 
-        # TODO: extract this out
         user = users.get_current_user()
         if (not user):
             self.error(403)
             return
 
-        #TODO: move this to an earlier stage - jeeqser should be available to everyone
         jeeqser = get_jeeqser()
 
         submission = Attempt.get(submission_key)
@@ -510,6 +509,23 @@ class RPCHandler(webapp.RequestHandler):
 
             submission.author.reviews_in_num +=1
             submission.author.put()
+
+    def flag_feedback(self):
+        feedback_key = self.request.get('feedback_key')
+
+        user = users.get_current_user()
+        if (not user):
+            self.error(403)
+            return
+
+        jeeqser = get_jeeqser()
+        feedback = Feedback.get(feedback_key)
+
+        if (jeeqser.key() not in feedback.flagged_by):
+            feedback.flagged_by.append(jeeqser.key())
+            feedback.flag_count += 1
+            feedback.put()
+
 
 def main():
     application = webapp.WSGIApplication(
