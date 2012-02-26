@@ -332,49 +332,32 @@ class ProgramHandler(webapp.RequestHandler):
             self.response.out.write('Compile error:' + traceback.format_exc())
             return
 
-        # create a dedicated module to be used as this program's __main__
-        program_module = new.module('__main__')
-
-        # use this request's __builtin__, since it changes on each request.
-        # this is needed for import statements, among other things.
-        import __builtin__
-
-        program_module.__builtins__ = __builtin__
-
-        # swap in our custom module for __main__. run the program, swap the custom module out.
-        old_main = sys.modules.get('__main__')
+        # run!
         try:
-            sys.modules['__main__'] = program_module
-            program_module.__name__ = '__main__'
-
-            # run!
+            stdout_buffer = StringIO.StringIO()
+            stderr_buffer = StringIO.StringIO()
+            old_stdout = sys.stdout
+            old_stderr = sys.stderr
             try:
-                stdout_buffer = StringIO.StringIO()
-                stderr_buffer = StringIO.StringIO()
-                old_stdout = sys.stdout
-                old_stderr = sys.stderr
-                try:
-                    sys.stdout = stdout_buffer
-                    sys.stderr = stderr_buffer
-                    exec compiled in program_module.__dict__
+                sys.stdout = stdout_buffer
+                sys.stderr = stderr_buffer
+                # This does not allow anything to be done in the sandbox!
+                exec compiled in {'__builtins__': {}}, {}
 
-                finally:
-                    sys.stdout = old_stdout
-                    sys.stderr = old_stderr
+            finally:
+                sys.stdout = old_stdout
+                sys.stderr = old_stderr
 
-                    # Write the buffer to response
-                    self.response.out.write(stdout_buffer.getvalue())
-                    self.response.out.write(stderr_buffer.getvalue())
+                # Write the buffer to response
+                self.response.out.write(stdout_buffer.getvalue())
+                self.response.out.write(stderr_buffer.getvalue())
 
-                self.run_testcases(challenge, program_module)
+            # to be extended if there are test cases to be run.
+            #self.run_testcases(challenge, program_module)
 
-
-            except:
-                self.response.out.write(traceback.format_exc())
-                return
-
-        finally:
-            sys.modules['__main__'] = old_main
+        except:
+            self.response.out.write(traceback.format_exc())
+            return
 
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
