@@ -103,6 +103,7 @@ class FrontPageHandler(webapp.RequestHandler):
                 injeeqs = Feedback\
                                 .all()\
                                 .filter('attempt_author = ', jeeqser)\
+                                .order('flag_count')\
                                 .order('-date')\
                                 .fetch(10)
                 prettify_injeeqs(injeeqs)
@@ -209,6 +210,7 @@ class ChallengeHandler(webapp.RequestHandler):
             if submission:
                 feedbacks = Feedback.all()\
                                     .filter('attempt = ', submission)\
+                                    .order('flag_count')\
                                     .order('-date')\
                                     .fetch(10)
 

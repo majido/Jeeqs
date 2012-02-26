@@ -71,7 +71,21 @@ indexes:
 
 - kind: Feedback
   properties:
+  - name: attempt
+  - name: flag_count
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
   - name: attempt_author
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
+  - name: attempt_author
+  - name: flag_count
   - name: date
     direction: desc
 
