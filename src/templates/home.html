@@ -36,7 +36,7 @@
                     <td></td>
                 </tr>
                 {% for challenge in challenges %}
-                    <tr {% if challenge.correct_count > challenge.incorrect_count %} style="background: #90ee90"{% endif %}>
+                    <tr {% if challenge.solved %} style="background: #90ee90"{% endif %}>
                         <td>
                             {{ challenge.name }}
                         </td>

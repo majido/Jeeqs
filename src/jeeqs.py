@@ -95,6 +95,8 @@ class FrontPageHandler(webapp.RequestHandler):
                     ch.incorrect_count = submission.incorrect_count
                     ch.genius_count = submission.genius_count
                     ch.flag_count = submission.flag_count
+                    ch.solved = True if (ch.correct_count + ch.genius_count > ch.incorrect_count) else False
+
                 else:
                     ch.submitted = False
                     ch.score = 0
@@ -363,10 +365,25 @@ class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
     """
 
+    def authenticate(func):
+        """ Authenticates the user and sets self.jeeqser to be the user object. Will return with error
+        if user is not authenticated
+        """
+        def wrapper(self):
+            user = users.get_current_user()
+            if (not user):
+                self.error(403)
+                return
+            self.jeeqser = get_jeeqser()
+            func(self)
+        return wrapper
+
+    @authenticate
     def post(self):
         method = self.request.get('method')
         if (not method):
             self.error(403)
+
         if method == 'submit_vote':
             self.submit_vote()
         elif method == 'update_displayname':
@@ -411,7 +428,8 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge_key:
             self.error(403)
         challenge = Challenge.get(challenge_key);
-        jeeqser = get_jeeqser()
+        jeeqser = self.jeeqser
+
         if not challenge or not jeeqser:
             self.error(403)
 
@@ -458,39 +476,32 @@ class RPCHandler(webapp.RequestHandler):
     def submit_vote(self):
         submission_key = self.request.get('submission_key')
 
-        user = users.get_current_user()
-        if (not user):
-            self.error(403)
-            return
-
-        jeeqser = get_jeeqser()
-
         submission = Attempt.get(submission_key)
         if (not submission):
             self.error(403)
             return
 
-        if (not jeeqser.key() in submission.users_voted):
-            submission.users_voted.append(jeeqser.key())
+        if (not self.jeeqser.key() in submission.users_voted):
+            submission.users_voted.append(self.jeeqser.key())
             submission.vote_count += 1
             vote = self.request.get('vote')
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.updateSubmission(submission, vote, jeeqser)
+            RPCHandler.updateSubmission(submission, vote, self.jeeqser)
             submission.put()
 
             feedback = Feedback(
                 attempt=submission,
-                author=jeeqser,
+                author=self.jeeqser,
                 attempt_author=submission.author,
                 content=self.request.get('response'),
                 vote=vote)
             feedback.put()
 
             # update stats
-            jeeqser.reviews_out_num += 1
-            jeeqser.put()
+            self.jeeqser.reviews_out_num += 1
+            self.jeeqser.put()
 
             submission.author.reviews_in_num +=1
             submission.author.put()
@@ -498,12 +509,7 @@ class RPCHandler(webapp.RequestHandler):
     def flag_feedback(self):
         feedback_key = self.request.get('feedback_key')
 
-        user = users.get_current_user()
-        if (not user):
-            self.error(403)
-            return
-
-        jeeqser = get_jeeqser()
+        jeeqser = self.jeeqser
         feedback = Feedback.get(feedback_key)
 
         if (jeeqser.key() not in feedback.flagged_by):
