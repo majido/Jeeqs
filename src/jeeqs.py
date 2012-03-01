@@ -10,7 +10,12 @@ import os
 import StringIO
 import sys
 import traceback
+
+from google.appengine.dist import use_library
+use_library('django', '1.3')
+
 import wsgiref.handlers
+
 from models import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
@@ -18,9 +23,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 
-from google.appengine.dist import use_library
-
-use_library('django', '1.3')
 
 from google.appengine.ext import webapp
 
@@ -183,24 +185,26 @@ class ChallengeHandler(webapp.RequestHandler):
 
     @authenticate(False)
     def get(self):
+        # show this user's previous attempts
+        attempts = None
+        feedbacks = None
+        submission = None
+
+
         # get the challenge
         ch_key = self.request.get('ch')
-        if (not ch_key):
+        if not ch_key:
             self.error(403)
-
         challenge = Challenge.get(ch_key)
-        if (not challenge):
+        if not challenge:
             self.error(403)
 
-        logging.info("template code is : " + challenge.template_code)
+        attempt_key = self.request.get('att')
+        if attempt_key:
+            submission = Attempt.get(attempt_key)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'solve_a_challenge.html')
-
-        # show this user's previous attempts
-        attempts = None
-        submission = None
-        feedbacks = None
 
         if (self.jeeqser):
             attempts_query = db.GqlQuery(" SELECT * "
@@ -212,29 +216,30 @@ class ChallengeHandler(webapp.RequestHandler):
                                    challenge)
             attempts = attempts_query.fetch(20)
 
-            # fetch user's submission
-            submission_query = db.GqlQuery(" SELECT * "
-                                           " FROM Attempt  "
-                                           " WHERE author = :1 "
-                                           " AND challenge = :2 "
-                                           " AND active = True "
-                                           " ORDER BY date DESC ",
-                                            self.jeeqser.key(),
-                                            challenge)
-            submissions = submission_query.fetch(1)
+            if not submission:
+                # fetch user's active submission
+                submission_query = db.GqlQuery(" SELECT * "
+                                               " FROM Attempt  "
+                                               " WHERE author = :1 "
+                                               " AND challenge = :2 "
+                                               " AND active = True "
+                                               " ORDER BY date DESC ",
+                                                self.jeeqser.key(),
+                                                challenge)
+                submissions = submission_query.fetch(1)
 
-            if (submissions):
-                submission = submissions[0]
+                if (submissions):
+                    submission = submissions[0]
 
-            else:
-                submission = None
+                else:
+                    submission = None
 
             if submission:
                 feedbacks = Feedback.all()\
-                                    .filter('attempt = ', submission)\
+                                    .filter('submission = ', submission)\
                                     .order('flag_count')\
                                     .order('-date')\
-                                    .fetch(10)
+                                    .fetch(20)
 
             if feedbacks:
                 prettify_injeeqs(feedbacks)
