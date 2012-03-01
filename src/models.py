@@ -40,6 +40,9 @@ class Jeeqser(db.Model):
     def set_displayname(self, value):
         self.displayname_persisted = value
 
+    # Proxy for persisted displayname # TODO: upgrade to property decorator in python 2.7
+    displayname = property(get_displayname, set_displayname, "Display name")
+
     def get_gravatar_url(self):
         if self.gravatar_url_persisted is None:
             self.gravatar_url_persisted = get_profile_url(self.user.email())
@@ -49,8 +52,6 @@ class Jeeqser(db.Model):
     def set_gravatar_url(self, value):
         self.gravatar_url_persisted = value
 
-    # Proxy for persisted displayname # TODO: upgrade to property decorator in python 2.7
-    displayname = property(get_displayname, set_displayname, "Display name")
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
 
 class University(db.Model):

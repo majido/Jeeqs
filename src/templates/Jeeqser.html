@@ -12,7 +12,7 @@
                 url: "/rpc",
                 async: false,
                 type: "POST",
-                data: {'method': 'update_displayname', 'display_name':$displayname, 'key':'{{ jeeqser.key }}'},
+                data: {'method': 'update_displayname', 'display_name':$displayname},
                 success: function(response){
                     $initiator.button("option", "label", "Updated to " + $displayname);
                 },

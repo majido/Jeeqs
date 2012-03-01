@@ -6,25 +6,23 @@ A program for managing challenges, attempt and solutions.
 """
 
 import logging
-import new
 import os
 import StringIO
 import sys
 import traceback
 import wsgiref.handlers
 from models import *
-from gravatar import get_profile_url
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from google.appengine.api import users
-from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 
 from google.appengine.dist import use_library
 
 use_library('django', '1.3')
 
-from google.appengine.ext.webapp import template
+from google.appengine.ext import webapp
 
 import lib.markdown as markdown
 
@@ -47,6 +45,29 @@ def get_jeeqser():
         return jeeqser
     return jeeqsers[0]
 
+def authenticate(required=True):
+    """ Authenticates the user and sets self.jeeqser to be the user object.
+        The handler object (self) is different for each request. so jeeqser should not leak between requests.
+        Will return with error if user is not authenticated
+    """
+    def real_decorator(func):
+        def wrapper(self):
+            user = users.get_current_user()
+            if not user and required:
+                self.error(403)
+                self.out.response.write('User is not authenticated!')
+                return
+            elif user:
+                self.jeeqser = get_jeeqser()
+            else:
+                self.jeeqser = None
+            func(self)
+
+        return wrapper
+    return real_decorator
+
+
+
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
     for jeeq in injeeqs:
@@ -67,27 +88,27 @@ class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
     """
 
+    @authenticate(False)
     def get(self):
         # get available challenges
 
         all_challenges = Challenge.all().fetch(100)
 
-        jeeqser = get_jeeqser()
         injeeqs = None
 
         for ch in all_challenges:
             submitted = False
             score = 0
 
-            if jeeqser:
+            if self.jeeqser:
                 #TODO: inefficient
                 submissions = Attempt\
                                     .all()\
-                                    .filter("author = ", jeeqser)\
+                                    .filter("author = ", self.jeeqser)\
                                     .filter("challenge = ", ch)\
                                     .filter('active = ', True)\
                                     .fetch(1)
-                if (len(submissions) > 0):
+                if len(submissions) > 0:
                     submission = submissions[0]
                     ch.submitted = True
                     ch.score = round(submission.vote_average, 2)
@@ -104,7 +125,7 @@ class FrontPageHandler(webapp.RequestHandler):
 
                 injeeqs = Feedback\
                                 .all()\
-                                .filter('attempt_author = ', jeeqser)\
+                                .filter('attempt_author = ', self.jeeqser)\
                                 .order('flag_count')\
                                 .order('-date')\
                                 .fetch(10)
@@ -114,7 +135,7 @@ class FrontPageHandler(webapp.RequestHandler):
 
         vars = {'challenges': all_challenges,
                 'injeeqs': injeeqs,
-                'jeeqser': get_jeeqser(),
+                'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -125,15 +146,15 @@ class FrontPageHandler(webapp.RequestHandler):
 class UserHandler(webapp.RequestHandler):
     """Renders User's profile page"""
 
+    @authenticate(False)
     def get(self):
-        jeeqser = get_jeeqser()
-        if not jeeqser:
+        if not self.jeeqser:
             self.redirect("/")
-            return;
+            return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
-        vars = {'jeeqser' : jeeqser,
-                'gravatar_url' : jeeqser.gravatar_url,
+        vars = {'jeeqser' : self.jeeqser,
+                'gravatar_url' : self.jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -143,12 +164,12 @@ class UserHandler(webapp.RequestHandler):
 
 class AboutHandler(webapp.RequestHandler):
     """Renders the About page """
-    def get(self):
-        jeeqser = get_jeeqser()
 
+    @authenticate()
+    def get(self):
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'about.html')
         vars = {'jeeqser' : jeeqser,
-                'gravatar_url' : jeeqser.gravatar_url if jeeqser else None,
+                'gravatar_url' : self.jeeqser.gravatar_url if jeeqser else None,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -160,6 +181,7 @@ class ChallengeHandler(webapp.RequestHandler):
     """renders the solve_a_challenge.html template
     """
 
+    @authenticate(False)
     def get(self):
         # get the challenge
         ch_key = self.request.get('ch')
@@ -180,15 +202,13 @@ class ChallengeHandler(webapp.RequestHandler):
         submission = None
         feedbacks = None
 
-        jeeqser = get_jeeqser()
-
-        if (jeeqser):
+        if (self.jeeqser):
             attempts_query = db.GqlQuery(" SELECT * "
                                    " FROM Attempt "
                                    " WHERE author = :1 "
                                    " AND challenge = :2 "
                                    " ORDER BY date DESC",
-                                   jeeqser.key(),
+                                   self.jeeqser.key(),
                                    challenge)
             attempts = attempts_query.fetch(20)
 
@@ -199,7 +219,7 @@ class ChallengeHandler(webapp.RequestHandler):
                                            " AND challenge = :2 "
                                            " AND active = True "
                                            " ORDER BY date DESC ",
-                                            jeeqser.key(),
+                                            self.jeeqser.key(),
                                             challenge)
             submissions = submission_query.fetch(1)
 
@@ -221,7 +241,7 @@ class ChallengeHandler(webapp.RequestHandler):
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
-                'jeeqser': jeeqser,
+                'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
@@ -238,23 +258,20 @@ class ReviewHandler(webapp.RequestHandler):
     """renders the review template
     """
 
+    @authenticate(False)
     def get(self):
 
-        # TODO: extract this out
-        user = users.get_current_user()
-        if (not user):
+        if not self.jeeqser:
             self.redirect('/')
             return
 
-        jeeqser = get_jeeqser()
-
         # get the challenge
         ch_key = self.request.get('ch')
-        if (not ch_key):
+        if not ch_key:
             self.error(403)
 
         challenge = Challenge.get(ch_key)
-        if (not challenge):
+        if not challenge:
             self.error(403)
 
         # Retrieve other users' submissions
@@ -268,14 +285,14 @@ class ReviewHandler(webapp.RequestHandler):
         submissions = submissions_query.fetch(20)
 
         # TODO: replace this iteration with a data oriented approach
-        submissions[:] = [submission for submission in submissions if not (submission.author.key() == jeeqser.key() or jeeqser.key() in submission.users_voted)]
+        submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
 
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
-                'jeeqser': jeeqser,
+                'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'challenge' : challenge,
@@ -297,9 +314,9 @@ class ProgramHandler(webapp.RequestHandler):
         for test in challenge.testcases:
             test_num = test_num + 1
             result = eval(test.statement, program_module.__dict__)
-            if (not str(result) == test.expected):
+            if not str(result) == test.expected:
                 self.response.out.write("FAILED ON TEST CASE " + test.statement + '\n')
-        if (test_num == 0):
+        if test_num == 0:
             self.response.out.write("No test cases to run!")
         else:
             self.response.out.write("SUCCESS")
@@ -365,20 +382,7 @@ class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
     """
 
-    def authenticate(func):
-        """ Authenticates the user and sets self.jeeqser to be the user object. Will return with error
-        if user is not authenticated
-        """
-        def wrapper(self):
-            user = users.get_current_user()
-            if (not user):
-                self.error(403)
-                return
-            self.jeeqser = get_jeeqser()
-            func(self)
-        return wrapper
-
-    @authenticate
+    @authenticate(True)
     def post(self):
         method = self.request.get('method')
         if (not method):
@@ -419,6 +423,9 @@ class RPCHandler(webapp.RequestHandler):
             submission.flagged_by.append(voter.key())
 
     def submit_solution(self):
+        """
+        Submits a solution
+        """
         solution = self.request.get('solution')
         if not solution:
             return
@@ -428,13 +435,12 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge_key:
             self.error(403)
         challenge = Challenge.get(challenge_key);
-        jeeqser = self.jeeqser
 
-        if not challenge or not jeeqser:
+        if not challenge:
             self.error(403)
 
         attempt = Attempt(
-                    author=jeeqser.key(),
+                    author=self.jeeqser.key(),
                     challenge=challenge,
                     content=markdown.markdown(solution, ['codehilite(force_linenos=True)']),
                     markdown=solution,
@@ -443,7 +449,7 @@ class RPCHandler(webapp.RequestHandler):
 
         previous_submissions = Attempt\
             .all()\
-            .filter('author = ', get_jeeqser().key())\
+            .filter('author = ', self.jeeser.key())\
             .filter('challenge = ', challenge)\
             .filter('active = ', True)\
             .filter('submitted = ', True)\
@@ -456,20 +462,19 @@ class RPCHandler(webapp.RequestHandler):
 
         attempt.put()
 
-        jeeqser.submissions_num += 1
-        jeeqser.put()
+        self.jeeqser.submissions_num += 1
+        self.jeeqser.put()
 
     def update_displayname(self):
         displayname = self.request.get('display_name')
-        jeeqser = Jeeqser.get(self.request.get('key'))
 
-        if displayname == jeeqser.displayname_persisted:
+        if displayname == self.jeeqser.displayname_persisted:
             return;
 
         exists = len(Jeeqser.all().filter('displayname_persisted = ', displayname).fetch(1)) > 0
         if not exists:
-            jeeqser.displayname = displayname
-            jeeqser.put()
+            self.jeeqser.displayname = displayname
+            self.jeeqser.put()
         else:
             self.error(403)
 
@@ -509,11 +514,10 @@ class RPCHandler(webapp.RequestHandler):
     def flag_feedback(self):
         feedback_key = self.request.get('feedback_key')
 
-        jeeqser = self.jeeqser
         feedback = Feedback.get(feedback_key)
 
         if (jeeqser.key() not in feedback.flagged_by):
-            feedback.flagged_by.append(jeeqser.key())
+            feedback.flagged_by.append(self.jeeqser.key())
             feedback.flag_count += 1
             feedback.put()
 
