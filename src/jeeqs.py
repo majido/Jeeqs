@@ -521,7 +521,7 @@ class RPCHandler(webapp.RequestHandler):
 
         feedback = Feedback.get(feedback_key)
 
-        if (jeeqser.key() not in feedback.flagged_by):
+        if (self.jeeqser.key() not in feedback.flagged_by):
             feedback.flagged_by.append(self.jeeqser.key())
             feedback.flag_count += 1
             feedback.put()
