@@ -236,7 +236,7 @@ class ChallengeHandler(webapp.RequestHandler):
 
             if submission:
                 feedbacks = Feedback.all()\
-                                    .filter('submission = ', submission)\
+                                    .filter('attempt = ', submission)\
                                     .order('flag_count')\
                                     .order('-date')\
                                     .fetch(20)
@@ -454,7 +454,7 @@ class RPCHandler(webapp.RequestHandler):
 
         previous_submissions = Attempt\
             .all()\
-            .filter('author = ', self.jeeser.key())\
+            .filter('author = ', self.jeeqser.key())\
             .filter('challenge = ', challenge)\
             .filter('active = ', True)\
             .filter('submitted = ', True)\
