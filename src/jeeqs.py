@@ -114,16 +114,12 @@ class FrontPageHandler(webapp.RequestHandler):
                     submission = submissions[0]
                     ch.submitted = True
                     ch.score = round(submission.vote_average, 2)
-                    ch.correct_count = submission.correct_count
-                    ch.incorrect_count = submission.incorrect_count
-                    ch.genius_count = submission.genius_count
-                    ch.flag_count = submission.flag_count
-                    ch.solved = True if (ch.correct_count + ch.genius_count > ch.incorrect_count) else False
+                    ch.solved = True if (submission.correct_count + submission.genius_count > submission.incorrect_count) else False
+                    ch.active_submission = submission
 
                 else:
                     ch.submitted = False
                     ch.score = 0
-                    ch.correct_count = ch.incorrect_count = ch.genius_count = 0
 
                 injeeqs = Feedback\
                                 .all()\

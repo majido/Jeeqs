@@ -53,12 +53,7 @@
                         </td>
                         <td>
                             {% if challenge.submitted %}
-                                <span>
-                                    <span style="color:green; float:left;">{{ challenge.correct_count }}&nbsp;</span>
-                                    <span style="color:red; float:left">{{ challenge.incorrect_count }}&nbsp;</span>
-                                    <span style="color:gold; float:left">{{ challenge.genius_count }}&nbsp;</span>
-                                    <span style="color:grey; float:left">{{ challenge.flag_count }}&nbsp;</span>
-                                </span>
+                                {% include "attempt_score.html" with submission=challenge.active_submission %}
                             {% endif %}
                         </td>
                         <td>
