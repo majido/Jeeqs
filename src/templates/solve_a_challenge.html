@@ -151,7 +151,7 @@
             <div id="submission-content" style="overflow:scroll">
                 {{ submission.content|safe}}
             </div>
-            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}} based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
             <h2>{% include "attempt_score.html" with submission=submission%}</h2>
             <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right; margin: 10px;">
                 <h3><a href="#">In Jeeqs</a></h3>
