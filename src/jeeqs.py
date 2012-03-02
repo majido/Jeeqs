@@ -460,11 +460,14 @@ class RPCHandler(webapp.RequestHandler):
             .filter('submitted = ', True)\
             .fetch(10)
 
+        max_old_index = 0
         # there should be only one previous submission.
         for previous_submission in previous_submissions:
             previous_submission.active = False
+            max_old_index = max(max_old_index, previous_submission.index)
             previous_submission.put()
 
+        attempt.index = max_old_index + 1
         attempt.put()
 
         self.jeeqser.submissions_num += 1

@@ -8,7 +8,7 @@
                         submitted by {{ feedback.author.displayname }} @ {{ feedback.date }}
                     </span>
                     {% if write_challenge_name %}
-                        for <a class="noline" href='/challenge/?ch={{ feedback.attempt.challenge.key }}&att={{ feedback.attempt.key }}'>{{ feedback.attempt.challenge.name }}</a>
+                        for <a class="noline" href='/challenge/?ch={{ feedback.attempt.challenge.key }}&att={{ feedback.attempt.key }}'>attempt #{{ feedback.attempt.index }}</a>  of {{ feedback.attempt.challenge.name }}
                     {% endif %}
             </div>
             <br/>

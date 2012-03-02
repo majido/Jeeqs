@@ -115,6 +115,9 @@ class Attempt(db.Model):
     active = db.BooleanProperty(default=False)
     submitted = db.BooleanProperty(default=False)
 
+    # the index of this attempt among all attempts for a challenge.
+    index = db.IntegerProperty(default=0)
+
     # Spam ?
     flagged_by = db.ListProperty(db.Key)
     flag_count = db.IntegerProperty(default=0)
