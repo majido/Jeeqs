@@ -43,7 +43,7 @@
                         <td>
                             <span>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
-                                    {% if challenge.correct_count > challenge.incorrect_count %}
+                                    {% if challenge.solved %}
                                         <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
                                     {% else %}
                                         <span class="ui-icon ui-icon-locked" style="float:left"></span>

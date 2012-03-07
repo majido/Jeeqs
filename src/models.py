@@ -67,7 +67,7 @@ class Course(db.Model):
     name = db.StringProperty()
     code = db.StringProperty()
     description = db.TextProperty()
-    level = db.StringProperty(choices=['undergraduate, graduate'])
+    level = db.StringProperty(choices=['undergraduate', 'graduate'])
     program = db.ReferenceProperty(Program, collection_name='courses')
     yearOffered = db.IntegerProperty()
     monthOffered = db.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
@@ -81,7 +81,12 @@ class Exercise(db.Model):
 class Challenge(db.Model):
     """Models a challenge"""
     name = db.StringProperty()
+
+    #compiled markdown
     content = db.TextProperty()
+    #non-compiled markdown
+    markdown = db.TextProperty()
+
     template_code = db.StringProperty(multiline=True)
     attribution = db.StringProperty(multiline=True)
     source = db.LinkProperty()

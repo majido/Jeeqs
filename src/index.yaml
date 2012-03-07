@@ -100,3 +100,13 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: Solution
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: Submission
+  properties:
+  - name: __key__
+    direction: desc

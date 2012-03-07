@@ -1,6 +1,6 @@
 <div class="challenge-div" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
-        <p> {{ challenge.content|escape|linebreaks }} </p>
+        <p> {{ challenge.content|safe }} </p>
     <br/>
 
     {% if challenge.attribution %}
@@ -22,7 +22,7 @@
             {% endif %}
             {% if challenge.source %}
                 <p> <strong>Source</strong>
-                <br/><small>{{ challenge.source }} </small></p>
+                <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
             {% endif %}
         </div>
     </div>

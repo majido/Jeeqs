@@ -25,8 +25,14 @@
 
         $(document).ready(function() {
 
-            var converter1 = Markdown.getSanitizingConverter();
-            var editor1 = new Markdown.Editor(converter1);
+            var converter = Markdown.getSanitizingConverter();
+            converter.hooks.chain("postConversion", function (text) {
+                // render the new math
+                // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                // MathJax.Hub.Typeset($('#wmd-preview'));
+                return text;
+            });
+            var editor1 = new Markdown.Editor(converter);
             editor1.run();
 
             // Resize the accordion to accomodate the preview
@@ -82,11 +88,18 @@
             {% endif %}
 
             $('#insertProgram').bind('click', function() {
+                var $codeLines = $editor.getSession().getValue().split(/\r\n|\r|\n/);
                 $('#wmd-input').val(
-                                $('#wmd-input').val()
-                                + '\n    :::python\n'
-                                + '    '
-                                + $editor.getSession().getValue());
+                        $('#wmd-input').val()
+                        + '\n    :::python'
+                )
+                $.each($codeLines, function(index, value) {
+                    $('#wmd-input').val(
+                            $('#wmd-input').val()
+                            + '\n    '
+                            + value
+                    )
+                })
             })
 
         })
@@ -106,9 +119,9 @@
                     <div class="wmd-panel">
                         <div id="wmd-button-bar"></div>
                         <textarea class="wmd-input" id="wmd-input"></textarea>
-                        <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> is supported.</div>
+                        <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
                     </div>
-                    <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                    <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
                 </div>
             </div>
 

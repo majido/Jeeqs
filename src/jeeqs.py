@@ -5,14 +5,14 @@ A program for managing challenges, attempt and solutions.
 
 """
 
+from google.appengine.dist import use_library
+use_library('django', '1.3')
+
 import logging
 import os
 import StringIO
 import sys
 import traceback
-
-from google.appengine.dist import use_library
-use_library('django', '1.3')
 
 import wsgiref.handlers
 
@@ -163,11 +163,11 @@ class UserHandler(webapp.RequestHandler):
 class AboutHandler(webapp.RequestHandler):
     """Renders the About page """
 
-    @authenticate()
+    @authenticate(required=False)
     def get(self):
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'about.html')
-        vars = {'jeeqser' : jeeqser,
-                'gravatar_url' : self.jeeqser.gravatar_url if jeeqser else None,
+        vars = {'jeeqser' : self.jeeqser,
+                'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         }
@@ -194,6 +194,10 @@ class ChallengeHandler(webapp.RequestHandler):
         challenge = Challenge.get(ch_key)
         if not challenge:
             self.error(403)
+
+        if not challenge.content:
+            challenge.content = markdown.markdown(challenge.markdown, ['codehilite(force_linenos=True)', 'mathjax'])
+            challenge.put()
 
         attempt_key = self.request.get('att')
         if attempt_key:
@@ -443,7 +447,7 @@ class RPCHandler(webapp.RequestHandler):
         attempt = Attempt(
                     author=self.jeeqser.key(),
                     challenge=challenge,
-                    content=markdown.markdown(solution, ['codehilite(force_linenos=True)']),
+                    content=markdown.markdown(solution, ['codehilite(force_linenos=True)', 'mathjax']),
                     markdown=solution,
                     submitted=True,
                     active=True)

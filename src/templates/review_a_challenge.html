@@ -22,8 +22,8 @@
 
         $(document).ready(function() {
             $('.submit-vote').bind('click', function() {
-                $submission_id = $(this).attr("id").split("_")[1];
-                $response = $('#response_'+$submission_id).val();
+                $submission_id = $(this).attr("id").split("__")[1];
+                $response = $('#response__'+$submission_id).val();
                 $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
 
                 if (!$vote || $response.length < 10) {
@@ -98,9 +98,9 @@
                             <label for="flag_{{ submission.key }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
                         </span>
                         <div>
-                            <textarea id="response_{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
+                            <textarea id="response__{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
                         </div>
-                        <button class="submit-vote" id="submit_{{ submission.key }}" style="float:right">{{ submission.voted|yesno:'Submitted,Submit' }}</button>
+                        <button class="submit-vote" id="submit__{{ submission.key }}" style="float:right">{{ submission.voted|yesno:'Submitted,Submit' }}</button>
                     </div>
                 </div>
             {% endfor %}

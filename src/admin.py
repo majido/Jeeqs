@@ -19,7 +19,7 @@ class ChallengePage(webapp.RequestHandler):
     def get(self):
         self.response.out.write('<html><body>'
                                 '<form method="POST" '
-                                'action="/">'
+                                'action="/admin/challenges/new">'
                                 '<table>')
         self.response.out.write(ChallengeForm())
         self.response.out.write('</table>'
@@ -27,12 +27,12 @@ class ChallengePage(webapp.RequestHandler):
                                 '</form></body></html>')
 
     def post(self):
-        data = ItemForm(data=self.request.POST)
+        data = ChallengeForm(data=self.request.POST)
         if data.is_valid():
             entity = data.save(commit=False)
             entity.added_by = users.get_current_user()
             entity.put()
-            self.redirect('/challenges.html')
+            self.redirect('/admin/challenges')
         else:
             self.response.out.write('<html><body>'
                                     '<form method="POST" '
@@ -84,7 +84,7 @@ class ChallengeEditPage(webapp.RequestHandler):
                                     '</form></body></html>' % key)
 def main():
     application = webapp.WSGIApplication(
-        [   ('/admin', ChallengePage),
+        [   ('/admin/challenges/new', ChallengePage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/edit', ChallengeEditPage)
         ],
