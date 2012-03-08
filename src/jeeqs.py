@@ -196,7 +196,7 @@ class ChallengeHandler(webapp.RequestHandler):
             self.error(403)
 
         if not challenge.content:
-            challenge.content = markdown.markdown(challenge.markdown, ['codehilite(force_linenos=True)', 'mathjax'])
+            challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
             challenge.put()
 
         attempt_key = self.request.get('att')
@@ -247,6 +247,7 @@ class ChallengeHandler(webapp.RequestHandler):
         vars = {'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': self.jeeqser,
+                'isadmin' : users.is_current_user_admin(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
@@ -401,6 +402,10 @@ class RPCHandler(webapp.RequestHandler):
             self.submit_solution()
         elif method == 'flag_feedback':
             self.flag_feedback()
+        elif method == 'submit_challenge_source':
+            self.submit_challenge_source()
+        else:
+            self.error(403)
 
     @staticmethod
     def get_vote_numeric_value(vote):
@@ -427,6 +432,33 @@ class RPCHandler(webapp.RequestHandler):
                 submission.flagged = True
             submission.flagged_by.append(voter.key())
 
+    def submit_challenge_source(self):
+        """updates a challenge's source """
+        if not users.is_current_user_admin():
+            self.error(403)
+            return
+
+        new_source = self.request.get('source')
+        if not new_source:
+            self.error(403)
+            return
+
+        # retrieve the challenge
+        challenge_key = self.request.get('challenge_key')
+        if not challenge_key:
+            self.error(403)
+            return
+        challenge = Challenge.get(challenge_key);
+
+        if not challenge:
+            self.error(403)
+            return
+
+        challenge.markdown = new_source
+        # causes recalculation of content
+        challenge.content = ''
+        challenge.put()
+
     def submit_solution(self):
         """
         Submits a solution
@@ -439,15 +471,17 @@ class RPCHandler(webapp.RequestHandler):
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
             self.error(403)
+            return
         challenge = Challenge.get(challenge_key);
 
         if not challenge:
             self.error(403)
+            return
 
         attempt = Attempt(
                     author=self.jeeqser.key(),
                     challenge=challenge,
-                    content=markdown.markdown(solution, ['codehilite(force_linenos=True)', 'mathjax']),
+                    content=markdown.markdown(solution, ['codehilite', 'mathjax']),
                     markdown=solution,
                     submitted=True,
                     active=True)

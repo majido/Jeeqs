@@ -9,7 +9,10 @@
             <p> {{ challenge.content|safe }} </p>
         </div>
         <div id="tabs-2">
-            <textarea readonly="true" rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
+            <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
+            {% if isadmin %}
+                <button type="button" id="submitChallengeSource">Update</button>
+            {% endif %}
         </div>
         <br/>
     </div>
