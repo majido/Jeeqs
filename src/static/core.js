@@ -288,4 +288,6 @@ $(document).ready(function() {
             }
         })
     })
+
+    $('#challenge').tabs();
 })

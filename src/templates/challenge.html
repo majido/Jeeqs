@@ -1,7 +1,18 @@
-<div class="challenge-div" style="float:left; width:100%;">
+<div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
-        <p> {{ challenge.content|safe }} </p>
-    <br/>
+    <div id="challenge">
+        <ul>
+            <li><a href="#tabs-1">Problem</a></li>
+            <li><a href="#tabs-2">Source</a></li>
+        </ul>
+        <div id="tabs-1">
+            <p> {{ challenge.content|safe }} </p>
+        </div>
+        <div id="tabs-2">
+            <textarea readonly="true" rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
+        </div>
+        <br/>
+    </div>
 
     {% if challenge.attribution %}
     <div id="challenge-info" class="accordion-closed" style="float:left">
