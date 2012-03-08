@@ -289,5 +289,5 @@ $(document).ready(function() {
         })
     })
 
-    $('#challenge').tabs();
+    $('.tabs').tabs();
 })

@@ -455,8 +455,7 @@ class RPCHandler(webapp.RequestHandler):
             return
 
         challenge.markdown = new_source
-        # causes recalculation of content
-        challenge.content = ''
+        challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
         challenge.put()
 
     def submit_solution(self):

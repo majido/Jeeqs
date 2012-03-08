@@ -1,6 +1,6 @@
 <div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
-    <div id="challenge">
+    <div id="challenge" class="tabs">
         <ul>
             <li><a href="#tabs-1">Problem</a></li>
             <li><a href="#tabs-2">Source</a></li>
@@ -19,25 +19,38 @@
 
     {% if challenge.attribution %}
     <div id="challenge-info" class="accordion-closed" style="float:left">
-        <h4><a href="#">Details</a></h4>
+        <h4><a href="#">Info</a></h4>
         <div>
-            {% if challenge.exercise %}
-                <p>
-                <strong>Course</strong>
-                <br/>
-                <small>{{ challenge.exercise.course.program.university.name }}, {{ challenge.exercise.course.program.name }} : {{ challenge.exercise.course.name }}</small>
-                </p>
-            {%  endif %}
-            {% if challenge.attribution %}
-                <p> <strong>Attribution</strong>
-                    <br/>
-                    <small>{{ challenge.attribution }}</small>
-                </p>
-            {% endif %}
-            {% if challenge.source %}
-                <p> <strong>Source</strong>
-                <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
-            {% endif %}
+            <div id="Info" class="tabs">
+                <ul>
+                    <li><a href="#details">Details</a></li>
+                    <li><a href="#source-pdf">PDF</a></li>
+                </ul>
+                <div id="details">
+                    {% if challenge.exercise %}
+                        <p>
+                        <strong>Course</strong>
+                        <br/>
+                        <small>{{ challenge.exercise.course.program.university.name }}, {{ challenge.exercise.course.program.name }} : {{ challenge.exercise.course.name }}</small>
+                        </p>
+                    {%  endif %}
+                    {% if challenge.attribution %}
+                        <p> <strong>Attribution</strong>
+                            <br/>
+                            <small>{{ challenge.attribution }}</small>
+                        </p>
+                    {% endif %}
+                    {% if challenge.source %}
+                        <p> <strong>Source</strong>
+                        <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
+                    {% endif %}
+                </div>
+                <div id="source-pdf">
+                    {% if challenge.source %}
+                        <iframe src="http://docs.google.com/viewer?url={{ challenge.source}}&embedded=true" width="100%" height="300px" style="border: none;"></iframe>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}

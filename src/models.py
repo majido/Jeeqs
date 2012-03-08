@@ -71,6 +71,8 @@ class Course(db.Model):
     program = db.ReferenceProperty(Program, collection_name='courses')
     yearOffered = db.IntegerProperty()
     monthOffered = db.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
+    # Attribution for this course
+    attribution = db.TextProperty()
 
 class Exercise(db.Model):
     # Exercise number like
@@ -88,10 +90,23 @@ class Challenge(db.Model):
     markdown = db.TextProperty()
 
     template_code = db.StringProperty(multiline=True)
-    attribution = db.StringProperty(multiline=True)
+    attribution_persistent = db.TextProperty()
     source = db.LinkProperty()
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
+
+    def get_attribution(self):
+        if self.attribution_persistent:
+            return self.attribution_persistent
+        elif self.exercise.course.attribution:
+            self.attribution_persistent = self.exercise.course.attribution
+            self.put()
+            return self.attribution_persistent
+
+    def set_attribution(self, value):
+        self.attribution_persistent = value
+
+    attribution = property(get_attribution, set_attribution, "Attribution")
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """
@@ -150,11 +165,5 @@ class TestCase(db.Model):
     challenge = db.ReferenceProperty(Challenge, collection_name='testcases')
     statement = db.StringProperty(multiline=True)
     expected = db.StringProperty(multiline=True)
-
-
-    '''
-    c = Challenge.get('agpkZXZ-amVlcXN5cg8LEglDaGFsbGVuZ2UYAQw')
-    test = TestCase(challenge=c, statement='factorial(3)')
-    '''
 
 

@@ -202,13 +202,13 @@
         <h3><a href="#">Your Recent Submissions</a></h3>
         <div class="recent-jeeqs">
             {% if jeeqser %}
-            {% for attempt in attempts %}
-            <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
-            <div>
-                    {{ attempt.content|safe }}
-            </div>
-            <hr/>
-            {% endfor %}
+                {% for attempt in attempts %}
+                <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                <div>
+                        {{ attempt.content|safe }}
+                </div>
+                <hr/>
+                {% endfor %}
             {% endif %}
         </div>
     </div>
