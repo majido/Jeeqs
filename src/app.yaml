@@ -3,13 +3,19 @@ version: alpha
 runtime: python
 api_version: 1
 
+builtins:
+  - remote_api: on
+
+inbound_services:
+- warmup
+
 handlers:
 - url: /static
   static_dir: static
   expiration: 7d
 
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+#- url: /remote_api
+#  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
 
 - url: /admin/.*
   script: admin.py

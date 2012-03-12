@@ -45,7 +45,7 @@ class ChallengePage(webapp.RequestHandler):
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
-        query = db.GqlQuery("SELECT * FROM Challenge ORDER BY name")
+        query = Challenge.all().fetch(1000)
         for item in query:
             self.response.out.write('<a href="/admin/challenges/edit?key=%s">Edit</a> ' % item.key())
             self.response.out.write("%s<br>" % (item.name))

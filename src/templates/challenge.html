@@ -4,6 +4,7 @@
         <ul>
             <li><a href="#tabs-1">Problem</a></li>
             <li><a href="#tabs-2">Source</a></li>
+            <li><a href="#source-pdf">PDF</a></li>
         </ul>
         <div id="tabs-1">
             <p> {{ challenge.content|safe }} </p>
@@ -14,17 +15,23 @@
                 <button type="button" id="submitChallengeSource">Update</button>
             {% endif %}
         </div>
-        <br/>
+        <div id="source-pdf" stye="min-height: 400px">
+            {% if challenge.source %}
+                <iframe class="scribd_iframe_embed"
+                        src="{{ challenge.source }}"
+                        data-auto-height="false" data-aspect-ratio="0.772727272727273" scrolling="no" id="doc_6637"
+                        width="100%" height="350px" frameborder="0"></iframe>
+            {% endif %}
+        </div>
     </div>
 
     {% if challenge.attribution %}
-    <div id="challenge-info" class="accordion-closed" style="float:left">
+    <div id="challenge-info" class="accordion-closed" style="float:left; margin-top: 15px;">
         <h4><a href="#">Info</a></h4>
         <div>
             <div id="Info" class="tabs">
                 <ul>
                     <li><a href="#details">Details</a></li>
-                    <li><a href="#source-pdf">PDF</a></li>
                 </ul>
                 <div id="details">
                     {% if challenge.exercise %}
@@ -43,11 +50,6 @@
                     {% if challenge.source %}
                         <p> <strong>Source</strong>
                         <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
-                    {% endif %}
-                </div>
-                <div id="source-pdf">
-                    {% if challenge.source %}
-                        <iframe src="http://docs.google.com/viewer?url={{ challenge.source}}&embedded=true" width="100%" height="300px" style="border: none;"></iframe>
                     {% endif %}
                 </div>
             </div>

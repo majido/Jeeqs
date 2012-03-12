@@ -82,7 +82,20 @@ class Exercise(db.Model):
 
 class Challenge(db.Model):
     """Models a challenge"""
-    name = db.StringProperty()
+    name_persistent = db.StringProperty()
+
+    def get_name(self):
+        if self.name_persistent:
+            return self.name_persistent
+        elif self.exercise and self.exercise.name:
+            self.name_persistent = self.exercise.name
+            self.put()
+            return self.name_persistent
+
+    def set_name(self, value):
+        self.name_persistent = value
+
+    name = property(get_name, set_name, "Name")
 
     #compiled markdown
     content = db.TextProperty()
@@ -98,7 +111,7 @@ class Challenge(db.Model):
     def get_attribution(self):
         if self.attribution_persistent:
             return self.attribution_persistent
-        elif self.exercise.course.attribution:
+        elif self.exercise and self.exercise.course.attribution:
             self.attribution_persistent = self.exercise.course.attribution
             self.put()
             return self.attribution_persistent
