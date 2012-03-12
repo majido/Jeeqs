@@ -1,0 +1,4 @@
+{# Shows the exercise breadcrumbs for a challenge #}
+{% if challenge.exercise %}
+    <small>{{ challenge.exercise.number }} > {{ challenge.exercise.course.code }} > {{ challenge.exercise.course.program.name }} > {{ challenge.exercise.course.program.university.name }}</small>
+{% endif %}

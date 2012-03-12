@@ -58,6 +58,16 @@ indexes:
   - name: date
     direction: desc
 
+- kind: Challenge
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: Exercise
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: Feedback
   properties:
   - name: __key__

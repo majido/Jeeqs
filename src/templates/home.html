@@ -62,9 +62,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if challenge.exercise %}
-                                <small>{{ challenge.exercise.number }} > {{ challenge.exercise.course.code }} > {{ challenge.exercise.course.program.name }} > {{ challenge.exercise.course.program.university.name }}</small>
-                            {% endif %}
+                            {% include "exercise_breadcrumbs.html" %}
                         </td>
                     </tr>
                 {% endfor %}

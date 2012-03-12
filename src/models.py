@@ -100,7 +100,7 @@ class Challenge(db.Model):
     #compiled markdown
     content = db.TextProperty()
     #non-compiled markdown
-    markdown = db.TextProperty()
+    markdown = db.TextProperty(default='Complete me!')
 
     template_code = db.StringProperty(multiline=True)
     attribution_persistent = db.TextProperty()

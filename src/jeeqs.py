@@ -195,7 +195,7 @@ class ChallengeHandler(webapp.RequestHandler):
         if not challenge:
             self.error(403)
 
-        if not challenge.content:
+        if not challenge.content and challenge.markdown:
             challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
             challenge.put()
 
