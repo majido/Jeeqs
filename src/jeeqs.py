@@ -131,7 +131,8 @@ class FrontPageHandler(webapp.RequestHandler):
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
-        vars = {'challenges': all_challenges,
+        vars = {'local': os.environ['APPLICATION_ID'].startswith('dev~'),
+                'challenges': all_challenges,
                 'injeeqs': injeeqs,
                 'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),

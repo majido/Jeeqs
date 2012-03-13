@@ -3,6 +3,9 @@
 <html>
 <head>
     {% include "head.html" %}
+    {% if not local %}
+        {% include "analytics.html" %}
+    {% endif %}
     {% block load_scripts %}
     {% endblock %}
     <title> {% block title %} Jeeqs {% endblock %} </title>
@@ -14,6 +17,9 @@
     <div id="container">
         {% block container %}
         {% endblock %}
+        <div id="pluson" align="left" style="float:left; clear:both; height: 60px; padding-top: 40px;">
+            {% include "plusone.html" %}
+        </div>
     </div>
 </body>
 </html>

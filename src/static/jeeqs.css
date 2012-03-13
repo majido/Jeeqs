@@ -72,12 +72,12 @@ a img {
 }
 
 #container {
+    width: 90%;
     margin-top: 3em;
     margin-bottom: 5em;
     margin-left: 5em;
     margin-right: 5em;
     float:left;
-    width:80%;
     padding:2em;
 }
 
