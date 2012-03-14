@@ -47,6 +47,11 @@ def get_jeeqser():
         return jeeqser
     return jeeqsers[0]
 
+def add_common_vars(vars):
+    vars['local'] = os.environ['APPLICATION_ID'].startswith('dev~')
+    return vars
+
+
 def authenticate(required=True):
     """ Authenticates the user and sets self.jeeqser to be the user object.
         The handler object (self) is different for each request. so jeeqser should not leak between requests.
@@ -131,13 +136,13 @@ class FrontPageHandler(webapp.RequestHandler):
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
-        vars = {'local': os.environ['APPLICATION_ID'].startswith('dev~'),
+        vars = add_common_vars({
                 'challenges': all_challenges,
                 'injeeqs': injeeqs,
                 'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
-        }
+        })
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
@@ -152,11 +157,12 @@ class UserHandler(webapp.RequestHandler):
             return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
-        vars = {'jeeqser' : self.jeeqser,
+        vars = add_common_vars({
+            'jeeqser' : self.jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
-        }
+        })
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
@@ -167,11 +173,12 @@ class AboutHandler(webapp.RequestHandler):
     @authenticate(required=False)
     def get(self):
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'about.html')
-        vars = {'jeeqser' : self.jeeqser,
+        vars = add_common_vars({
+                'jeeqser' : self.jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
-        }
+        })
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
@@ -245,7 +252,8 @@ class ChallengeHandler(webapp.RequestHandler):
             if feedbacks:
                 prettify_injeeqs(feedbacks)
 
-        vars = {'server_software': os.environ['SERVER_SOFTWARE'],
+        vars = add_common_vars({
+                'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': self.jeeqser,
                 'isadmin' : users.is_current_user_admin(),
@@ -257,7 +265,7 @@ class ChallengeHandler(webapp.RequestHandler):
                 'template_code': challenge.template_code,
                 'submission' : submission,
                 'feedbacks' : feedbacks
-        }
+        })
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
@@ -297,7 +305,8 @@ class ReviewHandler(webapp.RequestHandler):
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
 
-        vars = {'server_software': os.environ['SERVER_SOFTWARE'],
+        vars = add_common_vars({
+                'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
@@ -305,7 +314,7 @@ class ReviewHandler(webapp.RequestHandler):
                 'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
-        }
+        })
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
