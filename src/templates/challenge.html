@@ -1,3 +1,10 @@
+<script>
+    {% if not challenge.markdown %}
+        $(document).ready(function() {
+            $( "#challenge" ).tabs( "option", "selected", 2 );
+        })
+    {% endif %}
+</script>
 <div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
     <h3> {% include "exercise_breadcrumbs.html" %} </h3>

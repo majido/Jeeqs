@@ -82,6 +82,8 @@ class Exercise(db.Model):
 
 class Challenge(db.Model):
     """Models a challenge"""
+    EMPTY_MARKDOWN = 'Complete me!'
+
     name_persistent = db.StringProperty()
 
     def get_name(self):
@@ -100,7 +102,7 @@ class Challenge(db.Model):
     #compiled markdown
     content = db.TextProperty()
     #non-compiled markdown
-    markdown = db.TextProperty(default='Complete me!')
+    markdown = db.TextProperty(default=EMPTY_MARKDOWN)
 
     template_code = db.StringProperty(multiline=True)
     attribution_persistent = db.TextProperty()
