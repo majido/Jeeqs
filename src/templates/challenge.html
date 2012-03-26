@@ -15,7 +15,11 @@
             <li><a href="#source-pdf">PDF</a></li>
         </ul>
         <div id="tabs-1">
-            <p> {{ challenge.content|safe }} </p>
+            {% if challenge.content  %}
+                <p> {{ challenge.content|safe }} </p>
+            {% else %}
+                <p> Complete me! </p>
+            {% endif %}
         </div>
         <div id="tabs-2">
             <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
