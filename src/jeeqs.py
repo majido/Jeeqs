@@ -420,6 +420,17 @@ class RPCHandler(webapp.RequestHandler):
         else:
             self.error(403)
 
+    @authenticate(True)
+    def get(self):
+        method = self.request.get('method')
+        if (not method):
+            self.error(403)
+
+        if method == 'get_in_jeeqs':
+            self.get_in_jeeqs()
+        else:
+            self.error(403)
+
     @staticmethod
     def get_vote_numeric_value(vote):
         if vote == 'correct':
@@ -444,6 +455,34 @@ class RPCHandler(webapp.RequestHandler):
             if submission.flag_count > 2:
                 submission.flagged = True
             submission.flagged_by.append(voter.key())
+
+    def get_in_jeeqs(self):
+        submission_key = self.request.get('submission_key')
+
+        submission = Attempt.get(submission_key)
+        if (not submission):
+            self.error(403)
+            return
+
+        template_file = os.path.join(os.path.dirname(__file__), 'templates',
+            'in_jeeqs_list.html')
+
+        feedbacks = Feedback.all()\
+            .filter('attempt = ', submission)\
+            .order('flag_count')\
+            .order('-date')\
+            .fetch(20)
+
+        if feedbacks:
+            prettify_injeeqs(feedbacks)
+
+        vars = add_common_vars({
+            'feedbacks' : feedbacks
+        })
+
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
+
 
     def submit_challenge_source_url(self):
         """updates a challenge's source url """
