@@ -4,6 +4,29 @@
             $( "#challenge" ).tabs( "option", "selected", 2 );
         })
     {% endif %}
+
+    $(document).ready(function() {
+        $('#submitChallengeSourceURL').bind('click', function(event, ui) {
+            $(this).attr("disabled", "disabled");
+            var $newSource = $('#challengeSourceURL').val();
+            $initiator = $(this)
+
+            $.ajax({
+                url: "/rpc",
+                async: false,
+                type: "POST",
+                data: {'method': 'submit_challenge_source_url', 'challenge_key': '{{ challenge.key }}', 'source_url':$newSource},
+                success: function(response){
+                    $initiator.button("option", "label", "Updated");
+                    window.location.reload();
+                },
+                error: function(response) {
+                    $initiator.button("option", "label", "Oops!");
+                }
+            })
+        })
+
+    })
 </script>
 <div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
@@ -31,8 +54,12 @@
             {% if challenge.source %}
                 <iframe class="scribd_iframe_embed"
                         src="{{ challenge.source }}"
-                        data-auto-height="false" data-aspect-ratio="0.772727272727273" scrolling="no" id="doc_6637"
+                        data-auto-height="false" data-aspect-ratio="0.772727272727273" scrolling="yes" id="doc_6637"
                         width="100%" height="350px" frameborder="0"></iframe>
+            {% endif %}
+            {% if isadmin %}
+                <input type="text" id="challengeSourceURL" style="width: 100%; margin-top: 10px " value="{{ challenge.source }}">
+                <button type="button" id="submitChallengeSourceURL">Update</button>
             {% endif %}
         </div>
     </div>

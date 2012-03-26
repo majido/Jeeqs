@@ -414,6 +414,8 @@ class RPCHandler(webapp.RequestHandler):
             self.flag_feedback()
         elif method == 'submit_challenge_source':
             self.submit_challenge_source()
+        elif method == 'submit_challenge_source_url':
+            self.submit_challenge_source_url()
         else:
             self.error(403)
 
@@ -441,6 +443,31 @@ class RPCHandler(webapp.RequestHandler):
             if submission.flag_count > 2:
                 submission.flagged = True
             submission.flagged_by.append(voter.key())
+
+    def submit_challenge_source_url(self):
+        """updates a challenge's source url """
+        if not users.is_current_user_admin():
+            self.error(403)
+            return
+
+        new_source_url = self.request.get('source_url')
+        if not new_source_url:
+            self.error(403)
+            return
+
+        # retrieve the challenge
+        challenge_key = self.request.get('challenge_key')
+        if not challenge_key:
+            self.error(403)
+            return
+        challenge = Challenge.get(challenge_key);
+
+        if not challenge:
+            self.error(403)
+            return
+
+        challenge.source = new_source_url
+        challenge.put()
 
     def submit_challenge_source(self):
         """updates a challenge's source """

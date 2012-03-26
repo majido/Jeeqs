@@ -15,6 +15,9 @@ appcfg.py download_data --url=http://localhost:8080/remote_api --filename=locald
 Upload from a file into production:
 appcfg.py upload_data --url=http://jeeqsy.appspot.com/remote_api --filename=localdb
 
+In order to use the remote api use the following statement:
+python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080
+
 """
 
 from google.appengine.ext import db
@@ -107,6 +110,7 @@ class Challenge(db.Model):
     template_code = db.StringProperty(multiline=True)
     attribution_persistent = db.TextProperty()
     source = db.LinkProperty()
+
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
 
