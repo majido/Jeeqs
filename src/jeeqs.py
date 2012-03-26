@@ -49,6 +49,8 @@ def get_jeeqser():
 
 def add_common_vars(vars):
     vars['local'] = os.environ['APPLICATION_ID'].startswith('dev~')
+    vars['isadmin'] = users.is_current_user_admin();
+
     return vars
 
 
@@ -119,7 +121,7 @@ class FrontPageHandler(webapp.RequestHandler):
                     submission = submissions[0]
                     ch.submitted = True
                     ch.score = round(submission.vote_average, 2)
-                    ch.solved = True if (submission.correct_count + submission.genius_count > submission.incorrect_count) else False
+                    ch.solved = True if (submission.correct_count + submission.genius_count > submission.incorrect_count + submission.flag_count) else False
                     ch.active_submission = submission
 
                 else:
@@ -256,7 +258,6 @@ class ChallengeHandler(webapp.RequestHandler):
                 'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
                 'jeeqser': self.jeeqser,
-                'isadmin' : users.is_current_user_admin(),
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
