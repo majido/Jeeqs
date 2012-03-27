@@ -56,7 +56,7 @@
                     success: function(response) {
                         // The sever sends an HTML
                         $('#submissionFeedbacks').html(response);
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#submissionFeedbacksContainer').offset({top: $initiator.parent().parent().offset().top})
                     },
                     error: function(response) {
                         $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
@@ -128,7 +128,7 @@
 {% block column2 %}
     <div id="submissionFeedbacksContainer" class="accordion" style="width:100%; float:right; clear:right; margin: 10px;">
         <h3><a href="#">Other In Jeeqs </a></h3>
-        <div id="submissionFeedbacks" style="background: bisque">
+        <div id="submissionFeedbacks">
             {% include "in_jeeqs_list.html" %}
         </div>
     </div>
