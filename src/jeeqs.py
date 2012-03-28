@@ -17,6 +17,7 @@ import traceback
 import wsgiref.handlers
 
 from models import *
+from spam_manager import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -247,6 +248,7 @@ class ChallengeHandler(webapp.RequestHandler):
             if submission:
                 feedbacks = Feedback.all()\
                                     .filter('attempt = ', submission)\
+                                    .filter('flagged = ', False)\
                                     .order('flag_count')\
                                     .order('-date')\
                                     .fetch(20)
@@ -452,7 +454,7 @@ class RPCHandler(webapp.RequestHandler):
             submission.genius_count += 1
         elif vote == 'flag':
             submission.flag_count += 1
-            if submission.flag_count > 2:
+            if submission.flag_count > spam_manager.submission_flag_threshold:
                 submission.flagged = True
             submission.flagged_by.append(voter.key())
 
@@ -469,6 +471,7 @@ class RPCHandler(webapp.RequestHandler):
 
         feedbacks = Feedback.all()\
             .filter('attempt = ', submission)\
+            .filter('flagged = ', False)\
             .order('flag_count')\
             .order('-date')\
             .fetch(20)
@@ -637,6 +640,8 @@ class RPCHandler(webapp.RequestHandler):
         if (self.jeeqser.key() not in feedback.flagged_by):
             feedback.flagged_by.append(self.jeeqser.key())
             feedback.flag_count += 1
+            if feedback.flag_count >= spam_manager.feedback_flag_threshold:
+                feedback.flagged = True
             feedback.put()
 
 

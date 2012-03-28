@@ -23,8 +23,6 @@ python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEng
 from google.appengine.ext import db
 from gravatar import get_profile_url
 
-__author__ = 'akhavan'
-
 class Jeeqser(db.Model):
     """ A Jeeqs User """
     user = db.UserProperty()
