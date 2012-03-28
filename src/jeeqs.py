@@ -132,6 +132,7 @@ class FrontPageHandler(webapp.RequestHandler):
                 injeeqs = Feedback\
                                 .all()\
                                 .filter('attempt_author = ', self.jeeqser)\
+                                .filter('flagged = ', False)\
                                 .order('flag_count')\
                                 .order('-date')\
                                 .fetch(10)
