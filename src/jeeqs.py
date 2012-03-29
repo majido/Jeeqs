@@ -471,7 +471,7 @@ class RPCHandler(webapp.RequestHandler):
             submission.flag_count += 1
             if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator:
                 submission.flagged = True
-                spam_manager.flag_author(feedback.author)
+                spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
 
     def get_in_jeeqs(self):
