@@ -1,3 +1,4 @@
+*.pyc
 
 .DS_Store
 
@@ -20,5 +21,3 @@
 .idea/vcs.xml
 
 .idea/workspace.xml
-
-src/model.pyc
