@@ -65,12 +65,23 @@ def authenticate(required=True):
             user = users.get_current_user()
             if not user and required:
                 self.error(403)
-                self.out.response.write('User is not authenticated!')
+                self.response.out.write('User is not authenticated!')
                 return
             elif user:
                 self.jeeqser = get_jeeqser()
             else:
                 self.jeeqser = None
+
+            # clear/check suspension!
+            if self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until < datetime.now():
+                self.jeeqser.suspended_until = None
+                self.jeeqser.put()
+
+            if required and self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until > datetime.now():
+                self.error(403)
+                self.response.out.write("User suspended until " + str(self.jeeqser.suspended_until))
+                return
+
             func(self)
 
         return wrapper
@@ -447,6 +458,9 @@ class RPCHandler(webapp.RequestHandler):
 
     @staticmethod
     def updateSubmission(submission, vote, voter):
+        """
+        Updates the submission based on the vote given by the voter
+        """
         if vote == 'correct':
             submission.correct_count += 1
         elif vote == 'incorrect':
@@ -455,8 +469,9 @@ class RPCHandler(webapp.RequestHandler):
             submission.genius_count += 1
         elif vote == 'flag':
             submission.flag_count += 1
-            if submission.flag_count > spam_manager.submission_flag_threshold:
+            if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator:
                 submission.flagged = True
+                spam_manager.flag_author(feedback.author)
             submission.flagged_by.append(voter.key())
 
     def get_in_jeeqs(self):
@@ -641,8 +656,9 @@ class RPCHandler(webapp.RequestHandler):
         if (self.jeeqser.key() not in feedback.flagged_by):
             feedback.flagged_by.append(self.jeeqser.key())
             feedback.flag_count += 1
-            if feedback.flag_count >= spam_manager.feedback_flag_threshold:
+            if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator:
                 feedback.flagged = True
+                spam_manager.flag_author(feedback.author)
             feedback.put()
 
 

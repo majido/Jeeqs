@@ -28,6 +28,14 @@
 
 {% block container %}
     <h1> Hello {{ jeeqser.displayname }}! </h1>
+
+    {% if jeeqser.suspended_until %}
+        <h3>Suspension</h3>
+        <div class="jeeqser-value">
+            <strong style="color:red">Your account is suspended until {{ jeeqser.suspended_until }} </strong>
+        </div>
+    {% endif %}
+
     <h3>Display name</h3>
     <div class="jeeqser-value">
         <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">

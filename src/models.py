@@ -31,6 +31,10 @@ class Jeeqser(db.Model):
     reviews_in_num = db.IntegerProperty(default=0)
     submissions_num = db.IntegerProperty(default=0)
     gravatar_url_persisted = db.LinkProperty()
+    is_moderator = db.BooleanProperty()
+    suspended_until = db.DateTimeProperty()
+    unaccounted_flag_count = db.IntegerProperty(default=0)
+    total_flag_count = db.IntegerProperty(default=0)
 
     def get_displayname(self):
         if self.displayname_persisted is None:

@@ -12,7 +12,11 @@
                 <span>
                     <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle"/>
                     <span class="username">
-                        <a class="noline" href="/user/">{{ jeeqser.displayname }}</a>
+                        <a class="noline" href="/user/">{{ jeeqser.displayname }}
+                            {% if jeeqser.suspended_until %}
+                                <strong style="color:red" title="Your account is suspended until {{ jeeqser.suspended_until }}">!</strong>
+                            {% endif %}
+                        </a>
                     </span>
                 </span>
                 | <a class="noline" href="{{ logout_url }}">Log out</a>
