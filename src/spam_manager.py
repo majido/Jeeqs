@@ -14,7 +14,7 @@ class spam_manager:
     feedback_flag_threshold = 3;
 
     # if the author has this many flagged content, he/she will be suspended for one day per violation.
-    author_suspension_threshold = 1;
+    author_suspension_threshold = 3;
 
     @classmethod
     def flag_author(cls, jeeqser):
