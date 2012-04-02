@@ -1,7 +1,11 @@
 {% extends "base_twoColumn.html" %}
 
 {% block column1-width %}
-    width: 50%;
+    width: 65%;
+{% endblock %}
+
+{% block column2_width %}
+    width: 35%;
 {% endblock %}
 
 {% block script %}
@@ -53,7 +57,7 @@
                         </td>
                         <td>
                             {% if challenge.submitted %}
-                                {% include "attempt_score.html" with submission=challenge.active_submission %}
+                                {% include "attempt_score.html" with submission=challenge.jc %}
                             {% endif %}
                         </td>
                         <td>

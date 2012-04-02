@@ -5,6 +5,8 @@ A class for fighting spam.
 
 from datetime import timedelta
 from datetime import datetime
+from google.appengine.api import users
+
 
 class FlaggingLimitReachedError(Exception):
     """
@@ -47,6 +49,10 @@ class spam_manager:
         """
         Checks whether jeeqser is over-limit for flagging and throws FlaggingLimitReachedError if so. If not, increase a counter.
         """
+
+        if users.is_current_user_admin():
+            return 1000
+
         now = datetime.now()
         if not jeeqser.last_flagged_on or jeeqser.last_flagged_on.date() < now.date():
             jeeqser.last_flagged_on = now

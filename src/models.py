@@ -154,6 +154,7 @@ class Attempt(db.Model):
     correct_count = db.IntegerProperty(default=0)
     incorrect_count = db.IntegerProperty(default=0)
     genius_count = db.IntegerProperty(default=0)
+    flag_count = db.IntegerProperty(default=0)
 
     #vote quantization TODO: might be removed !?
     vote_sum = db.FloatProperty(default=float(0))
@@ -161,16 +162,30 @@ class Attempt(db.Model):
 
     # is this the active submission for review ?
     active = db.BooleanProperty(default=False)
-    submitted = db.BooleanProperty(default=False)
 
     # the index of this attempt among all attempts for a challenge.
     index = db.IntegerProperty(default=0)
 
     # Spam ?
     flagged_by = db.ListProperty(db.Key)
-    flag_count = db.IntegerProperty(default=0)
     # if True, this attempt is blocked. Become true, once flag_count goes above a threshold
     flagged = db.BooleanProperty(default=False)
+
+class Jeeqser_Challenge(db.Model):
+    """
+    Represents the relation between a Jeeqser and a Challenge
+    """
+
+    jeeqser = db.ReferenceProperty(Jeeqser)
+    challenge = db.ReferenceProperty(Challenge)
+    active_attempt = db.ReferenceProperty(Attempt)
+
+    # vote counts for the active attempt (denormalized from the active attempt)
+    correct_count = db.IntegerProperty(default=0)
+    incorrect_count = db.IntegerProperty(default=0)
+    genius_count = db.IntegerProperty(default=0)
+    flag_count = db.IntegerProperty(default=0)
+
 
 class Feedback(db.Model):
     """Models feedback for submission """

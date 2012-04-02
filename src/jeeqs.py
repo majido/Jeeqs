@@ -112,31 +112,27 @@ class FrontPageHandler(webapp.RequestHandler):
         # get available challenges
 
         all_challenges = Challenge.all().fetch(100)
+        jeeqser_challenges = Jeeqser_Challenge\
+            .all()\
+            .filter('jeeqser = ', self.jeeqser)\
+            .fetch(100)
+
+        active_submissions = {}
+        for jc in jeeqser_challenges:
+            active_submissions[jc.challenge.key()] = jc
 
         injeeqs = None
 
-        for ch in all_challenges:
-            submitted = False
-            score = 0
-
-            if self.jeeqser:
-                #TODO: inefficient
-                submissions = Attempt\
-                                    .all()\
-                                    .filter("author = ", self.jeeqser)\
-                                    .filter("challenge = ", ch)\
-                                    .filter('active = ', True)\
-                                    .fetch(1)
-                if len(submissions) > 0:
-                    submission = submissions[0]
+        if self.jeeqser:
+            for ch in all_challenges:
+                if active_submissions.get(ch.key()):
+                    jc = active_submissions[ch.key()]
                     ch.submitted = True
-                    ch.score = round(submission.vote_average, 2)
-                    ch.solved = True if (submission.correct_count + submission.genius_count > submission.incorrect_count + submission.flag_count) else False
-                    ch.active_submission = submission
+                    ch.solved = True if (jc.correct_count + jc.genius_count > jc.incorrect_count + jc.flag_count) else False
+                    ch.jc = jc
 
                 else:
                     ch.submitted = False
-                    ch.score = 0
 
                 injeeqs = Feedback\
                                 .all()\
@@ -479,18 +475,22 @@ class RPCHandler(webapp.RequestHandler):
             return 0 # flag
 
     @staticmethod
-    def updateSubmission(submission, vote, voter):
+    def updateSubmission(submission, jeeqser_challenge, vote, voter):
         """
         Updates the submission based on the vote given by the voter
         """
         if vote == 'correct':
             submission.correct_count += 1
+            jeeqser_challenge.correct_count = submission.correct_count
         elif vote == 'incorrect':
             submission.incorrect_count += 1
+            jeeqser_challenge.incorrect_count = submission.incorrect_count
         elif vote == 'genius':
             submission.genius_count += 1
+            jeeqser_challenge.genius_count = submission.genius_count
         elif vote == 'flag':
             submission.flag_count += 1
+            jeeqser_challenge.flag_count = submission.flag_count
             if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.flag_author(submission.author)
@@ -609,7 +609,7 @@ class RPCHandler(webapp.RequestHandler):
         finally:
             if not challenge:
                 self.error(403)
-                return
+
 
         attempt = Attempt(
                     author=self.jeeqser.key(),
@@ -621,7 +621,7 @@ class RPCHandler(webapp.RequestHandler):
 
         previous_submissions = Attempt\
             .all()\
-            .filter('author = ', self.jeeqser.key())\
+            .filter('author = ', self.jeeqser)\
             .filter('challenge = ', challenge)\
             .filter('active = ', True)\
             .filter('submitted = ', True)\
@@ -636,6 +636,26 @@ class RPCHandler(webapp.RequestHandler):
 
         attempt.index = max_old_index + 1
         attempt.put()
+
+        jeeqser_challenge = Jeeqser_Challenge\
+            .all()\
+            .filter('jeeqser = ', self.jeeqser)\
+            .filter('challenge = ', challenge)\
+            .fetch(1)
+
+        if len(jeeqser_challenge) == 0:
+            #create one
+            jeeqser_challenge = Jeeqser_Challenge(
+                jeeqser = self.jeeqser,
+                challenge = challenge,
+                active_attempt = attempt
+            )
+        else:
+            jeeqser_challenge = jeeqser_challenge[0]
+            jeeqser_challenge.active_attempt = attempt
+            jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.genius_count = jeeqser_challenge.flag_count = 0
+
+        jeeqser_challenge.put()
 
         self.jeeqser.submissions_num += 1
         self.jeeqser.put()
@@ -666,8 +686,23 @@ class RPCHandler(webapp.RequestHandler):
                 self.error(403)
                 return
 
+        jeeqser_challenge = Jeeqser_Challenge\
+            .all()\
+            .filter('jeeqser =', submission.author)\
+            .filter('challenge = ', submission.challenge)\
+            .fetch(1)
+
+        # should never happen!
+        if len(jeeqser_challenge) != 1:
+            self.error(500)
+            return
+        else:
+            jeeqser_challenge = jeeqser_challenge[0]
+
         if not self.jeeqser.key() in submission.users_voted:
             vote = self.request.get('vote')
+
+            # check flagging limit
             if vote == 'flag':
                 flags_left = spam_manager.check_flag_limit(self.jeeqser)
                 response = {'flags_left_today':flags_left}
@@ -681,8 +716,14 @@ class RPCHandler(webapp.RequestHandler):
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.updateSubmission(submission, vote, self.jeeqser)
-            submission.put()
+            RPCHandler.updateSubmission(submission, jeeqser_challenge, vote, self.jeeqser)
+
+            def update_submission():
+                submission.put()
+                jeeqser_challenge.put()
+
+            xg_on = db.create_transaction_options(xg=True)
+            db.run_in_transaction_options(xg_on, update_submission)
 
             feedback = Feedback(
                 attempt=submission,
