@@ -15,8 +15,6 @@ import StringIO
 import sys
 import traceback
 
-import wsgiref.handlers
-
 from models import *
 from spam_manager import *
 
@@ -24,6 +22,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
+from google.appengine.ext.webapp.util import run_wsgi_app
 
 
 from google.appengine.ext import webapp
@@ -770,7 +769,7 @@ def main():
             ('/rpc', RPCHandler),
             ('/user/', UserHandler),
             ('/about/', AboutHandler)], debug=_DEBUG)
-    wsgiref.handlers.CGIHandler().run(application)
+    run_wsgi_app(application)
 
 
 if __name__ == '__main__':
