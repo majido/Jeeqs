@@ -34,7 +34,14 @@ class Jeeqser(db.Model):
     is_moderator = db.BooleanProperty()
     suspended_until = db.DateTimeProperty()
     unaccounted_flag_count = db.IntegerProperty(default=0)
+    # Total number of posts by this user that are flagged
     total_flag_count = db.IntegerProperty(default=0)
+
+    #Flag limits
+    last_flagged_on = db.DateTimeProperty()
+    # Number of posts this jeeqser has flagged today
+    num_flagged_today = db.IntegerProperty()
+
 
     def get_displayname(self):
         if self.displayname_persisted is None:

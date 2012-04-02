@@ -14,10 +14,15 @@
                 type: "POST",
                 data: {'method': 'update_displayname', 'display_name':$displayname},
                 success: function(response){
-                    $initiator.button("option", "label", "Updated to " + $displayname);
+                    if (response != 'not_unique') {
+                        $initiator.button("option", "label", "Updated to " + $displayname);
+                    }
+                    else{
+                        $initiator.button("option", "label", "Username not unique. Try again!")
+                    }
                 },
                 error: function(response) {
-                    $initiator.button("option", "label", "Ooops. Perhaps not unique !? Try again!")
+                    $initiator.button("option", "label", "Ooops. Something went wrong!")
                 }
             })
 
@@ -32,7 +37,9 @@
     {% if jeeqser.suspended_until %}
         <h3>Suspension</h3>
         <div class="jeeqser-value">
-            <strong style="color:red">Your account is suspended until {{ jeeqser.suspended_until }} </strong>
+            <strong style="color:red">Your account is suspended until {{ jeeqser.suspended_until }} UTC due to flagging</strong>
+            <br/>
+            <strong style="color:red">{{ jeeqser.total_flag_count }} of your posts were flagged </strong>
         </div>
     {% endif %}
 

@@ -40,11 +40,21 @@
                     type: "POST",
                     data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
                     success: function(response){
-                        $initiator.button("option", "label", "Submitted");
-                        // Disable the other controls
-                        $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
-                        $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
-                        $initiator.parent().css("background", "bisque");
+                        var parsed = jQuery.parseJSON(response)
+                        if (parsed != null && parsed.flags_left_today == -1) {
+                            alert("You don't have any more flags left.")
+                        }
+                        else {
+                            if ($vote == "flag") {
+                                alert("You have " + parsed.flags_left_today + " flags left")
+                            }
+
+                            $initiator.button("option", "label", "Submitted");
+                            // Disable the other controls
+                            $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
+                            $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
+                            $initiator.parent().css("background", "bisque");
+                        }
                     }
                 })
 

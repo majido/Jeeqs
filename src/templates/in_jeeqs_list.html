@@ -10,8 +10,15 @@
                 type: "POST",
                 data: {'method': 'flag_feedback', 'feedback_key': $feedback_key},
                 success: function(response){
-                    $initiator.parent().fadeTo("slow", 0.25);
-                    $initiator.parent().parent().css('background-image', 'url("/static/flagged.png")');
+                    var parsed = jQuery.parseJSON(response)
+                    if (parsed.flags_left_today >= 0) {
+                        alert("You have " + parsed.flags_left_today + " flags left");
+                        $initiator.parent().fadeTo("slow", 0.25);
+                        $initiator.parent().parent().css('background-image', 'url("/static/flagged.png")');
+                    }
+                    else {
+                        alert("Sorry! You don't any more flags left.")
+                    }
                 }
             })
         })

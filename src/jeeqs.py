@@ -7,6 +7,7 @@ A program for managing challenges, attempt and solutions.
 
 from google.appengine.dist import use_library
 use_library('django', '1.3')
+from django.utils import simplejson as json
 
 import logging
 import os
@@ -64,8 +65,7 @@ def authenticate(required=True):
         def wrapper(self):
             user = users.get_current_user()
             if not user and required:
-                self.error(403)
-                self.response.out.write('User is not authenticated!')
+                self.error(401)
                 return
             elif user:
                 self.jeeqser = get_jeeqser()
@@ -78,8 +78,6 @@ def authenticate(required=True):
                 self.jeeqser.put()
 
             if required and self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until > datetime.now():
-                self.error(403)
-                self.response.out.write("User suspended until " + str(self.jeeqser.suspended_until))
                 return
 
             func(self)
@@ -214,9 +212,16 @@ class ChallengeHandler(webapp.RequestHandler):
         ch_key = self.request.get('ch')
         if not ch_key:
             self.error(403)
-        challenge = Challenge.get(ch_key)
-        if not challenge:
-            self.error(403)
+            return
+
+        challenge = None
+
+        try:
+            challenge = Challenge.get(ch_key)
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         if not challenge.content and challenge.markdown:
             challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
@@ -299,10 +304,16 @@ class ReviewHandler(webapp.RequestHandler):
         ch_key = self.request.get('ch')
         if not ch_key:
             self.error(403)
+            return
 
-        challenge = Challenge.get(ch_key)
-        if not challenge:
-            self.error(403)
+        challenge = None
+
+        try:
+            challenge = Challenge.get(ch_key)
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         # Retrieve other users' submissions
         submissions_query = db.GqlQuery(" SELECT * "
@@ -361,9 +372,16 @@ class ProgramHandler(webapp.RequestHandler):
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
             self.error(403)
-        challenge = Challenge.get(challenge_key);
-        if not challenge:
-            self.error(403)
+            return
+
+        challenge = None
+
+        try:
+            challenge = Challenge.get(challenge_key)
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         self.response.headers['Content-Type'] = 'text/plain'
 
@@ -418,6 +436,7 @@ class RPCHandler(webapp.RequestHandler):
         method = self.request.get('method')
         if (not method):
             self.error(403)
+            return
 
         if method == 'submit_vote':
             self.submit_vote()
@@ -433,17 +452,20 @@ class RPCHandler(webapp.RequestHandler):
             self.submit_challenge_source_url()
         else:
             self.error(403)
+            return
 
     @authenticate(True)
     def get(self):
         method = self.request.get('method')
         if (not method):
             self.error(403)
+            return
 
         if method == 'get_in_jeeqs':
             self.get_in_jeeqs()
         else:
             self.error(403)
+            return
 
     @staticmethod
     def get_vote_numeric_value(vote):
@@ -469,7 +491,7 @@ class RPCHandler(webapp.RequestHandler):
             submission.genius_count += 1
         elif vote == 'flag':
             submission.flag_count += 1
-            if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator:
+            if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
@@ -477,10 +499,14 @@ class RPCHandler(webapp.RequestHandler):
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
 
-        submission = Attempt.get(submission_key)
-        if (not submission):
-            self.error(403)
-            return
+        submission = None
+
+        try:
+            submission = Attempt.get(submission_key)
+        finally:
+            if (not submission):
+                self.error(403)
+                return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'in_jeeqs_list.html')
@@ -506,7 +532,7 @@ class RPCHandler(webapp.RequestHandler):
     def submit_challenge_source_url(self):
         """updates a challenge's source url """
         if not users.is_current_user_admin():
-            self.error(403)
+            self.error(401)
             return
 
         new_source_url = self.request.get('source_url')
@@ -519,11 +545,15 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge_key:
             self.error(403)
             return
-        challenge = Challenge.get(challenge_key);
 
-        if not challenge:
-            self.error(403)
-            return
+        challenge = None
+
+        try:
+            challenge = Challenge.get(challenge_key);
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         challenge.source = new_source_url
         challenge.put()
@@ -531,7 +561,7 @@ class RPCHandler(webapp.RequestHandler):
     def submit_challenge_source(self):
         """updates a challenge's source """
         if not users.is_current_user_admin():
-            self.error(403)
+            self.error(401)
             return
 
         new_source = self.request.get('source')
@@ -544,11 +574,15 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge_key:
             self.error(403)
             return
-        challenge = Challenge.get(challenge_key);
 
-        if not challenge:
-            self.error(403)
-            return
+        challenge = None
+
+        try:
+            challenge = Challenge.get(challenge_key);
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         challenge.markdown = new_source
         challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
@@ -567,11 +601,15 @@ class RPCHandler(webapp.RequestHandler):
         if not challenge_key:
             self.error(403)
             return
-        challenge = Challenge.get(challenge_key);
 
-        if not challenge:
-            self.error(403)
-            return
+        challenge = None
+
+        try:
+            challenge = Challenge.get(challenge_key);
+        finally:
+            if not challenge:
+                self.error(403)
+                return
 
         attempt = Attempt(
                     author=self.jeeqser.key(),
@@ -613,20 +651,33 @@ class RPCHandler(webapp.RequestHandler):
             self.jeeqser.displayname = displayname
             self.jeeqser.put()
         else:
-            self.error(403)
+            self.response.out.write('not_unique')
+            return
 
     def submit_vote(self):
         submission_key = self.request.get('submission_key')
 
-        submission = Attempt.get(submission_key)
-        if (not submission):
-            self.error(403)
-            return
+        submission = None
 
-        if (not self.jeeqser.key() in submission.users_voted):
+        try:
+            submission = Attempt.get(submission_key)
+        finally:
+            if not submission:
+                self.error(403)
+                return
+
+        if not self.jeeqser.key() in submission.users_voted:
+            vote = self.request.get('vote')
+            if vote == 'flag':
+                flags_left = spam_manager.check_flag_limit(self.jeeqser)
+                response = {'flags_left_today':flags_left}
+                out_json = json.dumps(response)
+                self.response.out.write(out_json)
+                if flags_left == -1:
+                    return
+
             submission.users_voted.append(self.jeeqser.key())
             submission.vote_count += 1
-            vote = self.request.get('vote')
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
@@ -650,16 +701,23 @@ class RPCHandler(webapp.RequestHandler):
 
     def flag_feedback(self):
         feedback_key = self.request.get('feedback_key')
-
         feedback = Feedback.get(feedback_key)
 
         if (self.jeeqser.key() not in feedback.flagged_by):
-            feedback.flagged_by.append(self.jeeqser.key())
-            feedback.flag_count += 1
-            if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator:
-                feedback.flagged = True
-                spam_manager.flag_author(feedback.author)
-            feedback.put()
+            flags_left = spam_manager.check_flag_limit(self.jeeqser)
+            response = {'flags_left_today':flags_left}
+
+            if flags_left >= 0:
+                feedback.flagged_by.append(self.jeeqser.key())
+                feedback.flag_count += 1
+                if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator or users.is_current_user_admin():
+                    feedback.flagged = True
+                    spam_manager.flag_author(feedback.author)
+                feedback.put()
+
+            out_json = json.dumps(response)
+            self.response.out.write(out_json)
+
 
 
 def main():
