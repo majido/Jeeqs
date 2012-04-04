@@ -133,14 +133,14 @@ class FrontPageHandler(webapp.RequestHandler):
                 else:
                     ch.submitted = False
 
-                injeeqs = Feedback\
-                                .all()\
-                                .filter('attempt_author = ', self.jeeqser)\
-                                .filter('flagged = ', False)\
-                                .order('flag_count')\
-                                .order('-date')\
-                                .fetch(10)
-                prettify_injeeqs(injeeqs)
+            injeeqs = Feedback\
+                            .all()\
+                            .filter('attempt_author = ', self.jeeqser)\
+                            .filter('flagged = ', False)\
+                            .order('flag_count')\
+                            .order('-date')\
+                            .fetch(10)
+            prettify_injeeqs(injeeqs)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 

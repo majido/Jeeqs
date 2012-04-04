@@ -5,7 +5,7 @@ api_version: 1
 
 builtins:
   - remote_api: on
-  - appstats: on
+  - appstats: off
 
 inbound_services:
 - warmup

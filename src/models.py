@@ -123,6 +123,22 @@ class Challenge(db.Model):
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
 
+    # the course breadcrumb
+    breadcrumb_persisted = db.StringProperty()
+
+    def get_breadcrumb(self):
+        if self.breadcrumb_persisted:
+            return self.breadcrumb_persisted
+        else:
+            self.breadcrumb_persisted = self.exercise.number \
+                                        + ' > ' + self.exercise.course.code \
+                                        + ' > ' + self.exercise.course.program.name \
+                                        + ' > ' + self.exercise.course.program.university.name
+            self.put()
+            return self.breadcrumb_persisted
+
+    breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
+
     def get_attribution(self):
         if self.attribution_persistent:
             return self.attribution_persistent
