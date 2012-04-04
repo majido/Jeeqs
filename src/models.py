@@ -92,6 +92,9 @@ class Exercise(db.Model):
     number = db.StringProperty()
     course = db.ReferenceProperty(Course, collection_name='exercises')
 
+    def __unicode__(self):
+        return self.name
+
 class Challenge(db.Model):
     """Models a challenge"""
     EMPTY_MARKDOWN = 'Complete me!'

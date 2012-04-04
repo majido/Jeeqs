@@ -1,19 +1,15 @@
-import cgi
-
 from google.appengine.api import users
-from google.appengine.ext import db
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 from google.appengine.ext.db import djangoforms
+from django import forms
 
 from models import *
 
 class ChallengeForm(djangoforms.ModelForm):
     class Meta:
         model = Challenge
-        exclude = []
 
 class ChallengePage(webapp.RequestHandler):
     def get(self):
