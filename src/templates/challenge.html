@@ -1,5 +1,5 @@
 <script>
-    {% if not challenge.markdown %}
+    {% if not challenge.markdown and challenge.source %}
         $(document).ready(function() {
             $( "#challenge" ).tabs( "option", "selected", 2 );
         })

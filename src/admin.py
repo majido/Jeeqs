@@ -1,4 +1,5 @@
 import os
+import string
 
 from google.appengine.dist import use_library
 use_library('django', '1.3')
@@ -64,6 +65,27 @@ class ChallengePage(webapp.RequestHandler):
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
         self.response.out.write(rendered)
 
+    @authenticate(required=True)
+    def post(self):
+        course = Course.get(self.request.get('course'))
+        self.response.out.write(course.name)
+        number = self.request.get('number')
+        name = string.capwords(self.request.get('name'))
+        markdown = self.request.get('markdown')
+        template_code = self.request.get('template_code')
+        source = self.request.get('source')
+
+        exercise = Exercise(number=number, name=name, course=course)
+        exercise.put()
+
+        challenge = Challenge(name_persistent=name, markdown=markdown, template_code=template_code, exercise=exercise)
+        if source and source != '':
+            challenge.source = source
+
+        challenge.put()
+
+        self.redirect('/admin/challenges')
+
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
@@ -71,6 +93,8 @@ class ChallengeListPage(webapp.RequestHandler):
         for item in query:
             self.response.out.write('<a href="/admin/challenges/edit?key=%s">Edit</a> ' % item.key())
             self.response.out.write("%s<br>" % (item.name))
+
+        self.response.out.write('<br/><a href="/admin/challenges/new">New Challenge</a>')
 
 class ChallengeEditPage(webapp.RequestHandler):
     def get(self):
@@ -109,6 +133,7 @@ def main():
         [   ('/admin/challenges/new', ChallengePage),
             ('/admin/challenges/new_django', ChallengeDjangoFormPage),
             ('/admin/challenges', ChallengeListPage),
+            ('/admin/challenges/', ChallengeListPage),
             ('/admin/challenges/edit', ChallengeEditPage)
         ],
         debug=True)
