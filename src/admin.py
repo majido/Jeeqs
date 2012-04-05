@@ -1,3 +1,8 @@
+import os
+
+from google.appengine.dist import use_library
+use_library('django', '1.3')
+
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -6,12 +11,14 @@ from google.appengine.ext.db import djangoforms
 from django import forms
 
 from models import *
+from jeeqs import authenticate, _DEBUG, add_common_vars
 
 class ChallengeForm(djangoforms.ModelForm):
+    number = forms.CharField()
     class Meta:
         model = Challenge
 
-class ChallengePage(webapp.RequestHandler):
+class ChallengeDjangoFormPage(webapp.RequestHandler):
     def get(self):
         self.response.out.write('<html><body>'
                                 '<form method="POST" '
@@ -25,7 +32,7 @@ class ChallengePage(webapp.RequestHandler):
     def post(self):
         data = ChallengeForm(data=self.request.POST)
         if data.is_valid():
-            entity = data.save(commit=False)
+            entity = data.save(commit=True)
             entity.added_by = users.get_current_user()
             entity.put()
             self.redirect('/admin/challenges')
@@ -38,6 +45,25 @@ class ChallengePage(webapp.RequestHandler):
             self.response.out.write('</table>'
                                     '<input type="submit">'
                                     '</form></body></html>')
+
+class ChallengePage(webapp.RequestHandler):
+    """
+    Create a new challenge
+    """
+    @authenticate(required=True)
+    def get(self):
+        all_courses = Course.all().fetch(1000)
+
+        vars = add_common_vars({
+            'courses': all_courses,
+            'jeeqser': self.jeeqser,
+            'login_url': users.create_login_url(self.request.url),
+            'logout_url': users.create_logout_url(self.request.url)
+        })
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'new_challenge.html')
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
+
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
@@ -65,7 +91,7 @@ class ChallengeEditPage(webapp.RequestHandler):
         challenge = Challenge.get(key)
         data = ChallengeForm(data=self.request.POST, instance=challenge)
         if data.is_valid():
-            entity = data.save(commit=False)
+            entity = data.save(commit=True)
             entity.put()
             self.redirect('/admin/challenges')
         else:
@@ -81,6 +107,7 @@ class ChallengeEditPage(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication(
         [   ('/admin/challenges/new', ChallengePage),
+            ('/admin/challenges/new_django', ChallengeDjangoFormPage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/edit', ChallengeEditPage)
         ],

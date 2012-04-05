@@ -1,0 +1,51 @@
+{% extends "base_twoColumn.html" %}
+
+{% block column1-width %}
+    width: 65%;
+{% endblock %}
+
+{% block column2_width %}
+    width: 35%;
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $(':button').button();
+        })
+    </script>
+{% endblock script %}
+
+{% block column1 %}
+    <h1>Add Challenge</h1>
+    <strong>Course</strong>
+    <br/>
+    <select name="course" id="course">
+        <option value="" selected="selected">---------</option>
+        {% for course in courses %}
+            <option value="{{ course.key }}">{{ course.name}} </option>
+        {% endfor %}
+    </select>
+    <br/><br/>
+    <strong>Exercise Number</strong>
+    <br/>
+    <input type="text" id="number" name="number" size="40" style="margin-top: 10px">
+    <br/><br/>
+    <strong>Name</strong>
+    <br/>
+    <input type="text" id="name" name="name" size="40" style="margin-top: 10px">
+    <br/><br/>
+    <strong>Markdown</strong>
+    <br/>
+    <textarea id="markdown" name="markdown" rows="10" cols="40"></textarea>
+    <br/><br/>
+    <strong>Template Code</strong>
+    <br/>
+    <textarea id="template_code" name="template_code" rows="10" cols="40"></textarea>
+    <br/><br/>
+    <strong>Source</strong>
+    <br/>
+    <input type="text" id="source" name="source" size="100" style="margin-top: 10px">
+    <br/><br/>
+    <button type="button" id="submit" style="color:green;">Submit</button>
+{% endblock column1 %}

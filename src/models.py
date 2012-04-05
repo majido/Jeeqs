@@ -99,7 +99,7 @@ class Challenge(db.Model):
     """Models a challenge"""
     EMPTY_MARKDOWN = 'Complete me!'
 
-    name_persistent = db.StringProperty()
+    name_persistent = db.StringProperty(verbose_name="Name")
 
     def get_name(self):
         if self.name_persistent:
@@ -112,7 +112,7 @@ class Challenge(db.Model):
     def set_name(self, value):
         self.name_persistent = value
 
-    name = property(get_name, set_name, "Name")
+    name = property(get_name, set_name, "name")
 
     #compiled markdown
     content = db.TextProperty()
@@ -120,14 +120,14 @@ class Challenge(db.Model):
     markdown = db.TextProperty(default=EMPTY_MARKDOWN)
 
     template_code = db.StringProperty(multiline=True)
-    attribution_persistent = db.TextProperty()
+    attribution_persistent = db.TextProperty(verbose_name="attribution")
     source = db.LinkProperty()
 
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
 
     # the course breadcrumb
-    breadcrumb_persisted = db.StringProperty()
+    breadcrumb_persisted = db.StringProperty(verbose_name="breadcrumb")
 
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:
