@@ -17,6 +17,7 @@ import traceback
 
 from models import *
 from spam_manager import *
+from program_tester import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -33,9 +34,16 @@ import lib.markdown as markdown
 # Set to True if stack traces should be shown in the browser, etc.
 _DEBUG = True
 
+def get_jeeqs_robot():
+    """
+    Returns the robot user that runs tests over programming solutions
+    """
+    robot = Jeeqser.all().filter('')
 
-# Gets Jeeqser entity related to the given authenticated user
 def get_jeeqser():
+    """
+    Gets Jeeqser entity related to the given authenticated user
+    """
     user = users.get_current_user()
     if user is None:
         return None
@@ -345,19 +353,6 @@ class ProgramHandler(webapp.RequestHandler):
     """Evaluates a python program and returns the result.
     """
 
-    def run_testcases(self, challenge, program_module):
-        # Run test cases
-        test_num = 0
-        for test in challenge.testcases:
-            test_num = test_num + 1
-            result = eval(test.statement, program_module.__dict__)
-            if not str(result) == test.expected:
-                self.response.out.write("FAILED ON TEST CASE " + test.statement + '\n')
-        if test_num == 0:
-            self.response.out.write("No test cases to run!")
-        else:
-            self.response.out.write("SUCCESS")
-
     def get(self):
         program = self.request.get('program')
         if not program:
@@ -380,47 +375,15 @@ class ProgramHandler(webapp.RequestHandler):
 
         self.response.headers['Content-Type'] = 'text/plain'
 
-        # the python compiler doesn't like network line endings
-        program = program.replace('\r\n', '\n')
+        output = {'result' : ''}
 
-        # add a couple newlines at the end of the program. this makes
-        # single-line expressions such as 'class Foo: pass' evaluate happily.
-        program += '\n\n'
-
-        # log and compile the program up front
         try:
-            logging.debug('Compiling and evaluating:\n%s' % program)
-            compiled = compile(program, '<string>', 'exec')
+            compile_and_run(program, output)
         except:
-            self.response.out.write('Compile error:' + traceback.format_exc())
-            return
+            pass
+        finally:
+            self.response.out.write(output['result'])
 
-        # run!
-        try:
-            stdout_buffer = StringIO.StringIO()
-            stderr_buffer = StringIO.StringIO()
-            old_stdout = sys.stdout
-            old_stderr = sys.stderr
-            try:
-                sys.stdout = stdout_buffer
-                sys.stderr = stderr_buffer
-                # This does not allow anything to be done in the sandbox!
-                exec compiled in {'__builtins__': {}}, {}
-
-            finally:
-                sys.stdout = old_stdout
-                sys.stderr = old_stderr
-
-                # Write the buffer to response
-                self.response.out.write(stdout_buffer.getvalue())
-                self.response.out.write(stderr_buffer.getvalue())
-
-            # to be extended if there are test cases to be run.
-            #self.run_testcases(challenge, program_module)
-
-        except:
-            self.response.out.write(traceback.format_exc())
-            return
 
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC calls
@@ -591,7 +554,7 @@ class RPCHandler(webapp.RequestHandler):
         """
         Submits a solution
         """
-        solution = self.request.get('solution')
+        program = solution = self.request.get('solution')
         if not solution:
             return
 
@@ -609,13 +572,17 @@ class RPCHandler(webapp.RequestHandler):
             if not challenge:
                 self.error(403)
 
+        if challenge.automatic_review:
+            new_solution = '    :::python' + '\n'
+            for line in solution.splitlines(True):
+                new_solution += '    ' + line
+            solution = new_solution
 
         attempt = Attempt(
                     author=self.jeeqser.key(),
                     challenge=challenge,
                     content=markdown.markdown(solution, ['codehilite', 'mathjax']),
                     markdown=solution,
-                    submitted=True,
                     active=True)
 
         previous_submissions = Attempt\
@@ -623,7 +590,6 @@ class RPCHandler(webapp.RequestHandler):
             .filter('author = ', self.jeeqser)\
             .filter('challenge = ', challenge)\
             .filter('active = ', True)\
-            .filter('submitted = ', True)\
             .fetch(10)
 
         max_old_index = 0
@@ -658,6 +624,10 @@ class RPCHandler(webapp.RequestHandler):
 
         self.jeeqser.submissions_num += 1
         self.jeeqser.put()
+
+        # run the tests
+        if challenge.automatic_review:
+            run_testcases(program, challenge, attempt, self.jeeqser)
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

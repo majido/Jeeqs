@@ -16,7 +16,7 @@ Upload from a file into production:
 appcfg.py upload_data --url=http://jeeqsy.appspot.com/remote_api --filename=localdb
 
 In order to use the remote api use the following statement:
-python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080
+python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080/_ah/remote_api
 
 """
 
@@ -126,6 +126,9 @@ class Challenge(db.Model):
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
 
+    # true iff this challenge is to be reviewed by the server
+    automatic_review = db.BooleanProperty()
+
     # the course breadcrumb
     breadcrumb_persisted = db.StringProperty(verbose_name="breadcrumb")
 
@@ -134,7 +137,7 @@ class Challenge(db.Model):
             return self.breadcrumb_persisted
         else:
             self.breadcrumb_persisted = self.exercise.number \
-                                        + ' > ' + self.exercise.course.code \
+                                        + ' > ' + self.exercise.course.name \
                                         + ' > ' + self.exercise.course.program.name \
                                         + ' > ' + self.exercise.course.program.university.name
             self.put()

@@ -1,11 +1,11 @@
 {% extends "base_twoColumn.html" %}
 
 {% block column1-width %}
-    width: 65%;
+    width: 70%;
 {% endblock %}
 
 {% block column2_width %}
-    width: 35%;
+    width: 30%;
 {% endblock %}
 
 {% block script %}
@@ -26,11 +26,13 @@
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
             <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
-                <col width="30%"/>
-                <col width="10%"/>
+                <col width="20%"/>
+                <col width="5%"/>
                 <col width="15%"/>
+                <col width="5%"/>
                 <col width="10%"/>
-                <col width="35%"/>
+                <col width="20%"/>
+                <col width="20%"/>
                 <tr>
                     <td></td>
                     <td></td>
@@ -71,7 +73,15 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% include "exercise_breadcrumbs.html" %}
+                            {{ challenge.exercise.number }}
+                        </td>
+                        <td title="{{ challenge.exercise.course.name }}">
+                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>
+                        </td>
+                        <td>
+                            {% if challenge.exercise %}
+                                {{ challenge.exercise.course.program.name }}/{{ challenge.exercise.course.program.university.name }}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
