@@ -4,7 +4,6 @@
 A program for managing challenges, attempt and solutions.
 
 """
-
 from google.appengine.dist import use_library
 use_library('django', '1.3')
 from django.utils import simplejson as json
@@ -15,11 +14,11 @@ import StringIO
 import sys
 import traceback
 
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+
 from models import *
 from spam_manager import *
 from program_tester import *
-
-sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
