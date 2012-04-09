@@ -215,6 +215,7 @@ class Feedback(db.Model):
     author = db.ReferenceProperty(Jeeqser, collection_name='feedback_out')
     # Denormalizing the attempt author
     attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')
+    markdown = db.TextProperty()
     content = db.TextProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     vote = db.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])

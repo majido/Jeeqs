@@ -39,7 +39,7 @@
             </div>
             <br/>
             <div style="margin-top: 10px; float:left; clear:both">
-                {{ feedback.content }}
+                {{ feedback.content|safe }}
             </div>
             <input type="hidden" name="feedback-id" value="{{ feedback.key }}"/>
             {%if jeeqser.key not in feedback.flagged_by  %}

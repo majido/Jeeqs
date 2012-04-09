@@ -697,7 +697,8 @@ class RPCHandler(webapp.RequestHandler):
                 attempt=submission,
                 author=self.jeeqser,
                 attempt_author=submission.author,
-                content=self.request.get('response'),
+                markdown=self.request.get('response'),
+                content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
                 vote=vote)
             feedback.put()
 

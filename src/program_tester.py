@@ -7,6 +7,10 @@ import traceback
 import new
 import sys
 import StringIO
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+
 from models import *
 import lib.markdown as markdown
 
@@ -94,7 +98,7 @@ def run_testcases(program, challenge, attempt, robot):
             result = eval(test.statement, program_module.__dict__)
             if not str(result) == test.expected:
                 success = False
-                output['result'] += " >> FAILED ON TEST CASE " + test.statement + ' >> Expected result: ' + test.expected + ' >> Actual result: ' + str(result)
+                output['result'] += " Failed with the statement:  \n" + test.statement + '  \n Expected result:  \n' + test.expected + '  \n Actual result:  \n' + str(result) + '   \n'
 
         if test_num == 0:
             output['result'] += 'No test cases to run!'
@@ -107,7 +111,8 @@ def run_testcases(program, challenge, attempt, robot):
             attempt=attempt,
             author=robot,
             attempt_author=attempt.author,
-            content=output['result'],
+            markdown=output['result'],
+            content=markdown.markdown(output['result'], ['codehilite', 'mathjax']),
             vote=vote)
     feedback.put()
 
