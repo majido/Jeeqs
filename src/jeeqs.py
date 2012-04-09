@@ -37,7 +37,8 @@ def get_jeeqs_robot():
     """
     Returns the robot user that runs tests over programming solutions
     """
-    robot = Jeeqser.all().filter('')
+    robot = Jeeqser.all().filter('user =', users.User('a.akhavan.b@gmail.com')).fetch(1)[0]
+    return robot
 
 def get_jeeqser():
     """
@@ -626,7 +627,7 @@ class RPCHandler(webapp.RequestHandler):
 
         # run the tests
         if challenge.automatic_review:
-            feedback = run_testcases(program, challenge, attempt, self.jeeqser)
+            feedback = run_testcases(program, challenge, attempt, get_jeeqs_robot())
             RPCHandler.update_submission(attempt, jeeqser_challenge, feedback.vote, self.jeeqser)
             feedback.put()
             jeeqser_challenge.put()

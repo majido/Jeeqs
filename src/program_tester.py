@@ -31,7 +31,7 @@ def compile_and_run(program, output):
     try:
         compiled = compile(program, '<string>', 'exec')
     except:
-        output['result'] += 'Compile error: \n' + traceback.format_exc()
+        output['result'] += 'Compile error:  \n' + traceback.format_exc().replace(' ', '&nbsp;').replace('\n', '  \n')
         raise
 
     # create a dedicated module to be used as this program's __main__
@@ -98,7 +98,13 @@ def run_testcases(program, challenge, attempt, robot):
             result = eval(test.statement, program_module.__dict__)
             if not str(result) == test.expected:
                 success = False
-                output['result'] += " Failed with the statement:  \n" + test.statement + '  \n Expected result:  \n' + test.expected + '  \n Actual result:  \n' + str(result) + '   \n'
+                output['result'] += " Failed with the statement:  \n *****  \n" \
+                                    + test.statement \
+                                    + '  \n Expected result:  \n' \
+                                    + test.expected \
+                                    + '  \n Actual result:  \n' \
+                                    + str(result) \
+                                    + '   \n'
 
         if test_num == 0:
             output['result'] += 'No test cases to run!'

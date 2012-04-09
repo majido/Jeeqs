@@ -117,7 +117,7 @@
             $(':button').button();
 
             {% if not jeeqser %}
-                $('#submitSolutionButton').
+                $('#submitSolutionButton, #submit_program').
                        button('option', 'disabled', 'disabled')
                        .button('option', 'label', 'login to Submit');
             {% endif %}
@@ -226,7 +226,7 @@
                 {% for attempt in attempts %}
                 <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
                 <div>
-                        {{ attempt.content|safe }}
+                        {{ attempt.content|safe }}submit
                 </div>
                 <hr/>
                 {% endfor %}
