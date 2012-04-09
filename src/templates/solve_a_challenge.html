@@ -226,7 +226,7 @@
                 {% for attempt in attempts %}
                 <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
                 <div>
-                        {{ attempt.content|safe }}submit
+                        {{ attempt.content|safe }}
                 </div>
                 <hr/>
                 {% endfor %}
