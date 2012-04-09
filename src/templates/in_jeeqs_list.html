@@ -29,7 +29,7 @@
         <div style='background: {{ feedback.background }}; float:left; width:100%; margin: 5px; {%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}'>
             <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
             <div style="float:right; font-size:small;">
-                <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle " src="{{ feedback.author.gravatar_url }}"/>
+                <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ feedback.author.gravatar_url }}"/>
                     <span>
                         submitted by {{ feedback.author.displayname }} @ {{ feedback.date }}
                     </span>

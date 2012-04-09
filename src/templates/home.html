@@ -49,7 +49,7 @@
                 {% for challenge in challenges %}
                     <tr {% if challenge.solved %} style="background: #90ee90"{% endif %}>
                         <td>
-                            {{ challenge.name }}
+                            {{ challenge.name }} {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:right"></span>{% endif %}
                         </td>
                         <td>
                             <span>

@@ -436,7 +436,7 @@ class RPCHandler(webapp.RequestHandler):
             return 0 # flag
 
     @staticmethod
-    def updateSubmission(submission, jeeqser_challenge, vote, voter):
+    def update_submission(submission, jeeqser_challenge, vote, voter):
         """
         Updates the submission based on the vote given by the voter
         """
@@ -619,14 +619,19 @@ class RPCHandler(webapp.RequestHandler):
             jeeqser_challenge.active_attempt = attempt
             jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.genius_count = jeeqser_challenge.flag_count = 0
 
-        jeeqser_challenge.put()
-
         self.jeeqser.submissions_num += 1
+
+        jeeqser_challenge.put()
         self.jeeqser.put()
 
         # run the tests
         if challenge.automatic_review:
-            run_testcases(program, challenge, attempt, self.jeeqser)
+            feedback = run_testcases(program, challenge, attempt, self.jeeqser)
+            RPCHandler.update_submission(attempt, jeeqser_challenge, feedback.vote, self.jeeqser)
+            feedback.put()
+            jeeqser_challenge.put()
+            attempt.put()
+
 
     def update_displayname(self):
         displayname = self.request.get('display_name')
@@ -684,7 +689,7 @@ class RPCHandler(webapp.RequestHandler):
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.updateSubmission(submission, jeeqser_challenge, vote, self.jeeqser)
+            RPCHandler.update_submission(submission, jeeqser_challenge, vote, self.jeeqser)
 
             def update_submission():
                 submission.put()
@@ -713,7 +718,7 @@ class RPCHandler(webapp.RequestHandler):
         feedback_key = self.request.get('feedback_key')
         feedback = Feedback.get(feedback_key)
 
-        if (self.jeeqser.key() not in feedback.flagged_by):
+        if self.jeeqser.key() not in feedback.flagged_by:
             flags_left = spam_manager.check_flag_limit(self.jeeqser)
             response = {'flags_left_today':flags_left}
 

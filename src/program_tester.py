@@ -114,5 +114,5 @@ def run_testcases(program, challenge, attempt, robot):
             markdown=output['result'],
             content=markdown.markdown(output['result'], ['codehilite', 'mathjax']),
             vote=vote)
-    feedback.put()
+    return feedback
 

@@ -10,7 +10,7 @@
             <a class="noline" href="/">Home</a> |
             {% if jeeqser %}
                 <span>
-                    <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle"/>
+                    <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle; border-radius: 5px"/>
                     <span class="username">
                         <a class="noline" href="/user/">{{ jeeqser.displayname }}
                             {% if jeeqser.suspended_until %}
