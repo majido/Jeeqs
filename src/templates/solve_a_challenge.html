@@ -105,7 +105,12 @@
             $editor.setTheme("ace/theme/twilight");
             var pythonMode = require("ace/mode/python").Mode;
             $editor.getSession().setMode(new pythonMode());
-            $editor.getSession().setValue("{{ template_code|escapejs }}");
+            {% if template_code %}
+                $editor.getSession().setValue("{{ template_code|escapejs }}");
+            {% else %}
+                $editor.getSession().setValue("# Write your python code here!");
+            {% endif %}
+
 
             $('.accordion-closed').accordion({
                 collapsible: true,

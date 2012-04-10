@@ -15,20 +15,19 @@ from models import *
 from jeeqs import authenticate, _DEBUG, add_common_vars
 
 class ChallengeForm(djangoforms.ModelForm):
-    number = forms.CharField()
     class Meta:
         model = Challenge
 
 class ChallengeDjangoFormPage(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('<html><body>'
+        self.response.out.write(unicode('<html><body>'
                                 '<form method="POST" '
                                 'action="/admin/challenges/new">'
-                                '<table>')
-        self.response.out.write(ChallengeForm())
-        self.response.out.write('</table>'
+                                '<table>'))
+        self.response.out.write(unicode(ChallengeForm()))
+        self.response.out.write(unicode('</table>'
                                 '<input type="submit">'
-                                '</form></body></html>')
+                                '</form></body></html>'))
 
     def post(self):
         data = ChallengeForm(data=self.request.POST)
@@ -92,7 +91,8 @@ class ChallengeListPage(webapp.RequestHandler):
         query = Challenge.all().fetch(1000)
         for item in query:
             self.response.out.write('<a href="/admin/challenges/edit?key=%s">Edit</a> ' % item.key())
-            self.response.out.write("%s<br>" % (item.name))
+            number = item.exercise.number if item.exercise else '--'
+            self.response.out.write("%s %s <br>" % (number, item.name))
 
         self.response.out.write('<br/><a href="/admin/challenges/new">New Challenge</a>')
 
@@ -119,15 +119,15 @@ class ChallengeEditPage(webapp.RequestHandler):
             entity.put()
             self.redirect('/admin/challenges')
         else:
-            self.response.out.write('<html><body>'
+            self.response.out.write(unicode('<html><body>'
                                     '<form method="POST" '
                                     'action="/admin/challenges/edit">'
-                                    '<table>')
-            self.response.out.write(data)
-            self.response.out.write('</table>'
+                                    '<table>'))
+            self.response.out.write(unicode(data))
+            self.response.out.write(unicode('</table>'
                                     '<input type="hidden" name="key" value="%s">'
                                     '<input type="submit">'
-                                    '</form></body></html>' % key)
+                                    '</form></body></html>' % key))
 def main():
     application = webapp.WSGIApplication(
         [   ('/admin/challenges/new', ChallengePage),
