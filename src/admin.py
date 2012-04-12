@@ -72,14 +72,19 @@ class ChallengePage(webapp.RequestHandler):
         name = string.capwords(self.request.get('name'))
         markdown = self.request.get('markdown')
         template_code = self.request.get('template_code')
-        source = self.request.get('source')
+        document_id = self.request.get('document_id')
+        access_key = self.request.get('access_key')
 
         exercise = Exercise(number=number, name=name, course=course)
         exercise.put()
 
-        challenge = Challenge(name_persistent=name, markdown=markdown, template_code=template_code, exercise=exercise)
-        if source and source != '':
-            challenge.source = source
+        challenge = Challenge(
+                    name_persistent=name
+                    , markdown=markdown
+                    , template_code=template_code
+                    , exercise=exercise
+                    , document_id=document_id
+                    ,access_key=access_key)
 
         challenge.put()
 
