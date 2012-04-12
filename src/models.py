@@ -121,7 +121,6 @@ class Challenge(db.Model):
 
     template_code = db.StringProperty(multiline=True)
     attribution_persistent = db.TextProperty(verbose_name="attribution")
-    source = db.LinkProperty()
 
     # one to one relationship
     exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
@@ -131,6 +130,11 @@ class Challenge(db.Model):
 
     # the course breadcrumb
     breadcrumb_persisted = db.StringProperty(verbose_name="breadcrumb")
+
+    #scribd-related info
+    document_id = db.StringProperty()
+    access_key = db.StringProperty()
+    vertical_scroll = db.FloatProperty()
 
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:

@@ -406,8 +406,8 @@ class RPCHandler(webapp.RequestHandler):
             self.flag_feedback()
         elif method == 'submit_challenge_source':
             self.submit_challenge_source()
-        elif method == 'submit_challenge_source_url':
-            self.submit_challenge_source_url()
+        elif method == 'submit_challenge_vertical_scroll':
+            self.submit_challenge_vertical_scroll()
         else:
             self.error(403)
             return
@@ -491,14 +491,14 @@ class RPCHandler(webapp.RequestHandler):
         self.response.out.write(rendered)
 
 
-    def submit_challenge_source_url(self):
+    def submit_challenge_vertical_scroll(self):
         """updates a challenge's source url """
         if not users.is_current_user_admin():
             self.error(401)
             return
 
-        new_source_url = self.request.get('source_url')
-        if not new_source_url:
+        new_vertical_scroll = self.request.get('vertical_scroll')
+        if not new_vertical_scroll:
             self.error(403)
             return
 
@@ -517,7 +517,7 @@ class RPCHandler(webapp.RequestHandler):
                 self.error(403)
                 return
 
-        challenge.source = new_source_url
+        challenge.vertical_scroll = float(new_vertical_scroll)
         challenge.put()
 
     def submit_challenge_source(self):

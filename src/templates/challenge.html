@@ -6,16 +6,16 @@
     {% endif %}
 
     $(document).ready(function() {
-        $('#submitChallengeSourceURL').bind('click', function(event, ui) {
+        $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
-            var $newSource = $('#challengeSourceURL').val();
+            var $new_vertical_scroll = scribd_doc.api.getVerticalScroll()
             $initiator = $(this)
 
             $.ajax({
                 url: "/rpc",
                 async: false,
                 type: "POST",
-                data: {'method': 'submit_challenge_source_url', 'challenge_key': '{{ challenge.key }}', 'source_url':$newSource},
+                data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key }}', 'vertical_scroll':$new_vertical_scroll},
                 success: function(response){
                     $initiator.button("option", "label", "Updated");
                     window.location.reload();
@@ -51,15 +51,30 @@
             {% endif %}
         </div>
         <div id="source-pdf" stye="min-height: 400px">
-            {% if challenge.source %}
-                <iframe class="scribd_iframe_embed"
-                        src="{{ challenge.source }}"
-                        data-auto-height="false" data-aspect-ratio="0.772727272727273" scrolling="yes" id="doc_6637"
-                        width="100%" height="350px" frameborder="0"></iframe>
-            {% endif %}
-            {% if isadmin %}
-                <input type="text" id="challengeSourceURL" style="width: 100%; margin-top: 10px " value="{{ challenge.source }}">
-                <button type="button" id="submitChallengeSourceURL">Update</button>
+            {% if challenge.document_id and challenge.access_key %}
+                <div id='embedded_challenge' style="width: 100%;"></div>
+                <script type="text/javascript">
+                    var document_id = '{{ challenge.document_id }}';
+                    var access_key = '{{ challenge.access_key }}';
+
+                    var scribd_doc = scribd.Document.getDoc(document_id, access_key);
+
+                    var onDocReady = function(e){
+                        {% if challenge.vertical_scroll %}
+                            scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});
+                        {% endif %}
+                    }
+
+                    scribd_doc.addParam('jsapi_version', 2);
+                    scribd_doc.addParam('width', $('#embedded_challenge').width() - 50);
+                    scribd_doc.addParam('height', 500);
+                    scribd_doc.addParam('default_embed_format', 'flash');
+                    scribd_doc.addEventListener('docReady', onDocReady);
+                    scribd_doc.write('embedded_challenge');
+                </script>
+                {% if isadmin %}
+                    <button style="margin-top: 10px" type="button" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>
+                {% endif %}
             {% endif %}
         </div>
     </div>
