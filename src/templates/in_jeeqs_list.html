@@ -2,11 +2,13 @@
     $(document).ready(function() {
         $('.feedback-flag-button').live('click', function(event) {
             event.preventDefault();
+            $(this).attr("disabled", "disabled");
+
             var $feedback_key = $(this).parent().siblings('input[name=feedback-id]').val()
             $initiator = $(this)
             $.ajax({
                 url: "/rpc",
-                async: false,
+                async: true,
                 type: "POST",
                 data: {'method': 'flag_feedback', 'feedback_key': $feedback_key},
                 success: function(response){

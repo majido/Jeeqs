@@ -22,6 +22,10 @@
 
         $(document).ready(function() {
             $('.submit-vote').bind('click', function() {
+
+                $(this).attr("disabled", "disabled");
+                $initiator = $(this)
+
                 $submission_id = $(this).attr("id").split("__")[1];
                 $response = $('#response__'+$submission_id).val();
                 $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
@@ -31,12 +35,9 @@
                     return;
                 }
 
-                $(this).attr("disabled", "disabled");
-                $initiator = $(this)
-
                 $.ajax({
                     url: "/rpc",
-                    async: false,
+                    async: true,
                     type: "POST",
                     data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
                     success: function(response){
@@ -54,22 +55,23 @@
                             $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
                             $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
                             $initiator.parent().css("background", "bisque");
-                        }
-                    }
-                })
 
-                $.ajax({
-                    url: "/rpc",
-                    async: false,
-                    type: "GET",
-                    data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
-                    success: function(response) {
-                        // The sever sends an HTML
-                        $('#submissionFeedbacks').html(response);
-                        $('#submissionFeedbacksContainer').offset({top: $initiator.parent().parent().offset().top})
-                    },
-                    error: function(response) {
-                        $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
+                            // Get the in_jeeqs
+                            $.ajax({
+                                url: "/rpc",
+                                async: true,
+                                type: "GET",
+                                data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
+                                success: function(response) {
+                                    // The sever sends an HTML
+                                    $('#submissionFeedbacks').html(response);
+                                    $('#column2').offset({top: $initiator.parent().parent().offset().top})
+                                },
+                                error: function(response) {
+                                    $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
+                                }
+                            })
+                        }
                     }
                 })
             })

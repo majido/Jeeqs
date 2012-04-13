@@ -666,10 +666,14 @@ class RPCHandler(webapp.RequestHandler):
             .filter('challenge = ', submission.challenge)\
             .fetch(1)
 
-        # should never happen!
-        if len(jeeqser_challenge) != 1:
-            self.error(500)
-            return
+        if len(jeeqser_challenge) == 0:
+            # should never happen but let's guard against it!
+            logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
+            jeeqser_challenge = Jeeqser_Challenge(
+                                    jeeqser = submission.author,
+                                    challenge = submission.challenge,
+                                    active_attempt = submission)
+
         else:
             jeeqser_challenge = jeeqser_challenge[0]
 

@@ -50,7 +50,7 @@
 
                 $.ajax({
                     url: "/rpc",
-                    async: false,
+                    async: true,
                     type: "POST",
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
@@ -67,7 +67,7 @@
 
                 $.ajax({
                     url: "/rpc",
-                    async: false,
+                    async: true,
                     type: "POST",
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
@@ -85,7 +85,7 @@
 
                 $.ajax({
                     url: "/rpc",
-                    async: false,
+                    async: true,
                     type: "POST",
                     data: {'method': 'submit_challenge_source', 'challenge_key': $challengeKey, 'source':$newSource},
                     success: function(response){

@@ -13,7 +13,7 @@
 
             $.ajax({
                 url: "/rpc",
-                async: false,
+                async: true,
                 type: "POST",
                 data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key }}', 'vertical_scroll':$new_vertical_scroll},
                 success: function(response){
