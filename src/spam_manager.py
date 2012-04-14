@@ -45,7 +45,7 @@ class spam_manager:
         jeeqser.put()
 
     @classmethod
-    def check_flag_limit(cls, jeeqser):
+    def check_and_update_flag_limit(cls, jeeqser):
         """
         Checks whether jeeqser is over-limit for flagging and throws FlaggingLimitReachedError if so. If not, increase a counter.
         """
@@ -57,12 +57,10 @@ class spam_manager:
         if not jeeqser.last_flagged_on or jeeqser.last_flagged_on.date() < now.date():
             jeeqser.last_flagged_on = now
             jeeqser.num_flagged_today = 1
-            jeeqser.put()
             return spam_manager.flaging_limit_per_day - 1
         elif jeeqser.num_flagged_today >= spam_manager.flaging_limit_per_day:
             return -1
         else:
             jeeqser.last_flagged_on = now
             jeeqser.num_flagged_today = jeeqser.num_flagged_today + 1
-            jeeqser.put()
             return spam_manager.flaging_limit_per_day - jeeqser.num_flagged_today

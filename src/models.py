@@ -213,6 +213,7 @@ class Jeeqser_Challenge(db.Model):
     flag_count = db.IntegerProperty(default=0)
 
 
+#TODO: move feedback to the same entity group as a submission
 class Feedback(db.Model):
     """Models feedback for submission """
     attempt = db.ReferenceProperty(Attempt, collection_name='feedbacks')

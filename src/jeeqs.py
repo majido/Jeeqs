@@ -4,6 +4,7 @@
 A program for managing challenges, attempt and solutions.
 
 """
+from google.appengine.api.datastore_errors import Rollback
 from google.appengine.dist import use_library
 use_library('django', '1.3')
 from django.utils import simplejson as json
@@ -109,6 +110,9 @@ def prettify_injeeqs(injeeqs):
         elif jeeq.vote == 'flag':
             jeeq.icon = 'ui-icon-flag'
             jeeq.background = 'lightgrey'
+
+class FlagLimitReached(Exception):
+    pass
 
 class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
@@ -578,61 +582,78 @@ class RPCHandler(webapp.RequestHandler):
                 new_solution += '    ' + line
             solution = new_solution
 
-        attempt = Attempt(
-                    author=self.jeeqser.key(),
-                    challenge=challenge,
-                    content=markdown.markdown(solution, ['codehilite', 'mathjax']),
-                    markdown=solution,
-                    active=True)
-
-        previous_submissions = Attempt\
-            .all()\
-            .filter('author = ', self.jeeqser)\
-            .filter('challenge = ', challenge)\
-            .filter('active = ', True)\
-            .fetch(10)
-
-        max_old_index = 0
-        # there should be only one previous submission.
-        for previous_submission in previous_submissions:
-            previous_submission.active = False
-            max_old_index = max(max_old_index, previous_submission.index)
-            previous_submission.put()
-
-        attempt.index = max_old_index + 1
-        attempt.put()
-
+        # We can convert two foreign keys into a single key and move this inside the transaction
         jeeqser_challenge = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser = ', self.jeeqser)\
             .filter('challenge = ', challenge)\
             .fetch(1)
 
-        if len(jeeqser_challenge) == 0:
-            #create one
-            jeeqser_challenge = Jeeqser_Challenge(
-                jeeqser = self.jeeqser,
-                challenge = challenge,
-                active_attempt = attempt
-            )
-        else:
-            jeeqser_challenge = jeeqser_challenge[0]
+        class Namespace(object): pass
+        ns = Namespace()
+        ns.jeeqser = self.jeeqser
+        ns.jeeqser_challenge = jeeqser_challenge
+
+        def persist_new_submission():
+
+            jeeqser_challenge = ns.jeeqser_challenge
+            previous_index = 0
+
+            if len(jeeqser_challenge) == 1:
+                jeeqser_challenge = jeeqser_challenge[0]
+                jeeqser_challenge.active_attempt.active = False
+                jeeqser_challenge.active_attempt.put()
+                previous_index = jeeqser_challenge.active_attempt.index
+            else:
+                #create one
+                jeeqser_challenge = Jeeqser_Challenge(
+                    jeeqser = self.jeeqser,
+                    challenge = challenge
+                )
+
+            attempt = Attempt(
+                author=self.jeeqser.key(),
+                challenge=challenge,
+                content=markdown.markdown(solution, ['codehilite', 'mathjax']),
+                markdown=solution,
+                active=True,
+                index=previous_index + 1)
+
+            attempt.put()
+
             jeeqser_challenge.active_attempt = attempt
             jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.genius_count = jeeqser_challenge.flag_count = 0
+            jeeqser_challenge.put()
 
-        self.jeeqser.submissions_num += 1
+            jeeqser = Jeeqser.get(ns.jeeqser.key())
+            jeeqser.submissions_num += 1
+            jeeqser.put()
 
-        jeeqser_challenge.put()
-        self.jeeqser.put()
+            # Pass variables up
+            ns.jeeqser = jeeqser
+            ns.attempt = attempt
+            ns.jeeqser_challenge = jeeqser_challenge
 
-        # run the tests
+        xg_on = db.create_transaction_options(xg=True)
+        db.run_in_transaction_options(xg_on, persist_new_submission)
+
+        # Receive variables from transaction
+        self.jeeqser = ns.jeeqser
+        attempt = ns.attempt
+        jeeqser_challenge = ns.jeeqser_challenge
+
+        # run the tests and persist the results
         if challenge.automatic_review:
             feedback = run_testcases(program, challenge, attempt, get_jeeqs_robot())
             RPCHandler.update_submission(attempt, jeeqser_challenge, feedback.vote, self.jeeqser)
-            feedback.put()
-            jeeqser_challenge.put()
-            attempt.put()
 
+            def persist_testcase_results():
+                feedback.put()
+                jeeqser_challenge.put()
+                attempt.put()
+
+            xg_on = db.create_transaction_options(xg=True)
+            db.run_in_transaction_options(xg_on, persist_testcase_results)
 
     def update_displayname(self):
         displayname = self.request.get('display_name')
@@ -649,7 +670,12 @@ class RPCHandler(webapp.RequestHandler):
             return
 
     def submit_vote(self):
+        class Namespace(object): pass
+        ns = Namespace()
+
         submission_key = self.request.get('submission_key')
+        vote = self.request.get('vote')
+
 
         submission = None
 
@@ -660,48 +686,24 @@ class RPCHandler(webapp.RequestHandler):
                 self.error(403)
                 return
 
-        jeeqser_challenge = Jeeqser_Challenge\
+        if not self.jeeqser.key() in submission.users_voted:
+
+            jeeqser_challenge = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser =', submission.author)\
             .filter('challenge = ', submission.challenge)\
             .fetch(1)
 
-        if len(jeeqser_challenge) == 0:
-            # should never happen but let's guard against it!
-            logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
-            jeeqser_challenge = Jeeqser_Challenge(
-                                    jeeqser = submission.author,
-                                    challenge = submission.challenge,
-                                    active_attempt = submission)
-
-        else:
-            jeeqser_challenge = jeeqser_challenge[0]
-
-        if not self.jeeqser.key() in submission.users_voted:
-            vote = self.request.get('vote')
-
-            # check flagging limit
-            if vote == 'flag':
-                flags_left = spam_manager.check_flag_limit(self.jeeqser)
-                response = {'flags_left_today':flags_left}
-                out_json = json.dumps(response)
-                self.response.out.write(out_json)
-                if flags_left == -1:
-                    return
-
-            submission.users_voted.append(self.jeeqser.key())
-            submission.vote_count += 1
-
-            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
-            submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.update_submission(submission, jeeqser_challenge, vote, self.jeeqser)
-
-            def update_submission():
-                submission.put()
+            if len(jeeqser_challenge) == 0:
+                # should never happen but let's guard against it!
+                logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
+                jeeqser_challenge = Jeeqser_Challenge(
+                    jeeqser = submission.author,
+                    challenge = submission.challenge,
+                    active_attempt = submission)
                 jeeqser_challenge.put()
-
-            xg_on = db.create_transaction_options(xg=True)
-            db.run_in_transaction_options(xg_on, update_submission)
+            else:
+                jeeqser_challenge = jeeqser_challenge[0]
 
             feedback = Feedback(
                 attempt=submission,
@@ -710,33 +712,71 @@ class RPCHandler(webapp.RequestHandler):
                 markdown=self.request.get('response'),
                 content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
                 vote=vote)
-            feedback.put()
 
-            # update stats
-            self.jeeqser.reviews_out_num += 1
-            self.jeeqser.put()
+            ns.submission = submission
+            ns.jeeqser_challenge = jeeqser_challenge
+            ns.jeeqser = self.jeeqser
 
-            submission.author.reviews_in_num +=1
-            submission.author.put()
+            def persist_vote():
+                # get all the objects that will be updated
+                submission = Attempt.get(ns.submission.key())
+                jeeqser_challenge = Jeeqser_Challenge.get(ns.jeeqser_challenge.key())
+                jeeqser = Jeeqser.get(ns.jeeqser.key())
+                submission.author = Jeeqser.get(ns.submission.author.key())
 
-    def flag_feedback(self):
-        feedback_key = self.request.get('feedback_key')
-        feedback = Feedback.get(feedback_key)
+                # check flagging limit
+                if vote == 'flag':
 
-        if self.jeeqser.key() not in feedback.flagged_by:
-            flags_left = spam_manager.check_flag_limit(self.jeeqser)
-            response = {'flags_left_today':flags_left}
+                    flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+                    response = {'flags_left_today':flags_left}
+                    out_json = json.dumps(response)
+                    self.response.out.write(out_json)
+                    if flags_left == -1:
+                        raise Rollback()
 
-            if flags_left >= 0:
-                feedback.flagged_by.append(self.jeeqser.key())
-                feedback.flag_count += 1
-                if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator or users.is_current_user_admin():
-                    feedback.flagged = True
-                    spam_manager.flag_author(feedback.author)
+                submission.users_voted.append(jeeqser.key())
+                submission.vote_count += 1
+
+                submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
+                submission.vote_average = float(submission.vote_sum / submission.vote_count)
+                RPCHandler.update_submission(submission, jeeqser_challenge, vote, jeeqser)
+
+                # update stats
+                jeeqser.reviews_out_num += 1
+                submission.author.reviews_in_num +=1
+
+                jeeqser_challenge.put()
+                submission.put()
+                jeeqser.put()
+                submission.author.put()
                 feedback.put()
 
-            out_json = json.dumps(response)
-            self.response.out.write(out_json)
+            xg_on = db.create_transaction_options(xg=True)
+            db.run_in_transaction_options(xg_on, persist_vote)
+        else: # should not happen!
+            self.error(403)
+            return
+
+
+def flag_feedback(self):
+    feedback_key = self.request.get('feedback_key')
+    feedback = Feedback.get(feedback_key)
+
+    if self.jeeqser.key() not in feedback.flagged_by:
+        flags_left = spam_manager.check_and_update_flag_limit(self.jeeqser)
+        self.jeeqser.put()
+        response = {'flags_left_today':flags_left}
+
+        if flags_left >= 0:
+            feedback.flagged_by.append(self.jeeqser.key())
+            feedback.flag_count += 1
+            if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator or users.is_current_user_admin():
+                feedback.flagged = True
+                spam_manager.flag_author(feedback.author)
+            feedback.put()
+
+        out_json = json.dumps(response)
+        self.response.out.write(out_json)
 
 
 
