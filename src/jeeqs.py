@@ -658,7 +658,12 @@ class RPCHandler(webapp.RequestHandler):
             xg_on = db.create_transaction_options(xg=True)
             db.run_in_transaction_options(xg_on, persist_testcase_results)
 
-        Activity(type='submission', done_by=self.jeeqser, challenge=challenge, challenge_name=challenge.name).put()
+        Activity(
+            type='submission',
+            done_by=self.jeeqser,
+            done_by_gravatar=self.jeeqser.gravatar_url,
+            challenge=challenge,
+            challenge_name=challenge.name).put()
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

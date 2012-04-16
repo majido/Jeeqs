@@ -282,6 +282,7 @@ class Activity(db.Model):
     """Models an activity done on Jeeqs"""
     type=db.StringProperty(choices=['submission', 'voting', 'flagging'])
     done_by = db.ReferenceProperty(Jeeqser)
+    done_by_gravatar = db.LinkProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
     challenge = db.ReferenceProperty(Challenge)

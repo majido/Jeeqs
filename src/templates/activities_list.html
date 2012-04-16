@@ -2,6 +2,9 @@
 {% for activity in activities %}
     <div class="activity" style="margin-top: 10px">
         {% if activity.type == 'submission' %}
+            <div style="float:left">
+                <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.done_by_gravatar }}"/>
+            </div>
             <span style="color:#099d01">{{ activity.done_by.displayname }}</span>
             submitted for challenge <a class="noline" style="color:#447fcf" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
             <br/> <span style="color:#444; font-size:smaller;">{{ activity.date|timesince }} ago </span>
