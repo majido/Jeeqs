@@ -111,9 +111,6 @@ def prettify_injeeqs(injeeqs):
             jeeq.icon = 'ui-icon-flag'
             jeeq.background = 'lightgrey'
 
-class FlagLimitReached(Exception):
-    pass
-
 class FrontPageHandler(webapp.RequestHandler):
     """renders the home.html template
     """
@@ -651,6 +648,7 @@ class RPCHandler(webapp.RequestHandler):
                 feedback.put()
                 jeeqser_challenge.put()
                 attempt.put()
+                # attempt.author doesn't need to be persisted, since it will only change when an attempt is flagged.
 
             xg_on = db.create_transaction_options(xg=True)
             db.run_in_transaction_options(xg_on, persist_testcase_results)
@@ -758,25 +756,37 @@ class RPCHandler(webapp.RequestHandler):
             return
 
 
-def flag_feedback(self):
-    feedback_key = self.request.get('feedback_key')
-    feedback = Feedback.get(feedback_key)
+    def flag_feedback(self):
+        feedback_key = self.request.get('feedback_key')
+        feedback = Feedback.get(feedback_key)
 
-    if self.jeeqser.key() not in feedback.flagged_by:
-        flags_left = spam_manager.check_and_update_flag_limit(self.jeeqser)
-        self.jeeqser.put()
-        response = {'flags_left_today':flags_left}
+        if self.jeeqser.key() not in feedback.flagged_by:
+            def persist_flag(jeeqser_key):
 
-        if flags_left >= 0:
-            feedback.flagged_by.append(self.jeeqser.key())
-            feedback.flag_count += 1
-            if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or self.jeeqser.is_moderator or users.is_current_user_admin():
-                feedback.flagged = True
-                spam_manager.flag_author(feedback.author)
-            feedback.put()
+                feedback = Feedback.get(feedback_key)
+                jeeqser = Jeeqser.get(jeeqser_key)
 
-        out_json = json.dumps(response)
-        self.response.out.write(out_json)
+                flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+                jeeqser.put()
+                response = {'flags_left_today':flags_left}
+
+                if flags_left >= 0:
+                    feedback.flagged_by.append(jeeqser.key())
+                    feedback.flag_count += 1
+                    if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or jeeqser.is_moderator or users.is_current_user_admin():
+                        feedback.flagged = True
+                        spam_manager.flag_author(feedback.author)
+                        feedback.author.put()
+                    feedback.put()
+
+                return response
+
+            xg_on = db.create_transaction_options(xg=True)
+            response = db.run_in_transaction_options(xg_on, persist_flag, self.jeeqser.key())
+
+
+            out_json = json.dumps(response)
+            self.response.out.write(out_json)
 
 
 

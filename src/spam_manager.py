@@ -42,7 +42,6 @@ class spam_manager:
                 jeeqser.suspended_until = jeeqser.suspended_until + oneday
             else:
                 jeeqser.suspended_until = datetime.now() + oneday
-        jeeqser.put()
 
     @classmethod
     def check_and_update_flag_limit(cls, jeeqser):
