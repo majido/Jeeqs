@@ -5,10 +5,10 @@
         {% block column1 %}{% endblock %}
     </div>
     <div id="column2" style="{% block column2_width %} width:45%; {% endblock %}float:right; padding-top: 10px;">
+        {#        {% if not local %}#}
+        {% include "advertisement.html" %}
+        {#        {% endif %}#}
         {% block column2 %}
         {% endblock %}
-{#        {% if not local %}#}
-            {% include "advertisement.html" %}
-{#        {% endif %}#}
     </div>
 {% endblock %}

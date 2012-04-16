@@ -88,7 +88,7 @@ class ChallengePage(webapp.RequestHandler):
 
         challenge.put()
 
-        self.redirect('/admin/challenges')
+        self.redirect('/admin/challenges/new')
 
 
 class ChallengeListPage(webapp.RequestHandler):

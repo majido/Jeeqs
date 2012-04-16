@@ -1,11 +1,11 @@
 {% extends "base_twoColumn.html" %}
 
 {% block column1-width %}
-    width: 70%;
+    width: 65%;
 {% endblock %}
 
 {% block column2_width %}
-    width: 30%;
+    width: 35%;
 {% endblock %}
 
 {% block script %}
@@ -22,16 +22,17 @@
 {% endblock script %}
 
 {% block column1 %}
+    <h2>A Gentle Introduction to Programming Using Python, OCW, MIT</h2>
     <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;height: 400px; overflow:scroll;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
             <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
-                <col width="20%"/>
+                <col width="40%"/>
                 <col width="5%"/>
                 <col width="15%"/>
                 <col width="5%"/>
                 <col width="10%"/>
-                <col width="20%"/>
+{#                <col width="20%"/>#}
                 <col width="20%"/>
                 <tr>
                     <td></td>
@@ -49,7 +50,9 @@
                 {% for challenge in challenges %}
                     <tr {% if challenge.solved %} style="background: #90ee90"{% endif %}>
                         <td>
-                            {{ challenge.name }} {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:right"></span>{% endif %}
+                            <a class="noline" href="/challenge/?ch={{ challenge.key }}">
+                                {{ challenge.name }} {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:right"></span>{% endif %}
+                            </a>
                         </td>
                         <td>
                             <span>
@@ -73,14 +76,14 @@
                             {% endif %}
                         </td>
                         <td>
-                            {{ challenge.exercise.number }}
+                            {{ challenge.exercise_number|default_if_none:"" }}
                         </td>
-                        <td title="{{ challenge.exercise.course.name }}">
-                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>
-                        </td>
+{#                        <td title="{{ challenge.exercise.course.name }}">#}
+{#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
+{#                        </td>#}
                         <td>
                             {% if challenge.exercise %}
-                                {{ challenge.exercise.course.program.name }}/{{ challenge.exercise.course.program.university.name }}
+                                {{ challenge.exercise_program }}/{{ challenge.exercise_university }}
                             {% endif %}
                         </td>
                     </tr>
@@ -96,3 +99,11 @@
         </div>
     </div>
 {% endblock column1 %}
+{% block column2 %}
+    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px; margin-top: 50px;">
+        <h3><a href="#">Activities</a></h3>
+        <div class>
+            {% include "activities_list.html"%}
+        </div>
+    </div>
+{% endblock column2 %}

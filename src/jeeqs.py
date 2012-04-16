@@ -120,6 +120,7 @@ class FrontPageHandler(webapp.RequestHandler):
         # get available challenges
 
         all_challenges = Challenge.all().fetch(100)
+        all_challenges.sort(key=lambda challenge:challenge.exercise_number_persisted)
         jeeqser_challenges = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser = ', self.jeeqser)\
@@ -151,11 +152,14 @@ class FrontPageHandler(webapp.RequestHandler):
                             .fetch(10)
             prettify_injeeqs(injeeqs)
 
+        all_activities = Activity.all().order('-date').fetch(20)
+
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
         vars = add_common_vars({
                 'challenges': all_challenges,
                 'injeeqs': injeeqs,
+                'activities' : all_activities,
                 'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
@@ -639,6 +643,7 @@ class RPCHandler(webapp.RequestHandler):
         attempt = ns.attempt
         jeeqser_challenge = ns.jeeqser_challenge
 
+        # TODO: Do this asynchronously!
         # run the tests and persist the results
         if challenge.automatic_review:
             feedback = run_testcases(program, challenge, attempt, get_jeeqs_robot())
@@ -652,6 +657,8 @@ class RPCHandler(webapp.RequestHandler):
 
             xg_on = db.create_transaction_options(xg=True)
             db.run_in_transaction_options(xg_on, persist_testcase_results)
+
+        Activity(type='submission', done_by=self.jeeqser, challenge=challenge, challenge_name=challenge.name).put()
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

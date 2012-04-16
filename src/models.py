@@ -149,6 +149,47 @@ class Challenge(db.Model):
 
     breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
 
+    #exercise relate info
+    exercise_number_persisted = db.StringProperty()
+    exercise_program_persisted = db.StringProperty()
+    exercise_university_persisted = db.StringProperty()
+
+    def get_exercise_number(self):
+        if self.exercise_number_persisted:
+            return self.exercise_number_persisted
+        else:
+            if self.exercise:
+                self.exercise_number_persisted = self.exercise.number
+                self.put()
+                return self.exercise_number_persisted
+            else:
+                return None
+    exercise_number = property(fget=get_exercise_number, doc="Exercise number")
+
+    def get_exercise_program(self):
+        if self.exercise_program_persisted:
+            return self.exercise_program_persisted
+        else:
+            if self.exercise:
+                self.exercise_program_persisted = self.exercise.course.program.name
+                self.put()
+                return self.exercise_program_persisted
+            else:
+                return None
+    exercise_program = property(fget=get_exercise_program, doc="Exercise program")
+
+    def get_exercise_university(self):
+        if self.exercise_university_persisted:
+            return self.exercise_university_persisted
+        else:
+            if self.exercise:
+                self.exercise_university_persisted = self.exercise.course.program.university.name
+                self.put()
+                return self.exercise_university_persisted
+            else:
+                return None
+    exercise_university = property(fget=get_exercise_university, doc="Exercise University")
+
     def get_attribution(self):
         if self.attribution_persistent:
             return self.attribution_persistent
@@ -236,5 +277,18 @@ class TestCase(db.Model):
     challenge = db.ReferenceProperty(Challenge, collection_name='testcases')
     statement = db.StringProperty(multiline=True)
     expected = db.StringProperty(multiline=True)
+
+class Activity(db.Model):
+    """Models an activity done on Jeeqs"""
+    type=db.StringProperty(choices=['submission', 'voting', 'flagging'])
+    done_by = db.ReferenceProperty(Jeeqser)
+    date = db.DateTimeProperty(auto_now_add=True)
+
+    challenge = db.ReferenceProperty(Challenge)
+    challenge_name = db.StringProperty() #denormamlize from challenge
+
+    submission = db.ReferenceProperty(Attempt)
+
+    feedback = db.ReferenceProperty(Feedback)
 
 
