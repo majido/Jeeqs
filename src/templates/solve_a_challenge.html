@@ -174,33 +174,8 @@
                     {% endif %}
                 </div>
             {% endif %} {# automatic review #}
-
-            <div id="console" class="accordion" style="width:100%; margin-top:10px;">
-                <h3><a href="#">Sandbox</a></h3>
-                <div>
-                    <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                        <div id="editor" style="width: 100%; height: 300px;"></div>
-                    </div>
-                    <br/>
-                    Console
-                    <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
-                    </textarea>
-                    <br/>
-                    <br/>
-                    <button type="button" onclick="clearOutput()">Clear Console</button>
-                    <button type="button" onclick="runProgram()">Run</button>
-
-                    {% if not challenge.automatic_review %}
-                        <button id ="insert_program" type=button>Use</button>
-                    {% else %}
-                        <button id="submit_program" type=button>Submit</button>
-                    {% endif %}
-                </div>
-            </div>
             <br/>
         </form>
-
-        <p/>
     </div>
 {% endblock column1 %}
 
@@ -239,3 +214,28 @@
         </div>
     </div>
 {% endblock column2 %}
+
+{% block footer %}
+    <div id="console" class="accordion" style="width:100%; margin-top:10px; clear:both;">
+        <h3><a href="#">Sandbox</a></h3>
+        <div>
+            <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                <div id="editor" style="width: 100%; height: 300px;"></div>
+            </div>
+            <br/>
+            Console
+            <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
+            </textarea>
+            <br/>
+            <br/>
+            <button type="button" onclick="clearOutput()">Clear Console</button>
+            <button type="button" onclick="runProgram()">Run</button>
+
+            {% if not challenge.automatic_review %}
+                <button id ="insert_program" type=button>Use</button>
+            {% else %}
+                <button id="submit_program" type=button>Submit</button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock footer %}
