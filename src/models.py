@@ -282,6 +282,7 @@ class Activity(db.Model):
     """Models an activity done on Jeeqs"""
     type=db.StringProperty(choices=['submission', 'voting', 'flagging'])
     done_by = db.ReferenceProperty(Jeeqser)
+    done_by_displayname = db.StringProperty()
     done_by_gravatar = db.LinkProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
@@ -289,6 +290,9 @@ class Activity(db.Model):
     challenge_name = db.StringProperty() #denormamlize from challenge
 
     submission = db.ReferenceProperty(Attempt)
+    submission_author = db.ReferenceProperty(Jeeqser, collection_name='submission_activities')
+    submission_author_displayname = db.StringProperty()
+    submission_author_gravatar = db.LinkProperty()
 
     feedback = db.ReferenceProperty(Feedback)
 

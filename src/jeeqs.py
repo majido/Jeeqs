@@ -661,6 +661,7 @@ class RPCHandler(webapp.RequestHandler):
         Activity(
             type='submission',
             done_by=self.jeeqser,
+            done_by_displayname=self.jeeqser.displayname,
             done_by_gravatar=self.jeeqser.gravatar_url,
             challenge=challenge,
             challenge_name=challenge.name).put()
@@ -763,6 +764,20 @@ class RPCHandler(webapp.RequestHandler):
 
             xg_on = db.create_transaction_options(xg=True)
             db.run_in_transaction_options(xg_on, persist_vote)
+
+            Activity(
+                type='voting',
+                done_by = self.jeeqser,
+                done_by_displayname=self.jeeqser.displayname,
+                done_by_gravatar = self.jeeqser.gravatar_url,
+                challenge=submission.challenge,
+                challenge_name=submission.challenge.name,
+                submission=submission,
+                submission_author=submission.author,
+                submission_author_displayname=submission.author.displayname,
+                submission_author_gravatar = submission.author.gravatar_url,
+                feedback=feedback
+            ).put()
         else: # should not happen!
             self.error(403)
             return
