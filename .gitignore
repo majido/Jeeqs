@@ -21,3 +21,10 @@
 .idea/vcs.xml
 
 .idea/workspace.xml
+src/lib/pygments/console.pyc
+
+src/lib/pygments/lexers/__init__.pyc
+
+src/lib/pygments/lexer.pyc
+
+src/lib/pygments/formatters/*.pyc

@@ -199,20 +199,6 @@
         {% endif %}
     </div>
 
-    <div id="recent-attempts" class="accordion accordion-closed" style="width:100%; float:right; clear:right; padding:15px; margin: 10px;">
-        <h3><a href="#">Your Recent Submissions</a></h3>
-        <div class="recent-jeeqs">
-            {% if jeeqser %}
-                {% for attempt in attempts %}
-                <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
-                <div>
-                        {{ attempt.content|safe }}
-                </div>
-                <hr/>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
 {% endblock column2 %}
 
 {% block footer %}
@@ -238,4 +224,20 @@
             {% endif %}
         </div>
     </div>
+
+    <div id="recent-attempts" class="accordion accordion-closed" style="width:100%; clear:both; margin-top: 20px">
+        <h3><a href="#">Your Recent Submissions</a></h3>
+        <div class="recent-jeeqs">
+            {% if jeeqser %}
+                {% for attempt in attempts %}
+                    <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                    <div>
+                        {{ attempt.content|safe }}
+                    </div>
+                    <hr/>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
 {% endblock footer %}

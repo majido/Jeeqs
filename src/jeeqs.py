@@ -104,9 +104,6 @@ def prettify_injeeqs(injeeqs):
         elif jeeq.vote == 'incorrect':
             jeeq.icon = 'ui-icon-closethick'
             jeeq.background = '#FFE3E3'
-        elif jeeq.vote == 'genius':
-            jeeq.icon = 'ui-icon-lightbulb'
-            jeeq.background = '#FFFFE6'
         elif jeeq.vote == 'flag':
             jeeq.icon = 'ui-icon-flag'
             jeeq.background = 'lightgrey'
@@ -137,7 +134,7 @@ class FrontPageHandler(webapp.RequestHandler):
                 if active_submissions.get(ch.key()):
                     jc = active_submissions[ch.key()]
                     ch.submitted = True
-                    ch.solved = True if (jc.correct_count + jc.genius_count > jc.incorrect_count + jc.flag_count) else False
+                    ch.status = jc.status
                     ch.jc = jc
 
                 else:
@@ -436,8 +433,6 @@ class RPCHandler(webapp.RequestHandler):
             return 2
         elif vote == 'incorrect':
             return 0
-        elif vote == 'genius':
-            return 4
         else:
             return 0 # flag
 
@@ -452,9 +447,6 @@ class RPCHandler(webapp.RequestHandler):
         elif vote == 'incorrect':
             submission.incorrect_count += 1
             jeeqser_challenge.incorrect_count = submission.incorrect_count
-        elif vote == 'genius':
-            submission.genius_count += 1
-            jeeqser_challenge.genius_count = submission.genius_count
         elif vote == 'flag':
             submission.flag_count += 1
             jeeqser_challenge.flag_count = submission.flag_count
@@ -462,6 +454,12 @@ class RPCHandler(webapp.RequestHandler):
                 submission.flagged = True
                 spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
+
+        #update status on submission and jeeqser_challenge
+        if submission.correct_count > submission.incorrect_count + submission.flag_count:
+            submission.status = jeeqser_challenge.status = 'correct'
+        else:
+            submission.status = jeeqser_challenge.status = 'incorrect'
 
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
@@ -623,7 +621,7 @@ class RPCHandler(webapp.RequestHandler):
             attempt.put()
 
             jeeqser_challenge.active_attempt = attempt
-            jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.genius_count = jeeqser_challenge.flag_count = 0
+            jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
             jeeqser_challenge.put()
 
             jeeqser = Jeeqser.get(ns.jeeqser.key())

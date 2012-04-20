@@ -220,8 +220,10 @@ class Attempt(db.Model):
 
     correct_count = db.IntegerProperty(default=0)
     incorrect_count = db.IntegerProperty(default=0)
-    genius_count = db.IntegerProperty(default=0)
     flag_count = db.IntegerProperty(default=0)
+    # Status of jeeqser's submission for this challenge
+    # a challenge is solved if correct_count > incorrect_count + flag_count
+    status = db.StringProperty(choices=['correct', 'incorrect'])
 
     #vote quantization TODO: might be removed !?
     vote_sum = db.FloatProperty(default=float(0))
@@ -250,8 +252,10 @@ class Jeeqser_Challenge(db.Model):
     # vote counts for the active attempt (denormalized from the active attempt)
     correct_count = db.IntegerProperty(default=0)
     incorrect_count = db.IntegerProperty(default=0)
-    genius_count = db.IntegerProperty(default=0)
     flag_count = db.IntegerProperty(default=0)
+    # Status of jeeqser's submission for this challenge
+    # a challenge is solved if correct_count > incorrect_count + flag_count
+    status = db.StringProperty(choices=['correct', 'incorrect'])
 
 
 #TODO: move feedback to the same entity group as a submission

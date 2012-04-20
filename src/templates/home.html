@@ -41,14 +41,18 @@
                         <span>
                             <span class="ui-icon ui-icon-check" style="float:left"></span>
                             <span class="ui-icon ui-icon-closethick" style="float:left"></span>
-                            <span class="ui-icon ui-icon-lightbulb" style="float:left"></span>
                             <span class="ui-icon ui-icon-flag" style="float:left"></span>
                         </span>
                     </td>
                     <td></td>
                 </tr>
                 {% for challenge in challenges %}
-                    <tr {% if challenge.solved %} style="background: #90ee90"{% endif %}>
+                    <tr {% if challenge.status == 'correct' %}
+                            style="background: #90ee90"
+                        {% endif %}
+                        {% if challenge.status == 'incorrect' %}
+                            style="background: #f08080"
+                        {% endif %}>
                         <td>
                             <a class="noline" href="/challenge/?ch={{ challenge.key }}">
                                 {{ challenge.name }} {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:right"></span>{% endif %}
@@ -57,7 +61,7 @@
                         <td>
                             <span>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
-                                    {% if challenge.solved %}
+                                    {% if challenge.status == 'correct' %}
                                         <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
                                     {% else %}
                                         <span class="ui-icon ui-icon-key" style="float:left"></span>
@@ -71,7 +75,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if jeeqser and challenge.solved or isadmin %}
+                            {% if jeeqser and challenge.status == 'correct' or isadmin %}
                                 <a class="noline" href="/review/?ch={{ challenge.key }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
                             {% endif %}
                         </td>
