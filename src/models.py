@@ -137,8 +137,8 @@ class Challenge(db.Model):
     vertical_scroll = db.FloatProperty()
 
     #stats
-    num_jeeqsers_solved = db.IntegerProperty()
-    num_jeeqsers_submitted = db.IntegerProperty()
+    num_jeeqsers_solved = db.IntegerProperty(default=0)
+    num_jeeqsers_submitted = db.IntegerProperty(default=0)
 
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:

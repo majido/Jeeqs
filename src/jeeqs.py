@@ -455,11 +455,21 @@ class RPCHandler(webapp.RequestHandler):
                 spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
 
+        previous_status = submission.status
+
         #update status on submission and jeeqser_challenge
         if submission.correct_count > submission.incorrect_count + submission.flag_count:
             submission.status = jeeqser_challenge.status = 'correct'
         else:
             submission.status = jeeqser_challenge.status = 'incorrect'
+
+        # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
+        if submission.status != previous_status:
+            if submission.status == 'correct':
+                submission.challenge.num_jeeqsers_solved += 1
+            elif submission.status == 'incorrect' and None != previous_status:
+                submission.challenge.num_jeeqsers_solved -= 1
+
 
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
@@ -581,7 +591,7 @@ class RPCHandler(webapp.RequestHandler):
                 new_solution += '    ' + line
             solution = new_solution
 
-        # We can convert two foreign keys into a single key and move this inside the transaction
+        # TODO: We can convert two foreign keys (jeeqser, challenge) into a single key and get the key faster
         jeeqser_challenge = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser = ', self.jeeqser)\
@@ -610,6 +620,9 @@ class RPCHandler(webapp.RequestHandler):
                     jeeqser = self.jeeqser,
                     challenge = challenge
                 )
+
+                challenge.num_jeeqsers_submitted += 1
+                challenge.put()
 
             attempt = Attempt(
                 author=self.jeeqser.key(),
@@ -652,6 +665,7 @@ class RPCHandler(webapp.RequestHandler):
                 feedback.put()
                 jeeqser_challenge.put()
                 attempt.put()
+                attempt.challenge.put()
                 # attempt.author doesn't need to be persisted, since it will only change when an attempt is flagged.
 
             xg_on = db.create_transaction_options(xg=True)
@@ -759,6 +773,7 @@ class RPCHandler(webapp.RequestHandler):
 
                 jeeqser_challenge.put()
                 submission.put()
+                submission.challenge.put()
                 jeeqser.put()
                 submission.author.put()
                 feedback.put()
