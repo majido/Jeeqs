@@ -606,6 +606,7 @@ class RPCHandler(webapp.RequestHandler):
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
+                    parent=self.jeeqser,
                     jeeqser = self.jeeqser,
                     challenge = challenge
                 )
@@ -698,15 +699,16 @@ class RPCHandler(webapp.RequestHandler):
         if not self.jeeqser.key() in submission.users_voted:
 
             jeeqser_challenge = Jeeqser_Challenge\
-            .all()\
-            .filter('jeeqser =', submission.author)\
-            .filter('challenge = ', submission.challenge)\
-            .fetch(1)
+                .all()\
+                .filter('jeeqser =', submission.author)\
+                .filter('challenge = ', submission.challenge)\
+                .fetch(1)
 
             if len(jeeqser_challenge) == 0:
                 # should never happen but let's guard against it!
                 logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
                 jeeqser_challenge = Jeeqser_Challenge(
+                    parent = submission.author,
                     jeeqser = submission.author,
                     challenge = submission.challenge,
                     active_attempt = submission)
@@ -715,6 +717,7 @@ class RPCHandler(webapp.RequestHandler):
                 jeeqser_challenge = jeeqser_challenge[0]
 
             feedback = Feedback(
+                parent=submission,
                 attempt=submission,
                 author=self.jeeqser,
                 attempt_author=submission.author,

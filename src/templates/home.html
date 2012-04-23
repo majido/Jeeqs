@@ -47,16 +47,28 @@
                     <td></td>
                 </tr>
                 {% for challenge in challenges %}
-                    <tr {% if challenge.status == 'correct' %}
-                            style="background: #90ee90"
-                        {% endif %}
-                        {% if challenge.status == 'incorrect' %}
-                            style="background: #f08080"
-                        {% endif %}>
+                    <tr>
                         <td>
-                            <a class="noline" href="/challenge/?ch={{ challenge.key }}">
-                                {{ challenge.name }} {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:right"></span>{% endif %}
+                            {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:left"></span>{% endif %}
+                            <a class="noline" href="/challenge/?ch={{ challenge.key }}" style="color:
+                                    {% if challenge.status == 'correct' %}
+                                        #089619
+                                    {% endif %}
+                                    {% if challenge.status == 'incorrect' %}
+                                        #960D22
+                                    {% endif %}
+                                ">
+                                {{ challenge.name }}
                             </a>
+                            <br/>
+                            <span style="color: #808080; font-size: smaller; float:left; margin-left: 20px">
+                                <span class="ui-icon ui-icon-triangle-1-e" style="float:left"></span>
+                                <span style="float:left">
+                                    <span title="jeeqsers solved this challenge" style="color:green"> {{ challenge.num_jeeqsers_solved|default_if_none:"0"}}</span>
+                                    /
+                                    <span title="jeeqsers submitted a solution for this challenge"> {{ challenge.num_jeeqsers_submitted|default_if_none:"0" }}</span>
+                                </span>
+                            </span>
                         </td>
                         <td>
                             <span>

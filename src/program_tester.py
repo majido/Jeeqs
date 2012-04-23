@@ -114,6 +114,7 @@ def run_testcases(program, challenge, attempt, robot):
             vote = 'incorrect'
 
     feedback = Feedback(
+            parent=attempt,
             attempt=attempt,
             author=robot,
             attempt_author=attempt.author,

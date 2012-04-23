@@ -136,6 +136,10 @@ class Challenge(db.Model):
     access_key = db.StringProperty()
     vertical_scroll = db.FloatProperty()
 
+    #stats
+    num_jeeqsers_solved = db.IntegerProperty()
+    num_jeeqsers_submitted = db.IntegerProperty()
+
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:
             return self.breadcrumb_persisted
@@ -243,6 +247,7 @@ class Attempt(db.Model):
 class Jeeqser_Challenge(db.Model):
     """
     Represents the relation between a Jeeqser and a Challenge
+    Exists in the same entity group as the jeeqser
     """
 
     jeeqser = db.ReferenceProperty(Jeeqser)
@@ -258,9 +263,11 @@ class Jeeqser_Challenge(db.Model):
     status = db.StringProperty(choices=['correct', 'incorrect'])
 
 
-#TODO: move feedback to the same entity group as a submission
 class Feedback(db.Model):
-    """Models feedback for submission """
+    """Models feedback for submission
+     Belongs to the same entity group as the attempt for which it is for.
+    """
+
     attempt = db.ReferenceProperty(Attempt, collection_name='feedbacks')
     author = db.ReferenceProperty(Jeeqser, collection_name='feedback_out')
     # Denormalizing the attempt author
