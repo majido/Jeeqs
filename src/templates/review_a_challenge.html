@@ -65,7 +65,8 @@
                                 success: function(response) {
                                     // The sever sends an HTML
                                     $('#submissionFeedbacks').html(response);
-                                    $('#column2').offset({top: $initiator.parent().parent().offset().top})
+                                    var below_ad = $('#ad').height() + $('#ad').offset().top + 30
+                                    $('#submissionFeedbacksContainer').offset({top: Math.max($initiator.parent().parent().offset().top, below_ad)})
                                 },
                                 error: function(response) {
                                     $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
