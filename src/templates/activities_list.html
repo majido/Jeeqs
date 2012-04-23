@@ -5,7 +5,7 @@
             <div style="float:left">
                 <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.done_by_gravatar }}"/>
             </div>
-            <span style="color:#099d01">{{ activity.done_by_displayname }}</span>
+            <span style="color:#099d01; font-style: italic">{{ activity.done_by_displayname }}</span>
             submitted for challenge <a class="noline" style="color:#447fcf" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
             <br/> <span style="color:#444; font-size:smaller;">{{ activity.date|timesince }} ago </span>
         {% endif %}
@@ -16,11 +16,11 @@
             <div style="float:left">
                 <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.submission_author_gravatar }}"/>
             </div>
-            <span style="color:#099d01">{{ activity.done_by_displayname }}</span>
+            <span style="color:#099d01; font-style: italic">{{ activity.done_by_displayname }}</span>
             gave feedback for a submission submitted by
-            <span style="color:#099d01">{{ activity.submission_author_displayname }}</span>
-            to challenge <a class="noline" style="color:#447fcf" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
-            <br/> <span style="color:#444; font-size:smaller;">{{ activity.date|timesince }} ago </span>
+            <span style="color:#099d01; font-style: italic;">{{ activity.submission_author_displayname }}</span>
+            to challenge <a class="noline" style="color:#447fcf; font-style:italic;" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
+            <br/> <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} ago </span>
         {% endif %}
     </div>
 {% endfor %}
