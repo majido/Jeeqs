@@ -8,6 +8,7 @@ import new
 import sys
 import StringIO
 import os
+import string
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -29,16 +30,16 @@ def compile_and_run(program, output):
 
     # log and compile the program up front
     try:
-        compiled = compile(program, '<string>', 'exec')
+        compiled = compile(program, '<sudmitted>', 'exec')
     except:
-        output['result'] += 'Compile error:  \n' + traceback.format_exc().replace(' ', '&nbsp;').replace('\n', '  \n')
+        output['result'] += 'Compile error:  \n' + format_exc() 
         raise
-
     # create a dedicated module to be used as this program's __main__
     program_module = new.module('__main__')
-
     program_module.__builtins__ = {}
-
+    #program_module["print"]= getattr(__builtins__,"print")
+    #print program_module.__dict__ 
+    
     # swap in our custom module for __main__. run the program, swap the custom module out.
     old_main = sys.modules.get('__main__')
     try:
@@ -55,23 +56,28 @@ def compile_and_run(program, output):
                 sys.stdout = stdout_buffer
                 sys.stderr = stderr_buffer
                 exec compiled in program_module.__dict__
-
+                
             finally:
                 sys.stdout = old_stdout
                 sys.stderr = old_stderr
-
+                
                 # Write the buffer to response
                 output['result'] += stdout_buffer.getvalue()
                 output['result'] += stderr_buffer.getvalue()
 
         except:
-            output['result'] += 'Execution error: \n' + traceback.format_exc()
+            output['result'] += 'Execution error: \n' + format_exc()
             raise
 
         return program_module
 
     finally:
         sys.modules['__main__'] = old_main
+
+def format_exc():
+  etype, value, tb = sys.exc_info()
+  t = ''.join(traceback.format_exception(etype, value, tb)[2:]) #ignore the first frame which is this frame!
+  return t #.replace('\n', '  \n').replace(' ', '&nbsp;')
 
 
 
