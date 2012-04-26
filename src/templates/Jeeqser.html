@@ -32,35 +32,40 @@
 {% endblock script %}
 
 {% block container %}
-    <h1> Hello {{ jeeqser.displayname }}! </h1>
+    {% if jeeqser == target_jeeqser %}
+        <h1> Hello {{ jeeqser.displayname }}! </h1>
 
-    {% if jeeqser.suspended_until %}
-        <h3>Suspension</h3>
+        {% if jeeqser.suspended_until %}
+            <h3>Suspension</h3>
+            <div class="jeeqser-value">
+                <strong style="color:red">Your account is suspended until {{ jeeqser.suspended_until }} UTC due to flagging</strong>
+                <br/>
+                <strong style="color:red">{{ jeeqser.total_flag_count }} of your posts were flagged </strong>
+            </div>
+        {% endif %}
+
+        <h3>Display name</h3>
         <div class="jeeqser-value">
-            <strong style="color:red">Your account is suspended until {{ jeeqser.suspended_until }} UTC due to flagging</strong>
+            <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
+            <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
+        </div>
+
+        <h3>Profile Picture</h3>
+        <div class="jeeqser-value">
+            <img src="{{ gravatar_url }}" style="border-radius: 5px"/>
             <br/>
-            <strong style="color:red">{{ jeeqser.total_flag_count }} of your posts were flagged </strong>
+            <br/>
+            <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email }}</small>
+        </div>
+
+        <h3>Email</h3>
+        <div class="jeeqser-value">
+        {{ jeeqser.user.email }}
         </div>
     {% endif %}
-
-    <h3>Display name</h3>
-    <div class="jeeqser-value">
-        <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
-        <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
-    </div>
-
-    <h3>Profile Picture</h3>
-    <div class="jeeqser-value">
-        <img src="{{ gravatar_url }}" style="border-radius: 5px"/>
-        <br/>
-        <br/>
-        <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email }}</small>
-    </div>
-
-    <h3>Email</h3>
-    <div class="jeeqser-value">
-    {{ jeeqser.user.email }}
-    </div>
+    {% if jeeqser != target_jeeqser %} {#  for some other user #}
+        <h1> {{ jeeqser.displayname }}
+    {% endif %}
 
     <h3>Out Jeeqs</h3>
     <div class="jeeqser-value">
