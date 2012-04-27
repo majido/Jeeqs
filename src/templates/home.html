@@ -17,7 +17,7 @@
 
             $('.solved_submitted').on(
                     {'mouseenter': function() {
-                        $(this).children().children('.solved_caption, .submitted_caption').show()
+                        $(this).children().children('.solved_caption, .submitted_caption').show('slow')
                         },
                      'mouseleave': function() {
                         $(this).children().children('.solved_caption, .submitted_caption').hide()
@@ -130,7 +130,7 @@
     <div style="width: 90%; margin: 10px; float:right; clear:right">
         {% include "plusone.html" %}
     </div>
-    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px; margin-top: 50px;">
+    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;">
         <h3><a href="#">Activities</a></h3>
         <div class>
             {% include "activities_list.html"%}
