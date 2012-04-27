@@ -170,13 +170,20 @@ class UserHandler(webapp.RequestHandler):
 
     @authenticate(False)
     def get(self):
-        if not self.jeeqser:
-            self.redirect("/")
-            return
+        jeeqser_key = self.request.get('jk')
+
+        if jeeqser_key:
+            target_jeeqser = Jeeqser.get(jeeqser_key)
+            if not target_jeeqser:
+                self.error(403)
+                return
+        else:
+            target_jeeqser = self.jeeqser
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
         vars = add_common_vars({
-            'jeeqser' : self.jeeqser,
+                'jeeqser' : self.jeeqser,
+                'target_jeeqser' : target_jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
