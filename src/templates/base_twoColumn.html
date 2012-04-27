@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 
 {% block container %}
-    <div id="column1" style="{%block column1-width%} width: 50%;{% endblock %} float:left; clear:left">
+  <div class="container">
+    <div id="column1" class="{%block column1-style%}nine columns{%endblock%}">
         {% block column1 %}{% endblock %}
     </div>
-    <div id="column2" style="{% block column2_width %} width:45%; {% endblock %}float:right; padding-top: 10px; clear:right">
+    <div id="column2" class="{% block column2-style %}six columns offset-by-one{% endblock %}">
         {#        {% if not local %}#}
         {#{% include "advertisement.html" %}#}
         {#        {% endif %}#}
         {% block column2 %}
         {% endblock %}
     </div>
-    <div id="footer">
-        {% block footer %}
-        {% endblock footer %}
-    </div>
+ </div>
+ <div id="footer" class="container row ">
+    {% block footer %}
+    {% endblock footer %}
+ </div>
+ 
 {% endblock %}
