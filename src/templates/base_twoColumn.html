@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block container %}
-    <div id="column1" style="{%block column1-width%} width: 50%;{% endblock %} float:left">
+    <div id="column1" style="{%block column1-width%} width: 50%;{% endblock %} float:left; clear:left">
         {% block column1 %}{% endblock %}
     </div>
-    <div id="column2" style="{% block column2_width %} width:45%; {% endblock %}float:right; padding-top: 10px;">
+    <div id="column2" style="{% block column2_width %} width:45%; {% endblock %}float:right; padding-top: 10px; clear:right">
         {#        {% if not local %}#}
         {#{% include "advertisement.html" %}#}
         {#        {% endif %}#}
