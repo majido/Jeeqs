@@ -181,10 +181,10 @@ class UserHandler(webapp.RequestHandler):
             target_jeeqser = self.jeeqser
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
+
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'target_jeeqser' : target_jeeqser,
-                'gravatar_url' : self.jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         })

@@ -52,7 +52,7 @@
 
         <h3>Profile Picture</h3>
         <div class="jeeqser-value">
-            <img src="{{ gravatar_url }}" style="border-radius: 5px"/>
+            <img src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px"/>
             <br/>
             <br/>
             <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email }}</small>
@@ -63,23 +63,25 @@
         {{ jeeqser.user.email }}
         </div>
     {% endif %}
+
     {% if jeeqser != target_jeeqser %} {#  for some other user #}
-        <h1> {{ jeeqser.displayname }}
+        <h1> {{ target_jeeqser.displayname }} </h1>
+        <img src="{{ target_jeeqser.gravatar_url }}" style="border-radius: 5px"/>
     {% endif %}
 
     <h3>Out Jeeqs</h3>
     <div class="jeeqser-value">
-        {{ jeeqser.reviews_out_num|default_if_none:"0" }}
+        {{ target_jeeqser.reviews_out_num|default_if_none:"0" }}
     </div>
 
     <h3>In Jeeqs</h3>
     <div class="jeeqser-value">
-        {{ jeeqser.reviews_in_num|default_if_none:"0" }}
+        {{ target_jeeqser.reviews_in_num|default_if_none:"0" }}
     </div>
 
     <h3>Submissions</h3>
     <div class="jeeqser-value">
-        {{ jeeqser.submissions_num|default_if_none:"0" }}
+        {{ target_jeeqser.submissions_num|default_if_none:"0" }}
     </div>
 
 {% endblock container %}
