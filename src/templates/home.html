@@ -12,8 +12,7 @@
 
     <script>
         $(document).ready(function () {
-            $('button').button();
-            $('.ui-button-text').css("padding", "0px");
+            $(':button').button();
 
             $('.solved_submitted').on(
                     {'mouseenter': function() {
@@ -23,11 +22,64 @@
                         $(this).children().children('.solved_caption, .submitted_caption').hide()
                      }
             })
+
+            // Website tour
+            guiders.createGuider({
+                buttons: [
+                    {name: "Close"
+                     ,onclick: function() {
+                        guiders.hideAll();
+                        $('#tour').hide()
+                    }},
+                    {name:"Next"}],
+                description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+                id: "first",
+                next: "second",
+                overlay: true,
+                title: "Welcome to Jeeqs!"
+            });
+
+            guiders.createGuider({
+                attachTo: "#challenge-list",
+                highlight: "#challenge-list",
+                buttons: [{name: "Close"},{name: "Next"}],
+                description: "Click on a challenge and submit your solution to the challenge ...",
+                id: "second",
+                next: "third",
+                position: 12,
+                overlay: true,
+                title: "Submit for Challenges"
+            });
+
+            guiders.createGuider({
+                attachTo: "#all-jeeqs-in-list",
+                highlight: "#all-jeeqs-in-list",
+                buttons: [{name: "Close"},{name: "Next"}],
+                description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+                id: "third",
+                next: "fourth",
+                position: 12,
+                overlay: true,
+                title: "Wait for Feedbacks (In Jeeqs)"
+            });
+
+            guiders.createGuider({
+                buttons: [{name: "Close"}],
+                description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+                id: "fourth",
+                overlay: true,
+                title: "Jeeqs on!"
+            });
+
+            $('#take_tour').on('click', function() {
+                guiders.show('first');
+            })
+
+//            $('#tour').hide()
+//            $('#tour').delay(500).fadeIn(2000)
+            $('#take_tour').effect('highlight', 2000)
         });
     </script>
-    <style>
-        .button {font-size:smaller; padding: 2px 5px 2px 5px; vertical-align: middle; white-space: pre;}
-    </style>
 {% endblock script %}
 
 {% block column1 %}
@@ -54,7 +106,7 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <span>
+                        <span id="feedback_column">
                             <span class="ui-icon ui-icon-check" style="float:left"></span>
                             <span class="ui-icon ui-icon-closethick" style="float:left"></span>
                             <span class="ui-icon ui-icon-flag" style="float:left"></span>
@@ -134,6 +186,11 @@
 
 {% endblock column1 %}
 {% block column2 %}
+    {% if not jeeqser.seen_tour %}
+        <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
+            <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
+        </div>
+    {% endif %}
     <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;">
         <h3><a href="#">Activities</a></h3>
         <div class>
