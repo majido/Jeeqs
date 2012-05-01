@@ -474,6 +474,7 @@ class RPCHandler(webapp.RequestHandler):
 
         # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
         if submission.status != previous_status:
+            jeeqser_challenge.status_changed_on = datetime.now()
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
             elif submission.status == 'incorrect' and None != previous_status:

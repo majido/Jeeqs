@@ -262,6 +262,7 @@ class Jeeqser_Challenge(db.Model):
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
     status = db.StringProperty(choices=['correct', 'incorrect'])
+    status_changed_on = db.DateTimeProperty()
 
 
 class Feedback(db.Model):
