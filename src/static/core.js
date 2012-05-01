@@ -183,6 +183,9 @@ shell.doneRunning = function(req) {
         var result = req.responseText.replace(/^\s*|\s*$/g, '');  // trim whitespace
         if (result != '')
             output.value += '\n' + result;
+
+       //scroll to bottom [delay is for IE]
+      setTimeout(function(){output.scrollTop = output.scrollHeight; }, 10);
     }
 };
 
