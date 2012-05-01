@@ -11,6 +11,22 @@
 {% block script %}
 
     <script>
+        finish_tour = function() {
+            guiders.hideAll();
+            $('#tour').hide()
+
+            {% if jeeqser %}
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "POST",
+                    data: {'method': 'took_tour', 'jeeqser_key': "{{ jeeqser.key }}"},
+                    success: function(response){
+                    }
+                })
+            {% endif %}
+        }
+
         $(document).ready(function () {
             $(':button').button();
 
@@ -28,8 +44,7 @@
                 buttons: [
                     {name: "Close"
                      ,onclick: function() {
-                        guiders.hideAll();
-                        $('#tour').hide()
+                        finish_tour()
                     }},
                     {name:"Next"}],
                 description: "Jeeqs is a collaborative problem solving and learning platform ... ",
@@ -42,7 +57,12 @@
             guiders.createGuider({
                 attachTo: "#challenge-list",
                 highlight: "#challenge-list",
-                buttons: [{name: "Close"},{name: "Next"}],
+                buttons: [
+                    {name: "Next"}
+                    ,{name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                      }}],
                 description: "Click on a challenge and submit your solution to the challenge ...",
                 id: "second",
                 next: "third",
@@ -54,7 +74,12 @@
             guiders.createGuider({
                 attachTo: "#all-jeeqs-in-list",
                 highlight: "#all-jeeqs-in-list",
-                buttons: [{name: "Close"},{name: "Next"}],
+                buttons: [
+                    {name: "Next"}
+                    ,{name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                        }}],
                 description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
                 id: "third",
                 next: "fourth",
@@ -64,7 +89,11 @@
             });
 
             guiders.createGuider({
-                buttons: [{name: "Close"}],
+                buttons: [
+                    {name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                        }}],
                 description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
                 id: "fourth",
                 overlay: true,
@@ -72,12 +101,15 @@
             });
 
             $('#take_tour').on('click', function() {
-                guiders.show('first');
+                guiders.show('first')
+            })
+            $('#take_tour').effect('highlight', 2000)
+
+            $('#show_tour').on('click', function(event) {
+                event.preventDefault()
+                guiders.show('first')
             })
 
-//            $('#tour').hide()
-//            $('#tour').delay(500).fadeIn(2000)
-            $('#take_tour').effect('highlight', 2000)
         });
     </script>
 {% endblock script %}
@@ -186,7 +218,7 @@
 
 {% endblock column1 %}
 {% block column2 %}
-    {% if not jeeqser.seen_tour %}
+    {% if not jeeqser.took_tour %}
         <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
             <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
         </div>
@@ -202,3 +234,10 @@
         {% include "facebook_likebox.html" %}
     </div>
 {% endblock column2 %}
+
+{% block footer %}
+    <div style="float:left; clear:both; margin: 20px;">
+        <a id="show_tour" class="noline" style="color: grey" href="#"> Take a Tour! </a>
+    </div>
+{% endblock footer %}
+

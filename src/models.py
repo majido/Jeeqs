@@ -32,7 +32,7 @@ class Jeeqser(db.Model):
     submissions_num = db.IntegerProperty(default=0)
     gravatar_url_persisted = db.LinkProperty()
     is_moderator = db.BooleanProperty()
-    seen_tour = db.BooleanProperty()
+    took_tour = db.BooleanProperty()
     suspended_until = db.DateTimeProperty()
     unaccounted_flag_count = db.IntegerProperty(default=0)
     # Total number of posts by this user that are flagged
