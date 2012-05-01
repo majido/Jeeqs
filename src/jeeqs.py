@@ -149,7 +149,7 @@ class FrontPageHandler(webapp.RequestHandler):
                             .fetch(10)
             prettify_injeeqs(injeeqs)
 
-        all_activities = Activity.all().order('-date').fetch(15)
+        all_activities = Activity.all().order('-date').fetch(10)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
@@ -280,7 +280,7 @@ class ChallengeHandler(webapp.RequestHandler):
                                     .filter('flagged = ', False)\
                                     .order('flag_count')\
                                     .order('-date')\
-                                    .fetch(20)
+                                    .fetch(10)
 
             if feedbacks:
                 prettify_injeeqs(feedbacks)
@@ -500,7 +500,7 @@ class RPCHandler(webapp.RequestHandler):
             .filter('flagged = ', False)\
             .order('flag_count')\
             .order('-date')\
-            .fetch(20)
+            .fetch(10)
 
         if feedbacks:
             prettify_injeeqs(feedbacks)
