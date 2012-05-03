@@ -2,17 +2,7 @@ from utils import *
 import unittest
 
 class TestUtilFunctions(unittest.TestCase):
-
-    def test_str_cmp(self):
-
-        self.assertTrue(str_cmp("a","b") < 0)
-        self.assertTrue(str_cmp("a","a") == 0)
-        self.assertTrue(str_cmp("b","a") > 0)
-
-        self.assertTrue(str_cmp("aa","a") > 0)
-        # unlike the standard string cmp the longer string wins here
-        self.assertTrue(str_cmp("aa","b") > 0)
-
+    
     def test_exercise_cmp(self):
         #Basic
         self.assertTrue(exercise_cmp("1","2") < 0 )
