@@ -36,8 +36,8 @@ def compile_and_run(program, output):
         raise
     # create a dedicated module to be used as this program's __main__
     program_module = new.module('__main__')
+    #TODO(majid) Does this properly sandbox the builtins. I can call print!
     program_module.__builtins__ = {}
-    #program_module["print"]= getattr(__builtins__,"print")
     #print program_module.__dict__ 
     
     # swap in our custom module for __main__. run the program, swap the custom module out.
