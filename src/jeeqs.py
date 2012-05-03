@@ -19,6 +19,7 @@ import types
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from models import *
+from utils import *
 from spam_manager import *
 from program_tester import *
 
@@ -116,19 +117,11 @@ class FrontPageHandler(webapp.RequestHandler):
     @authenticate(False)
     def get(self):
         # get available challenges
-        def str_cmp (a,b):
-          if not (type(a) is types.StringType or type(b) is types.StringType):
-
-            return -1
-
-          minl = min(len(a),len(b))
-          c = cmp(a[:minl],b[:minl])
-          return c if c != 0 else len(b) - len(a)
-         
-
+        
         all_challenges = Challenge.all().fetch(100)
         all_challenges.sort(
-          key=lambda challenge:challenge.exercise_number_persisted)
+          cmp = exercise_cmp,
+          key = lambda challenge:challenge.exercise_number_persisted)
         jeeqser_challenges = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser = ', self.jeeqser)\
