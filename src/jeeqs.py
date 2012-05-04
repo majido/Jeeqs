@@ -153,7 +153,7 @@ class FrontPageHandler(webapp.RequestHandler):
                             .fetch(10)
             prettify_injeeqs(injeeqs)
 
-        all_activities = Activity.all().order('-date').fetch(20)
+        all_activities = Activity.all().order('-date').fetch(10)
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
 
@@ -185,10 +185,10 @@ class UserHandler(webapp.RequestHandler):
             target_jeeqser = self.jeeqser
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
+
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'target_jeeqser' : target_jeeqser,
-                'gravatar_url' : self.jeeqser.gravatar_url,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url)
         })
@@ -284,7 +284,7 @@ class ChallengeHandler(webapp.RequestHandler):
                                     .filter('flagged = ', False)\
                                     .order('flag_count')\
                                     .order('-date')\
-                                    .fetch(20)
+                                    .fetch(10)
 
             if feedbacks:
                 prettify_injeeqs(feedbacks)
@@ -421,6 +421,8 @@ class RPCHandler(webapp.RequestHandler):
             self.submit_challenge_source()
         elif method == 'submit_challenge_vertical_scroll':
             self.submit_challenge_vertical_scroll()
+        elif method == 'took_tour':
+            self.took_tour()
         else:
             self.error(403)
             return
@@ -502,7 +504,7 @@ class RPCHandler(webapp.RequestHandler):
             .filter('flagged = ', False)\
             .order('flag_count')\
             .order('-date')\
-            .fetch(20)
+            .fetch(10)
 
         if feedbacks:
             prettify_injeeqs(feedbacks)
@@ -842,6 +844,12 @@ class RPCHandler(webapp.RequestHandler):
             out_json = json.dumps(response)
             self.response.out.write(out_json)
 
+    def took_tour(self):
+        jeeqser_key = self.request.get('jeeqser_key')
+        jeeqser = Jeeqser.get(jeeqser_key)
+
+        jeeqser.took_tour = True
+        jeeqser.put()
 
 
 def main():

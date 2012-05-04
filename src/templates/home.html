@@ -11,9 +11,24 @@
 {% block script %}
 
     <script>
+        finish_tour = function() {
+            guiders.hideAll();
+            $('#tour').hide()
+
+            {% if jeeqser %}
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "POST",
+                    data: {'method': 'took_tour', 'jeeqser_key': "{{ jeeqser.key }}"},
+                    success: function(response){
+                    }
+                })
+            {% endif %}
+        }
+
         $(document).ready(function () {
-            $('button').button();
-            $('.ui-button-text').css("padding", "0px");
+            $(':button').button();
 
             $('.solved_submitted').on(
                     {'mouseenter': function() {
@@ -23,15 +38,91 @@
                         $(this).children().children('.solved_caption, .submitted_caption').hide()
                      }
             })
+
+            // Website tour
+            guiders.createGuider({
+                buttons: [
+                    {name:"Next"}
+                    ,{name: "Close"
+                     ,onclick: function() {
+                        finish_tour()
+                    }}
+                    ],
+                description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+                id: "first",
+                next: "second",
+                overlay: true,
+                title: "Welcome to Jeeqs!"
+            });
+
+            guiders.createGuider({
+                attachTo: "#challenge-list",
+                highlight: "#challenge-list",
+                buttons: [
+                    {name: "Next"}
+                    ,{name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                      }}],
+                description: "Click on a challenge and submit your solution to the challenge ...",
+                id: "second",
+                next: "third",
+                position: 12,
+                overlay: true,
+                title: "Submit for Challenges"
+            });
+
+            guiders.createGuider({
+                attachTo: "#all-jeeqs-in-list",
+                highlight: "#all-jeeqs-in-list",
+                buttons: [
+                    {name: "Next"}
+                    ,{name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                        }}],
+                description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+                id: "third",
+                next: "fourth",
+                position: 12,
+                overlay: true,
+                title: "Wait for Feedbacks (In Jeeqs)"
+            });
+
+            guiders.createGuider({
+                buttons: [
+                    {name: "Close"
+                        ,onclick: function() {
+                            finish_tour()
+                        }}],
+                description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+                id: "fourth",
+                overlay: true,
+                title: "Jeeqs on!"
+            });
+
+            $('#take_tour').on('click', function() {
+                guiders.show('first')
+            })
+            $('#take_tour').effect('highlight', 2000)
+
+            $('#show_tour').on('click', function(event) {
+                event.preventDefault()
+                guiders.show('first')
+            })
+
         });
     </script>
-    <style>
-        .button {font-size:smaller; padding: 2px 5px 2px 5px; vertical-align: middle; white-space: pre;}
-    </style>
 {% endblock script %}
 
 {% block column1 %}
-    <h2>A Gentle Introduction to Programming Using Python, OCW, MIT</h2>
+    <h2>A Gentle Introduction to Programming Using Python, OCW, MIT
+    <a class="noline"
+       href="http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/"
+       target="_blank">
+        <span class="ui-icon ui-icon-extlink" style="float:right"></span>
+    </a>
+    </h2>
     <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
@@ -47,7 +138,7 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <span>
+                        <span id="feedback_column">
                             <span class="ui-icon ui-icon-check" style="float:left"></span>
                             <span class="ui-icon ui-icon-closethick" style="float:left"></span>
                             <span class="ui-icon ui-icon-flag" style="float:left"></span>
@@ -127,13 +218,26 @@
 
 {% endblock column1 %}
 {% block column2 %}
-    <div style="width: 90%; margin: 10px; float:right; clear:right">
-        {% include "plusone.html" %}
-    </div>
+    {% if not jeeqser.took_tour %}
+        <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
+            <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
+        </div>
+    {% endif %}
     <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;">
         <h3><a href="#">Activities</a></h3>
         <div class>
             {% include "activities_list.html"%}
         </div>
     </div>
+    <div style="width: 90%; margin: 10px; float:right; clear:right">
+        {% include "plusone.html" %}
+        {% include "facebook_likebox.html" %}
+    </div>
 {% endblock column2 %}
+
+{% block container_footer %}
+    <div style="float:left; clear:both; margin: 20px;">
+        <a id="show_tour" class="noline" style="color: grey" href="#"> Take a Tour! </a>
+    </div>
+{% endblock container_footer %}
+

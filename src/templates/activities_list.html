@@ -3,25 +3,24 @@
     <div class="activity" style="margin-top: 10px">
         {% if activity.type == 'submission' %}
             <div style="float:left">
-                <a href="/user/?jk={{ activity.done_by.key }}">
-                    <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.done_by_gravatar }}"/>
-                </a>
+                {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar %}
             </div>
-            <span style="color:#099d01; font-style: italic">{{ activity.done_by_displayname }}</span>
+            {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
             submitted for challenge <a class="noline" style="color:#447fcf; font-style: italic" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
             <br/> <span style="color:#444; font-size:smaller;">{{ activity.date|timesince }} ago </span>
         {% endif %}
         {% if activity.type == 'voting' %}
             <div style="float:left">
-                <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.done_by_gravatar }}"/>
+                {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar %}
             </div>
             <div style="float:left">
-                <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ activity.submission_author_gravatar }}"/>
+                {% include "jeeqser_avatar.html" with jeeqser_key=activity.submission_author.key avatar_url=activity.submission_author_gravatar %}
             </div>
-            <span style="color:#099d01; font-style: italic">{{ activity.done_by_displayname }}</span>
+            {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
             gave feedback for a submission submitted by
-            <span style="color:#099d01; font-style: italic;">{{ activity.submission_author_displayname }}</span>
-            to challenge <a class="noline" style="color:#447fcf; font-style:italic;" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
+            {% include "jeeqser_displayname.html" with jeeqser_key=activity.submission_author.key displayname=activity.submission_author_displayname%}
+            to challenge
+            <a class="noline" style="color:#447fcf; font-style:italic;" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
             <br/> <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} ago </span>
         {% endif %}
     </div>
