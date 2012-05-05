@@ -84,7 +84,7 @@ class ChallengePage(webapp.RequestHandler):
                     , template_code=template_code
                     , exercise=exercise
                     , document_id=document_id
-                    ,access_key=access_key)
+                    , access_key=access_key)
 
         challenge.put()
 

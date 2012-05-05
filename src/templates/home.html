@@ -119,12 +119,11 @@
     <h2>A Gentle Introduction to Programming Using Python, OCW, MIT
     <a class="noline"
        href="http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/"
-       target="_blank"
-       >
+       target="_blank">
         <span class="ui-icon ui-icon-extlink" style="float:right"></span>
     </a>
     </h2>
-    <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;height: 400px; overflow:scroll;">
+    <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
             <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
@@ -236,9 +235,9 @@
     </div>
 {% endblock column2 %}
 
-{% block footer %}
+{% block container_footer %}
     <div style="float:left; clear:both; margin: 20px;">
         <a id="show_tour" class="noline" style="color: grey" href="#"> Take a Tour! </a>
     </div>
-{% endblock footer %}
+{% endblock container_footer %}
 

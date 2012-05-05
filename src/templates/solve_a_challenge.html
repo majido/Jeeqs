@@ -149,12 +149,12 @@
 {% block column1 %}
     {% include "challenge.html" %}
 
-    <div style="width:100%; float:left; clear:left;">
+    <div>
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
 
             {% if not challenge.automatic_review %}
-                <div id="solutionContainer" class="accordion accordion-open" style="width:100%; margin-top:20px;">
+                <div id="solutionContainer" class="accordion accordion-open" style="margin-top:20px;">
                     <h3><a href="#">Solution</a></h3>
                     <div>
                         <div class="wmd-panel">
@@ -180,15 +180,17 @@
 {% endblock column1 %}
 
 {% block column2 %}
-    <div id="submission" style="width:100%; float:right; padding:15px;">
+    <div id="submission" style="padding:15px;">
         {% if submission %}
             <h3> Submitted for review ({{ submission.active|yesno:'Active,Not Active' }})</h3>
-            <div id="submission-content" style="overflow:scroll">
+            <div id="submission-content" style="overflow:auto">
                 {{ submission.content|safe}}
             </div>
-            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-            <h2>{% include "attempt_score.html" with submission=submission%}</h2>
-            <div id="feedbacks" class="accordion" style="width:100%; float:right; clear:right; margin: 10px;">
+            <div>
+              <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+              <h2>{% include "attempt_score.html" with submission=submission%}</h2>
+            </div>
+            <div id="feedbacks" class="accordion" style="">
                 <h3><a href="#">In Jeeqs</a></h3>
                 <div>
                     {% include "in_jeeqs_list.html" %}
@@ -202,30 +204,34 @@
 {% endblock column2 %}
 
 {% block container_footer %}
-    <div id="console" class="accordion" style="width:100%; margin-top:10px; clear:both;">
+    <div id="console" class="accordion" style="margin-top:10px;">
         <h3><a href="#">Sandbox</a></h3>
-        <div>
-            <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                <div id="editor" style="width: 100%; height: 300px;"></div>
+        <div style="overflow:auto; height=100%;">
+          <div>
+            <div class="eight columns">
+              <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                <div id="editor" style="width: 100%;height:300px; "></div>
+              </div>
             </div>
-            <br/>
-            Console
-            <textarea id="output" rows="10" readonly="readonly" style="width: 100%;">
-            </textarea>
-            <br/>
-            <br/>
-            <button type="button" onclick="clearOutput()">Clear Console</button>
-            <button type="button" onclick="runProgram()">Run</button>
+            <div class="six columns">
+              <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
+              </textarea>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+          <br/>
+          <button type="button" onclick="clearOutput()">Clear Console</button>
+          <button type="button" onclick="runProgram()">Run</button>
 
-            {% if not challenge.automatic_review %}
-                <button id ="insert_program" type=button>Use</button>
-            {% else %}
-                <button id="submit_program" type=button>Submit</button>
-            {% endif %}
+          {% if not challenge.automatic_review %}
+              <button id ="insert_program" type=button>Use</button>
+          {% else %}
+              <button id="submit_program" type=button>Submit</button>
+          {% endif %}
         </div>
     </div>
 
-    <div id="recent-attempts" class="accordion accordion-closed" style="width:100%; clear:both; margin-top: 20px">
+    <div id="recent-attempts" class="accordion accordion-closed" style="margin-top: 20px">
         <h3><a href="#">Your Recent Submissions</a></h3>
         <div class="recent-jeeqs">
             {% if jeeqser %}
