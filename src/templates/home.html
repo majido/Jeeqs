@@ -186,7 +186,7 @@
         </div>
     </div>
 
-    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px;">
+    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px; max-height: 600px; overflow:auto;">
         <h3><a href="#">In Jeeqs</a></h3>
         <div class="jeeqs-list">
             {% include "in_jeeqs_list.html" with feedbacks=injeeqs write_challenge_name='true'%}
@@ -200,7 +200,7 @@
             <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
         </div>
     {% endif %}
-    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;">
+    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;max-height: 500px; overflow:auto;">
         <h3><a href="#">Activities</a></h3>
         <div class>
             {% include "activities_list.html"%}
