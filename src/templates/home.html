@@ -119,11 +119,6 @@
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
             <div style="width:100%; font-family: monaco; cell-padding: 5px;">
-{#                <span id="feedback_column">#}
-{#                    <span class="ui-icon ui-icon-check" style="float:left"></span>#}
-{#                    <span class="ui-icon ui-icon-closethick" style="float:left"></span>#}
-{#                    <span class="ui-icon ui-icon-flag" style="float:left"></span>#}
-{#                </span>#}
                 {% for challenge in challenges %}
                     <div>
                         <div style="float:left">
@@ -166,22 +161,24 @@
                                 </span>
                             </span>
                         </div>
-                        <div style="float: left; clear:left">
-                            {{ challenge.exercise_number|default_if_none:"" }}&nbsp;
-                        </div>
+                        {% if challenge.exercise_number %}
+                            <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
+                                {{ challenge.exercise_number}}&nbsp;
+                            </div>
+                        {% endif %}
                         {#                        <td title="{{ challenge.exercise.course.name }}">#}
                         {#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
                         {#                        </td>#}
-                        <div style="float: left">
-                            {% if challenge.exercise %}
+                        {% if challenge.exercise %}
+                            <div style="float: left; font-size: smaller;">
                                 {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
-                            {% endif %}
-                        </div>
-                        <div style="float: left; clear:left">
-                            {% if challenge.submitted %}
+                            </div>
+                        {% endif %}
+                        {% if challenge.submitted %}
+                            <div style="float: left; clear:left">
                                 {% include "attempt_score.html" with submission=challenge.jc %}
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
                         <div style="padding-top: 10px; clear:both"></div>
                     </div>
                 {% endfor %}
