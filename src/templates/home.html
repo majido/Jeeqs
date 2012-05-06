@@ -118,29 +118,15 @@
     <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
-            <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
-                <col width="40%"/>
-                <col width="5%"/>
-                <col width="15%"/>
-                <col width="5%"/>
-                <col width="10%"/>
-{#                <col width="20%"/>#}
-                <col width="20%"/>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <span id="feedback_column">
-                            <span class="ui-icon ui-icon-check" style="float:left"></span>
-                            <span class="ui-icon ui-icon-closethick" style="float:left"></span>
-                            <span class="ui-icon ui-icon-flag" style="float:left"></span>
-                        </span>
-                    </td>
-                    <td></td>
-                </tr>
+            <div style="width:100%; font-family: monaco; cell-padding: 5px;">
+{#                <span id="feedback_column">#}
+{#                    <span class="ui-icon ui-icon-check" style="float:left"></span>#}
+{#                    <span class="ui-icon ui-icon-closethick" style="float:left"></span>#}
+{#                    <span class="ui-icon ui-icon-flag" style="float:left"></span>#}
+{#                </span>#}
                 {% for challenge in challenges %}
-                    <tr>
-                        <td>
+                    <div>
+                        <div>
                             {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:left"></span>{% endif %}
                             <a class="noline" href="/challenge/?ch={{ challenge.key }}" style="color:
                                     {% if challenge.status == 'correct' %}
@@ -162,8 +148,8 @@
                                     </span>
                                 </span>
                             </a>
-                        </td>
-                        <td>
+                        </div>
+                        <div>
                             <span>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
                                     {% if challenge.status == 'correct' %}
@@ -173,31 +159,31 @@
                                     {% endif %}
                                 </a>
                             </span>
-                        </td>
-                        <td>
+                        </div>
+                        <div>
                             {% if challenge.submitted %}
                                 {% include "attempt_score.html" with submission=challenge.jc %}
                             {% endif %}
-                        </td>
-                        <td>
+                        </div>
+                        <div>
                             {% if jeeqser and challenge.status == 'correct' or isadmin %}
                                 <a class="noline" href="/review/?ch={{ challenge.key }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
                             {% endif %}
-                        </td>
-                        <td>
+                        </div>
+                        <div>
                             {{ challenge.exercise_number|default_if_none:"" }}
-                        </td>
+                        </div>
 {#                        <td title="{{ challenge.exercise.course.name }}">#}
 {#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
 {#                        </td>#}
-                        <td>
+                        <div>
                             {% if challenge.exercise %}
                                 {{ challenge.exercise_program }}/{{ challenge.exercise_university }}
                             {% endif %}
-                        </td>
-                    </tr>
+                        </div>
+                    </div>
                 {% endfor %}
-            </table>
+            </div>
         </div>
     </div>
 
