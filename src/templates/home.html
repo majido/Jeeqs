@@ -126,7 +126,7 @@
 {#                </span>#}
                 {% for challenge in challenges %}
                     <div>
-                        <div>
+                        <div style="float:left">
                             {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:left"></span>{% endif %}
                             <a class="noline" href="/challenge/?ch={{ challenge.key }}" style="color:
                                     {% if challenge.status == 'correct' %}
@@ -139,17 +139,6 @@
                                 {{ challenge.name }}
                             </a>
                         </div>
-                        <div style="float: left">
-                            {{ challenge.exercise_number|default_if_none:"" }}
-                        </div>
-                        {#                        <td title="{{ challenge.exercise.course.name }}">#}
-                        {#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
-                        {#                        </td>#}
-                        <div style="float: left">
-                            {% if challenge.exercise %}
-                                {{ challenge.exercise_program }}/{{ challenge.exercise_university }}
-                            {% endif %}
-                        </div>
                         <div style="float:right">
                             <span>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
@@ -161,17 +150,12 @@
                                 </a>
                             </span>
                         </div>
-                        <div style="float: left">
-                            {% if challenge.submitted %}
-                                {% include "attempt_score.html" with submission=challenge.jc %}
-                            {% endif %}
-                        </div>
                         <div style="float: right">
                             {% if jeeqser and challenge.status == 'correct' or isadmin %}
                                 <a class="noline" href="/review/?ch={{ challenge.key }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
                             {% endif %}
                         </div>
-                        <div style="float: right">
+                        <div style="float: right; clear:right">
                             <span class="solved_submitted" style="color: #808080; font-size: smaller; float:left; margin-left: 20px; background: #d3d3d3">
                                 <span style="float:left">
                                     <span title="jeeqsers solved this challenge" style="color:green"> {{ challenge.num_jeeqsers_solved|default_if_none:"0"}}</span>
@@ -182,8 +166,23 @@
                                 </span>
                             </span>
                         </div>
-                        <br/>
-                        <hr/>
+                        <div style="float: left; clear:left">
+                            {{ challenge.exercise_number|default_if_none:"" }}&nbsp;
+                        </div>
+                        {#                        <td title="{{ challenge.exercise.course.name }}">#}
+                        {#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
+                        {#                        </td>#}
+                        <div style="float: left">
+                            {% if challenge.exercise %}
+                                {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
+                            {% endif %}
+                        </div>
+                        <div style="float: left; clear:left">
+                            {% if challenge.submitted %}
+                                {% include "attempt_score.html" with submission=challenge.jc %}
+                            {% endif %}
+                        </div>
+                        <div style="padding-top: 10px; clear:both"></div>
                     </div>
                 {% endfor %}
             </div>
