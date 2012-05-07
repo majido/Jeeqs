@@ -437,7 +437,7 @@ class RPCHandler(webapp.RequestHandler):
         if method == 'get_in_jeeqs':
             self.get_in_jeeqs()
         elif method == 'get_jeeqsers_solved':
-            self.get_jeeqsers_solved()
+            self.get_challenge_avatars()
         else:
             self.error(403)
             return
@@ -854,7 +854,7 @@ class RPCHandler(webapp.RequestHandler):
         jeeqser.took_tour = True
         jeeqser.put()
 
-    def get_jeeqsers_solved(self):
+    def get_challenge_avatars(self):
         pass
 
 
