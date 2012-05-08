@@ -34,6 +34,7 @@ import lib.markdown as markdown
 
 
 # Set to True if stack traces should be shown in the browser, etc.
+# TODO: should this be changed into an environment variable ?
 _DEBUG = True
 
 def get_jeeqs_robot():
@@ -436,7 +437,7 @@ class RPCHandler(webapp.RequestHandler):
 
         if method == 'get_in_jeeqs':
             self.get_in_jeeqs()
-        elif method == 'get_jeeqsers_solved':
+        elif method == 'get_challenge_avatars':
             self.get_challenge_avatars()
         else:
             self.error(403)
@@ -637,8 +638,8 @@ class RPCHandler(webapp.RequestHandler):
                     challenge = challenge
                 )
 
-                challenge.num_jeeqsers_submitted += 1
-                challenge.put()
+            challenge.num_jeeqsers_submitted += 1
+            challenge.put()
 
             attempt = Attempt(
                 author=self.jeeqser.key(),
@@ -855,8 +856,23 @@ class RPCHandler(webapp.RequestHandler):
         jeeqser.put()
 
     def get_challenge_avatars(self):
-        pass
+        challenge = Challenge.get(self.request.get('challenge_key'))
+        solver_jc_list = Jeeqser_Challenge\
+                        .all()\
+                        .filter('challenge = ', challenge)\
+                        .filter('status = ', 'correct')\
+                        .order('status_changed_on')\
+                        .fetch(20)
 
+        solver_keys = []
+        for jc in solver_jc_list:
+            solver_keys.append(jc.jeeqser.key())
+
+        solver_jeeqsers = Jeeqser.get(solver_keys)
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'challenge_avatars.html')
+        vars = {'solver_jeeqsers' : solver_jeeqsers}
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
 
 def main():
     application = webapp.WSGIApplication(

@@ -127,6 +127,12 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: Jeeqser_Challenge
+  properties:
+  - name: challenge
+  - name: status
+  - name: status_changed_on
+
 - kind: Solution
   properties:
   - name: __key__

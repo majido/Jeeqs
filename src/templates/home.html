@@ -203,8 +203,9 @@
                                 {% include "attempt_score.html" with submission=challenge.jc %}
                             </div>
                         {% endif %}
-                        <div class="challenge_avatars" style="display:none; clear:both; padding: 10px">
+                        <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background: #f0f8ff">
                             <input type=hidden name="challenge_key" value="{{ challenge.key }}" style="display: none"/>
+                            <span style="color:#d3d3d3;">Loading ...</span>
                         </div>
                         <div style="padding-top: 10px; clear:both"></div>
                     </div>
