@@ -1,13 +1,15 @@
 {# Gets object 'activities' and renders it #}
 {% for activity in activities %}
-    <div class="activity" style="margin-top: 10px">
+    <div class="activity" style="margin-top: 5px; font-size:small; float:left; clear:both">
         {% if activity.type == 'submission' %}
             <div style="float:left">
                 {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar %}
             </div>
-            {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
-            submitted for challenge <a class="noline" style="color:#447fcf; font-style: italic" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
-            <br/> <span style="color:#444; font-size:smaller;">{{ activity.date|timesince }} ago </span>
+            <div style="float:left; margin-left: 20px; margin-top: 5px;">
+                {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
+                submitted for challenge <a class="noline" href="/challenge/?ch={{ activity.challenge.key }}"><b>{{ activity.challenge_name }}</b></a>
+                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} ago </span>
+            </div>
         {% endif %}
         {% if activity.type == 'voting' %}
             <div style="float:left">
@@ -16,12 +18,14 @@
             <div style="float:left">
                 {% include "jeeqser_avatar.html" with jeeqser_key=activity.submission_author.key avatar_url=activity.submission_author_gravatar %}
             </div>
-            {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
-            gave feedback for a submission submitted by
-            {% include "jeeqser_displayname.html" with jeeqser_key=activity.submission_author.key displayname=activity.submission_author_displayname%}
-            to challenge
-            <a class="noline" style="color:#447fcf; font-style:italic;" href="/challenge/?ch={{ activity.challenge.key }}">{{ activity.challenge_name }}</a>
-            <br/> <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} ago </span>
+            <div style="float:left; margin-left: 20px; margin-top: 5px;">
+                {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
+                gave feedback for a submission submitted by
+                {% include "jeeqser_displayname.html" with jeeqser_key=activity.submission_author.key displayname=activity.submission_author_displayname%}
+                to challenge
+                <a class="noline" href="/challenge/?ch={{ activity.challenge.key }}"><b>{{ activity.challenge_name }}</b></a>
+                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} ago </span>
+            </div>
         {% endif %}
     </div>
 {% endfor %}
