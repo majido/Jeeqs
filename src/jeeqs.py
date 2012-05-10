@@ -428,9 +428,9 @@ class RPCHandler(webapp.RequestHandler):
             self.error(403)
             return
 
-    @authenticate(True)
     def get(self):
         method = self.request.get('method')
+        logging.debug("dispatching method %s "% method)
         if (not method):
             self.error(403)
             return
@@ -488,6 +488,7 @@ class RPCHandler(webapp.RequestHandler):
                 submission.challenge.num_jeeqsers_solved -= 1
 
 
+    @authenticate(False)
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
 
@@ -855,8 +856,11 @@ class RPCHandler(webapp.RequestHandler):
         jeeqser.took_tour = True
         jeeqser.put()
 
+    @authenticate(False)
     def get_challenge_avatars(self):
+        logging.debug("here at get_challenge_avatatars")
         challenge = Challenge.get(self.request.get('challenge_key'))
+        logging.debug("challenge key : %s" % str(challenge.key()))
         solver_jc_list = Jeeqser_Challenge\
                         .all()\
                         .filter('challenge = ', challenge)\
@@ -866,6 +870,7 @@ class RPCHandler(webapp.RequestHandler):
 
         solver_keys = []
         for jc in solver_jc_list:
+            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser.key()))
             solver_keys.append(jc.jeeqser.key())
 
         solver_jeeqsers = Jeeqser.get(solver_keys)
