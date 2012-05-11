@@ -633,7 +633,11 @@ class RPCHandler(webapp.RequestHandler):
                 previous_index = jeeqser_challenge.active_attempt.index
 
                 if jeeqser_challenge.status == 'correct' :
-                    challenge.num_jeeqsers_solved -=1
+                    if challenge.num_jeeqsers_solved > 0:
+                        challenge.num_jeeqsers_solved -=1
+                    else:
+                        logging.error("Challenge %s can not have negative solvers! " % challenge.key())
+
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
@@ -657,6 +661,7 @@ class RPCHandler(webapp.RequestHandler):
 
             jeeqser_challenge.active_attempt = attempt
             jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
+            jeeqser_challenge.status = None
             jeeqser_challenge.put()
 
             jeeqser = Jeeqser.get(ns.jeeqser.key())

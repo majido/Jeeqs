@@ -55,7 +55,7 @@
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
                         $initiator.button("option", "label", "Submitted");
-                        window.location.replace("/")
+                        window.location.replace("/");
                     }
                 })
             })
@@ -209,7 +209,7 @@
 {% block container_footer %}
     <div id="console" class="accordion" style="margin-top:10px;">
         <h3><a href="#">Sandbox</a></h3>
-        <div style="overflow:auto; height=100%;">
+        <div style="overflow:auto; height:100%;">
           <div>
             <div class="eight columns">
               <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
@@ -227,7 +227,7 @@
           <button type="button" onclick="runProgram()">Run</button>
 
           {% if not challenge.automatic_review %}
-              <button id ="insert_program" type=button>Use</button>
+              <button id ="insert_program" type=button>Use as Solution</button>
           {% else %}
               <button id="submit_program" type=button>Submit</button>
           {% endif %}
