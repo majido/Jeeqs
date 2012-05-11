@@ -631,6 +631,9 @@ class RPCHandler(webapp.RequestHandler):
                 jeeqser_challenge.active_attempt.active = False
                 jeeqser_challenge.active_attempt.put()
                 previous_index = jeeqser_challenge.active_attempt.index
+
+                if jeeqser_challenge.status == 'correct' :
+                    challenge.num_jeeqsers_solved -=1
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
@@ -638,8 +641,8 @@ class RPCHandler(webapp.RequestHandler):
                     jeeqser = self.jeeqser,
                     challenge = challenge
                 )
+                challenge.num_jeeqsers_submitted += 1
 
-            challenge.num_jeeqsers_submitted += 1
             challenge.put()
 
             attempt = Attempt(
