@@ -55,6 +55,7 @@
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
                         $initiator.button("option", "label", "Submitted");
+                        window.location.replace("/")
                     }
                 })
             })
