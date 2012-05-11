@@ -146,9 +146,11 @@
     </script>
 {% endblock script %}
 
-{% block column1 %}
+{% block container_header %}
     {% include "challenge.html" %}
+{% endblock container_header %}
 
+{% block column1 %}
     <div>
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
