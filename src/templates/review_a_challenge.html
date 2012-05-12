@@ -65,7 +65,7 @@
                                 success: function(response) {
                                     // The sever sends an HTML
                                     $('#submissionFeedbacks').html(response);
-                                    var below_ad = $('#ad').height() + $('#ad').offset().top + 30
+                                    var below_ad = $('#ad').length ? $('#ad').height() + $('#ad').offset().top + 30 : 0
                                     $('#submissionFeedbacksContainer').offset({top: Math.max($initiator.parent().parent().offset().top, below_ad)})
                                 },
                                 error: function(response) {
@@ -96,8 +96,12 @@
     </script>
 
 {% endblock script %}
-{% block column1 %}
+
+{% block container_header %}
     {% include "challenge.html" %}
+{% endblock container_header %}
+
+{% block column1 %}
 
     <div id="submissions">
         {% if submissions|length == 0 %}
