@@ -33,7 +33,7 @@
             <div style="float:right; font-size:small;">
                 <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ feedback.author.gravatar_url }}"/>
                     <span>
-                        submitted by {{ feedback.author.displayname }} @ {{ feedback.date }}
+                        submitted by {{ feedback.author.displayname }} @ {{ feedback.date|timesince }} ago
                     </span>
                     {% if write_challenge_name %}
                         for <a class="noline" href='/challenge/?ch={{ feedback.attempt.challenge.key }}&att={{ feedback.attempt.key }}'>attempt #{{ feedback.attempt.index }}</a>  of {{ feedback.attempt.challenge.name }}
