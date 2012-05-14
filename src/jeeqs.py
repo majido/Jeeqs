@@ -487,6 +487,8 @@ class RPCHandler(webapp.RequestHandler):
                 submission.challenge.last_solver = submission.author
             elif submission.status == 'incorrect' and None != previous_status:
                 submission.challenge.num_jeeqsers_solved -= 1
+                if submission.challenge.last_solver:
+                    submission.challenge.last_solver = None
 
 
     @authenticate(False)
