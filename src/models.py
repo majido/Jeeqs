@@ -140,6 +140,8 @@ class Challenge(db.Model):
     #stats
     num_jeeqsers_solved = db.IntegerProperty(default=0)
     num_jeeqsers_submitted = db.IntegerProperty(default=0)
+    last_solver = db.ReferenceProperty(Jeeqser)
+
 
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:

@@ -184,11 +184,13 @@
                                 </span>
                             </span>
                         </div>
+
                         {% if challenge.exercise_number %}
                             <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
                                 {{ challenge.exercise_number}}&nbsp;
                             </div>
                         {% endif %}
+
                         {% if challenge.exercise %}
                             {# TODO: OPTIMIZE THIS #}
                             <div style="float:left; font-size: smaller" title="{{ challenge.exercise.course.name }}">
@@ -198,15 +200,24 @@
                                 {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
                             </div>
                         {% endif %}
+
                         {% if challenge.submitted %}
                             <div style="float: left; clear:left;">
                                 {% include "attempt_score.html" with submission=challenge.jc %}
                             </div>
                         {% endif %}
+
+                        {% if challenge.last_solver %}
+                            <div style="float: right; clear:right; margin-top: 5px">
+                                {% include "jeeqser_avatar.html" with jeeqser_key=challenge.last_solver.key avatar_url=challenge.last_solver.gravatar_url style="float:right"%}
+                            </div>
+                        {% endif %}
+
                         <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background: #f0f8ff">
                             <input type=hidden name="challenge_key" value="{{ challenge.key }}" style="display: none"/>
                             <span style="color:#d3d3d3;">Loading ...</span>
                         </div>
+
                         <div style="padding-top: 10px; clear:both"></div>
                     </div>
                 {% endfor %}

@@ -484,6 +484,7 @@ class RPCHandler(webapp.RequestHandler):
             jeeqser_challenge.status_changed_on = datetime.now()
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
+                submission.challenge.last_solver = submission.author
             elif submission.status == 'incorrect' and None != previous_status:
                 submission.challenge.num_jeeqsers_solved -= 1
 

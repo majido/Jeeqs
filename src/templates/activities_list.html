@@ -3,7 +3,7 @@
     <div class="activity" style="margin-top: 10px; font-size:small; float:left; clear:both">
         {% if activity.type == 'submission' %}
             <div style="float:left; width: 30px">
-                {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar %}
+                {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar%}
             </div>
             <div style="margin-left: 30px;">
                 {% include "jeeqser_displayname.html" with jeeqser_key=activity.done_by.key displayname=activity.done_by_displayname %}
@@ -14,10 +14,10 @@
         {% if activity.type == 'voting' %}
             <div style="width: 30px; float:left">
                 <div style="float:left">
-                    {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar %}
+                    {% include "jeeqser_avatar.html" with jeeqser_key=activity.done_by.key avatar_url=activity.done_by_gravatar%}
                 </div>
                 <div style="float:left; clear:left">
-                    {% include "jeeqser_avatar.html" with jeeqser_key=activity.submission_author.key avatar_url=activity.submission_author_gravatar %}
+                    {% include "jeeqser_avatar.html" with jeeqser_key=activity.submission_author.key avatar_url=activity.submission_author_gravatar%}
                 </div>
             </div>
             <div style="margin-left: 30px;">
