@@ -485,9 +485,10 @@ class RPCHandler(webapp.RequestHandler):
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
                 submission.challenge.last_solver = submission.author
-            elif submission.status == 'incorrect' and None != previous_status:
-                submission.challenge.num_jeeqsers_solved -= 1
-                if submission.challenge.last_solver:
+            elif submission.status == 'incorrect':
+                if previous_status == 'correct':
+                    submission.challenge.num_jeeqsers_solved -= 1
+                if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
                     submission.challenge.last_solver = None
 
 
@@ -500,7 +501,7 @@ class RPCHandler(webapp.RequestHandler):
         try:
             submission = Attempt.get(submission_key)
         finally:
-            if (not submission):
+            if not submission:
                 self.error(403)
                 return
 
@@ -640,7 +641,6 @@ class RPCHandler(webapp.RequestHandler):
                         challenge.num_jeeqsers_solved -=1
                     else:
                         logging.error("Challenge %s can not have negative solvers! " % challenge.key())
-
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
@@ -649,6 +649,9 @@ class RPCHandler(webapp.RequestHandler):
                     challenge = challenge
                 )
                 challenge.num_jeeqsers_submitted += 1
+
+            if challenge.last_solver and challenge.last_solver.key() == self.jeeqser.key():
+                challenge.last_solver = None
 
             challenge.put()
 
@@ -740,7 +743,6 @@ class RPCHandler(webapp.RequestHandler):
                 return
 
         if not self.jeeqser.key() in submission.users_voted:
-
             jeeqser_challenge = Jeeqser_Challenge\
                 .all()\
                 .filter('jeeqser =', submission.author)\
@@ -781,7 +783,6 @@ class RPCHandler(webapp.RequestHandler):
 
                 # check flagging limit
                 if vote == 'flag':
-
                     flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
                     response = {'flags_left_today':flags_left}
                     out_json = json.dumps(response)
