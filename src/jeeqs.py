@@ -75,7 +75,7 @@ def authenticate(required=True):
         def wrapper(self):
             user = users.get_current_user()
             if not user and required:
-                self.error(401)
+                self.error(StatusCode.unauth)
                 return
             elif user:
                 self.jeeqser = get_jeeqser()
@@ -179,7 +179,7 @@ class UserHandler(webapp.RequestHandler):
         if jeeqser_key:
             target_jeeqser = Jeeqser.get(jeeqser_key)
             if not target_jeeqser:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
         else:
             target_jeeqser = self.jeeqser
@@ -227,7 +227,7 @@ class ChallengeHandler(webapp.RequestHandler):
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -236,7 +236,7 @@ class ChallengeHandler(webapp.RequestHandler):
             challenge = Challenge.get(ch_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         if not challenge.content and challenge.markdown:
@@ -319,7 +319,7 @@ class ReviewHandler(webapp.RequestHandler):
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -328,7 +328,7 @@ class ReviewHandler(webapp.RequestHandler):
             challenge = Challenge.get(ch_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         # Retrieve other users' submissions
@@ -374,7 +374,7 @@ class ProgramHandler(webapp.RequestHandler):
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -383,7 +383,7 @@ class ProgramHandler(webapp.RequestHandler):
             challenge = Challenge.get(challenge_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         self.response.headers['Content-Type'] = 'text/plain'
@@ -406,7 +406,7 @@ class RPCHandler(webapp.RequestHandler):
     def post(self):
         method = self.request.get('method')
         if (not method):
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         if method == 'submit_vote':
@@ -424,20 +424,20 @@ class RPCHandler(webapp.RequestHandler):
         elif method == 'took_tour':
             self.took_tour()
         else:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
     @authenticate(True)
     def get(self):
         method = self.request.get('method')
         if (not method):
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         if method == 'get_in_jeeqs':
             self.get_in_jeeqs()
         else:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
     @staticmethod
@@ -493,7 +493,7 @@ class RPCHandler(webapp.RequestHandler):
             submission = Attempt.get(submission_key)
         finally:
             if (not submission):
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
@@ -520,18 +520,18 @@ class RPCHandler(webapp.RequestHandler):
     def submit_challenge_vertical_scroll(self):
         """updates a challenge's source url """
         if not users.is_current_user_admin():
-            self.error(401)
+            self.error(StatusCode.unauth)
             return
 
         new_vertical_scroll = self.request.get('vertical_scroll')
         if not new_vertical_scroll:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -540,7 +540,7 @@ class RPCHandler(webapp.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         challenge.vertical_scroll = float(new_vertical_scroll)
@@ -549,18 +549,18 @@ class RPCHandler(webapp.RequestHandler):
     def submit_challenge_source(self):
         """updates a challenge's source """
         if not users.is_current_user_admin():
-            self.error(401)
+            self.error(StatusCode.unauth)
             return
 
         new_source = self.request.get('source')
         if not new_source:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -569,7 +569,7 @@ class RPCHandler(webapp.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         challenge.markdown = new_source
@@ -587,7 +587,7 @@ class RPCHandler(webapp.RequestHandler):
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -596,7 +596,7 @@ class RPCHandler(webapp.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
 
         if challenge.automatic_review:
             new_solution = '    :::python' + '\n'
@@ -720,7 +720,7 @@ class RPCHandler(webapp.RequestHandler):
             submission = Attempt.get(submission_key)
         finally:
             if not submission:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         if not self.jeeqser.key() in submission.users_voted:
@@ -808,7 +808,7 @@ class RPCHandler(webapp.RequestHandler):
                 feedback=feedback
             ).put()
         else: # should not happen!
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
 
