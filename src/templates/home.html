@@ -1,13 +1,5 @@
 {% extends "base_twoColumn.html" %}
 
-{% block column1-width %}
-    width: 65%;
-{% endblock %}
-
-{% block column2_width %}
-    width: 35%;
-{% endblock %}
-
 {% block script %}
 
     <script>
@@ -27,79 +19,70 @@
             {% endif %}
         }
 
-        $(document).ready(function () {
-            $(':button').button();
-
-            $('.solved_submitted').on(
-                    {'mouseenter': function() {
-                        $(this).children().children('.solved_caption, .submitted_caption').show('slow')
-                        },
-                     'mouseleave': function() {
-                        $(this).children().children('.solved_caption, .submitted_caption').hide()
-                     }
-            })
-
-            // Website tour
-            guiders.createGuider({
-                buttons: [
-                    {name:"Next"}
-                    ,{name: "Close"
-                     ,onclick: function() {
+        // Website tour
+        guiders.createGuider({
+            buttons: [
+                {name:"Next"}
+                ,{name: "Close"
+                    ,onclick: function() {
                         finish_tour()
                     }}
-                    ],
-                description: "Jeeqs is a collaborative problem solving and learning platform ... ",
-                id: "first",
-                next: "second",
-                overlay: true,
-                title: "Welcome to Jeeqs!"
-            });
+            ],
+            description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+            id: "first",
+            next: "second",
+            overlay: true,
+            title: "Welcome to Jeeqs!"
+        });
 
-            guiders.createGuider({
-                attachTo: "#challenge-list",
-                highlight: "#challenge-list",
-                buttons: [
-                    {name: "Next"}
-                    ,{name: "Close"
-                        ,onclick: function() {
-                            finish_tour()
-                      }}],
-                description: "Click on a challenge and submit your solution to the challenge ...",
-                id: "second",
-                next: "third",
-                position: 12,
-                overlay: true,
-                title: "Submit for Challenges"
-            });
+        guiders.createGuider({
+            attachTo: "#challenge-list",
+            highlight: "#challenge-list",
+            buttons: [
+                {name: "Next"}
+                ,{name: "Close"
+                    ,onclick: function() {
+                        finish_tour()
+                    }}],
+            description: "Click on a challenge and submit your solution to the challenge ...",
+            id: "second",
+            next: "third",
+            position: 12,
+            overlay: true,
+            title: "Submit for Challenges"
+        });
 
-            guiders.createGuider({
-                attachTo: "#all-jeeqs-in-list",
-                highlight: "#all-jeeqs-in-list",
-                buttons: [
-                    {name: "Next"}
-                    ,{name: "Close"
-                        ,onclick: function() {
-                            finish_tour()
-                        }}],
-                description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
-                id: "third",
-                next: "fourth",
-                position: 12,
-                overlay: true,
-                title: "Wait for Feedbacks (In Jeeqs)"
-            });
+        guiders.createGuider({
+            attachTo: "#all-jeeqs-in-list",
+            highlight: "#all-jeeqs-in-list",
+            buttons: [
+                {name: "Next"}
+                ,{name: "Close"
+                    ,onclick: function() {
+                        finish_tour()
+                    }}],
+            description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+            id: "third",
+            next: "fourth",
+            position: 12,
+            overlay: true,
+            title: "Wait for Feedbacks (In Jeeqs)"
+        });
 
-            guiders.createGuider({
-                buttons: [
-                    {name: "Close"
-                        ,onclick: function() {
-                            finish_tour()
-                        }}],
-                description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
-                id: "fourth",
-                overlay: true,
-                title: "Jeeqs on!"
-            });
+        guiders.createGuider({
+            buttons: [
+                {name: "Close"
+                    ,onclick: function() {
+                    finish_tour()
+                }}],
+            description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+            id: "fourth",
+            overlay: true,
+            title: "Jeeqs on!"
+        });
+
+        $(document).ready(function () {
+            $(':button').button();
 
             $('#take_tour').on('click', function() {
                 guiders.show('first')
@@ -111,12 +94,44 @@
                 guiders.show('first')
             })
 
+            $('.challenge_in_list').on({
+                        'mouseenter': function() {
+                            $(this).css('background', "#FFC");
+                            $(".solved_submitted_stats", this).show()
+                        }
+                        ,'mouseleave': function() {
+                            $(this).css('background', '');
+                            $(".solved_submitted_stats", this).hide()
+                        }
+                    }
+            )
+
+            $(".challenge_stats").on('click', function() {
+                var $avatars = $(this).parents('.challenge_in_list').find('.challenge_avatars')
+                if ($avatars.css('display') == 'none') {
+                    // Get people who solved this challenge
+                    var $challenge_key = $('input[name="challenge_key"]', $avatars).val()
+                    $.ajax({
+                        url: "/rpc",
+                        async: true,
+                        type: "GET",
+                        data: {'method': 'get_challenge_avatars', 'challenge_key': $challenge_key},
+                        success: function(response){
+                            $avatars.html(response);
+                        }
+                    })
+                    $avatars.show();
+                }
+                else {
+                    $avatars.hide()
+                }
+            })
         });
     </script>
 {% endblock script %}
 
 {% block column1 %}
-    <h2>A Gentle Introduction to Programming Using Python, OCW, MIT
+    <h2>Python {# A Gentle Introduction to Programming Using Python, OCW, MIT #}
     <a class="noline"
        href="http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/"
        target="_blank">
@@ -126,29 +141,10 @@
     <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
         <h3><a href="#">Challenges</a></h3>
         <div class="challenge-list-div">
-            <table style="width:100%; text-align: left; font-family: monaco; cell-padding: 5px; table-layout: fixed;">
-                <col width="40%"/>
-                <col width="5%"/>
-                <col width="15%"/>
-                <col width="5%"/>
-                <col width="10%"/>
-{#                <col width="20%"/>#}
-                <col width="20%"/>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <span id="feedback_column">
-                            <span class="ui-icon ui-icon-check" style="float:left"></span>
-                            <span class="ui-icon ui-icon-closethick" style="float:left"></span>
-                            <span class="ui-icon ui-icon-flag" style="float:left"></span>
-                        </span>
-                    </td>
-                    <td></td>
-                </tr>
+            <div style="width:100%; font-family: monaco; cell-padding: 5px;">
                 {% for challenge in challenges %}
-                    <tr>
-                        <td>
+                    <div class="challenge_in_list">
+                        <div style="float:left; margin-bottom: 2px">
                             {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:left"></span>{% endif %}
                             <a class="noline" href="/challenge/?ch={{ challenge.key }}" style="color:
                                     {% if challenge.status == 'correct' %}
@@ -159,19 +155,9 @@
                                     {% endif %}
                                 ">
                                 {{ challenge.name }}
-                                <br/>
-                                <span class="solved_submitted" style="color: #808080; font-size: smaller; float:left; margin-left: 20px; background: #d3d3d3">
-                                    <span style="float:left">
-                                        <span title="jeeqsers solved this challenge" style="color:green"> {{ challenge.num_jeeqsers_solved|default_if_none:"0"}}</span>
-                                        <span class="solved_caption" style="display:none; color:green"> solved</span>
-                                        /
-                                        <span title="jeeqsers submitted a solution for this challenge"> {{ challenge.num_jeeqsers_submitted|default_if_none:"0" }}</span>
-                                        <span class="submitted_caption" style="display:none"> submitted</span>
-                                    </span>
-                                </span>
                             </a>
-                        </td>
-                        <td>
+                        </div>
+                        <div style="float:right; margin-bottom: 2px">
                             <span>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key }}" title="Solve this challenge">
                                     {% if challenge.status == 'correct' %}
@@ -181,35 +167,65 @@
                                     {% endif %}
                                 </a>
                             </span>
-                        </td>
-                        <td>
-                            {% if challenge.submitted %}
-                                {% include "attempt_score.html" with submission=challenge.jc %}
-                            {% endif %}
-                        </td>
-                        <td>
+                        </div>
+                        <div style="float: right">
                             {% if jeeqser and challenge.status == 'correct' or isadmin %}
                                 <a class="noline" href="/review/?ch={{ challenge.key }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
                             {% endif %}
-                        </td>
-                        <td>
-                            {{ challenge.exercise_number|default_if_none:"" }}
-                        </td>
-{#                        <td title="{{ challenge.exercise.course.name }}">#}
-{#                            <small> {{ challenge.exercise.course.name|truncatewords:3 }} </small>#}
-{#                        </td>#}
-                        <td>
-                            {% if challenge.exercise %}
-                                {{ challenge.exercise_program }}/{{ challenge.exercise_university }}
-                            {% endif %}
-                        </td>
-                    </tr>
+                        </div>
+                        <div style="float: right; clear:right">
+                            <span class="challenge_stats" style="cursor: pointer; color: #808080; font-size: smaller; float:left; margin-left: 20px; background: #d3d3d3">
+                                <span style="float:left">
+                                    <span title="jeeqsers solved this challenge" style="color:green"> <b>{{ challenge.num_jeeqsers_solved|default_if_none:"0"}}</b></span>
+                                    <span class="solved_submitted_stats" style="display:none; color:green"> solved</span>
+                                    /
+                                    <span title="jeeqsers submitted a solution for this challenge"> <b> {{ challenge.num_jeeqsers_submitted|default_if_none:"0" }}</b></span>
+                                    <span class="solved_submitted_stats" style="display:none"> submitted</span>
+                                </span>
+                            </span>
+                        </div>
+
+                        {% if challenge.exercise_number %}
+                            <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
+                                {{ challenge.exercise_number}}&nbsp;
+                            </div>
+                        {% endif %}
+
+                        {% if challenge.exercise %}
+                            {# TODO: OPTIMIZE THIS #}
+                            <div style="float:left; font-size: smaller" title="{{ challenge.exercise.course.name }}">
+                                {{ challenge.exercise.course.code }}&nbsp;
+                            </div>
+                            <div style="float: left; font-size: smaller;">
+                                {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
+                            </div>
+                        {% endif %}
+
+                        {% if challenge.submitted %}
+                            <div style="float: left; clear:left;">
+                                {% include "attempt_score.html" with submission=challenge.jc %}
+                            </div>
+                        {% endif %}
+
+                        {% if challenge.last_solver %}
+                            <div style="float: right; clear:right; margin-top: 5px">
+                                {% include "jeeqser_avatar.html" with jeeqser_key=challenge.last_solver.key avatar_url=challenge.last_solver.gravatar_url style="float:right"%}
+                            </div>
+                        {% endif %}
+
+                        <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background: #f0f8ff">
+                            <input type=hidden name="challenge_key" value="{{ challenge.key }}" style="display: none"/>
+                            <span style="color:#d3d3d3;">Loading ...</span>
+                        </div>
+
+                        <div style="padding-top: 10px; clear:both"></div>
+                    </div>
                 {% endfor %}
-            </table>
+            </div>
         </div>
     </div>
 
-    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px;">
+    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px; max-height: 600px; overflow:auto;">
         <h3><a href="#">In Jeeqs</a></h3>
         <div class="jeeqs-list">
             {% include "in_jeeqs_list.html" with feedbacks=injeeqs write_challenge_name='true'%}
@@ -223,7 +239,7 @@
             <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
         </div>
     {% endif %}
-    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;">
+    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;max-height: 500px; overflow:auto;">
         <h3><a href="#">Activities</a></h3>
         <div class>
             {% include "activities_list.html"%}

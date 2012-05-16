@@ -55,6 +55,7 @@
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
                         $initiator.button("option", "label", "Submitted");
+                        window.location.replace("/");
                     }
                 })
             })
@@ -146,10 +147,32 @@
     </script>
 {% endblock script %}
 
-{% block column1 %}
+{% block container_header %}
     {% include "challenge.html" %}
+{% endblock container_header %}
 
-    <div>
+{%block column1-style%}
+    nine columns
+{% endblock column1-style %}
+
+{% block column2-style %}
+    seven columns
+{% endblock column2-style%}
+
+ %}
+{% block column1 %}
+    <div id="submission" style="padding:15px;">
+        {% if submission %}
+            <h3> Submitted for review ({{ submission.active|yesno:'Active,Not Active' }})</h3>
+            <div id="submission-content" style="overflow:auto">
+                {{ submission.content|safe}}
+            </div>
+        {% else %}
+            <p> No submission found!</p>
+        {% endif %}
+    </div>
+
+    <div id="new_submission">
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
 
@@ -177,36 +200,31 @@
             <br/>
         </form>
     </div>
+
 {% endblock column1 %}
 
 {% block column2 %}
-    <div id="submission" style="padding:15px;">
-        {% if submission %}
-            <h3> Submitted for review ({{ submission.active|yesno:'Active,Not Active' }})</h3>
-            <div id="submission-content" style="overflow:auto">
-                {{ submission.content|safe}}
-            </div>
+
+    {% if submission %}
+        <div>
+            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+            <h2>{% include "attempt_score.html" with submission=submission%}</h2>
+        </div>
+        <div id="feedbacks" class="accordion" style="">
+            <h3><a href="#">In Jeeqs</a></h3>
             <div>
-              <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-              <h2>{% include "attempt_score.html" with submission=submission%}</h2>
+                {% include "in_jeeqs_list.html" %}
             </div>
-            <div id="feedbacks" class="accordion" style="">
-                <h3><a href="#">In Jeeqs</a></h3>
-                <div>
-                    {% include "in_jeeqs_list.html" %}
-                </div>
-            </div>
-        {% else %}
-        <p> No submission found!</p>
-        {% endif %}
-    </div>
+        </div>
+    {% else %}
+    {% endif %}
 
 {% endblock column2 %}
 
 {% block container_footer %}
     <div id="console" class="accordion" style="margin-top:10px;">
         <h3><a href="#">Sandbox</a></h3>
-        <div style="overflow:auto; height=100%;">
+        <div style="overflow:auto; height:100%;">
           <div>
             <div class="eight columns">
               <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
@@ -224,7 +242,7 @@
           <button type="button" onclick="runProgram()">Run</button>
 
           {% if not challenge.automatic_review %}
-              <button id ="insert_program" type=button>Use</button>
+              <button id ="insert_program" type=button>Use as Solution</button>
           {% else %}
               <button id="submit_program" type=button>Submit</button>
           {% endif %}

@@ -34,6 +34,7 @@ import lib.markdown as markdown
 
 
 # Set to True if stack traces should be shown in the browser, etc.
+# TODO: should this be changed into an environment variable ?
 _DEBUG = True
 
 def get_jeeqs_robot():
@@ -447,15 +448,17 @@ class RPCHandler(webapp.RequestHandler):
             self.error(StatusCode.forbidden)
             return
 
-    @authenticate(True)
     def get(self):
         method = self.request.get('method')
+        logging.debug("dispatching method %s "% method)
         if (not method):
             self.error(StatusCode.forbidden)
             return
 
         if method == 'get_in_jeeqs':
             self.get_in_jeeqs()
+        elif method == 'get_challenge_avatars':
+            self.get_challenge_avatars()
         else:
             self.error(StatusCode.forbidden)
             return
@@ -498,12 +501,18 @@ class RPCHandler(webapp.RequestHandler):
 
         # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
         if submission.status != previous_status:
+            jeeqser_challenge.status_changed_on = datetime.now()
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
-            elif submission.status == 'incorrect' and None != previous_status:
-                submission.challenge.num_jeeqsers_solved -= 1
+                submission.challenge.last_solver = submission.author
+            elif submission.status == 'incorrect':
+                if previous_status == 'correct':
+                    submission.challenge.num_jeeqsers_solved -= 1
+                if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
+                    submission.challenge.last_solver = None
 
 
+    @authenticate(False)
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
 
@@ -512,7 +521,7 @@ class RPCHandler(webapp.RequestHandler):
         try:
             submission = Attempt.get(submission_key)
         finally:
-            if (not submission):
+            if not submission:
                 self.error(StatusCode.forbidden)
                 return
 
@@ -642,6 +651,12 @@ class RPCHandler(webapp.RequestHandler):
                 jeeqser_challenge.active_attempt.active = False
                 jeeqser_challenge.active_attempt.put()
                 previous_index = jeeqser_challenge.active_attempt.index
+
+                if jeeqser_challenge.status == 'correct' :
+                    if challenge.num_jeeqsers_solved > 0:
+                        challenge.num_jeeqsers_solved -=1
+                    else:
+                        logging.error("Challenge %s can not have negative solvers! " % challenge.key())
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
@@ -649,9 +664,12 @@ class RPCHandler(webapp.RequestHandler):
                     jeeqser = self.jeeqser,
                     challenge = challenge
                 )
-
                 challenge.num_jeeqsers_submitted += 1
-                challenge.put()
+
+            if challenge.last_solver and challenge.last_solver.key() == self.jeeqser.key():
+                challenge.last_solver = None
+
+            challenge.put()
 
             attempt = Attempt(
                 author=self.jeeqser.key(),
@@ -665,6 +683,7 @@ class RPCHandler(webapp.RequestHandler):
 
             jeeqser_challenge.active_attempt = attempt
             jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
+            jeeqser_challenge.status = None
             jeeqser_challenge.put()
 
             jeeqser = Jeeqser.get(ns.jeeqser.key())
@@ -749,7 +768,6 @@ class RPCHandler(webapp.RequestHandler):
                 return
         
         if not self.jeeqser.key() in submission.users_voted:
-
             jeeqser_challenge = get_JC(submission.author,submission.challenge)
 
             if len(jeeqser_challenge) == 0:
@@ -786,7 +804,6 @@ class RPCHandler(webapp.RequestHandler):
 
                 # check flagging limit
                 if vote == 'flag':
-
                     flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
                     response = {'flags_left_today':flags_left}
                     out_json = json.dumps(response)
@@ -872,6 +889,28 @@ class RPCHandler(webapp.RequestHandler):
         jeeqser.took_tour = True
         jeeqser.put()
 
+    @authenticate(False)
+    def get_challenge_avatars(self):
+        logging.debug("here at get_challenge_avatatars")
+        challenge = Challenge.get(self.request.get('challenge_key'))
+        logging.debug("challenge key : %s" % str(challenge.key()))
+        solver_jc_list = Jeeqser_Challenge\
+                        .all()\
+                        .filter('challenge = ', challenge)\
+                        .filter('status = ', 'correct')\
+                        .order('status_changed_on')\
+                        .fetch(20)
+
+        solver_keys = []
+        for jc in solver_jc_list:
+            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser.key()))
+            solver_keys.append(jc.jeeqser.key())
+
+        solver_jeeqsers = Jeeqser.get(solver_keys)
+        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'challenge_avatars.html')
+        vars = {'solver_jeeqsers' : solver_jeeqsers}
+        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+        self.response.out.write(rendered)
 
 def main():
     application = webapp.WSGIApplication(

@@ -140,6 +140,8 @@ class Challenge(db.Model):
     #stats
     num_jeeqsers_solved = db.IntegerProperty(default=0)
     num_jeeqsers_submitted = db.IntegerProperty(default=0)
+    last_solver = db.ReferenceProperty(Jeeqser)
+
 
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:
@@ -262,6 +264,7 @@ class Jeeqser_Challenge(db.Model):
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
     status = db.StringProperty(choices=['correct', 'incorrect'])
+    status_changed_on = db.DateTimeProperty()
 
 
 class Feedback(db.Model):
