@@ -96,6 +96,15 @@ def authenticate(required=True):
     return real_decorator
 
 
+# Get Jeeqser_Challege for user and challenge
+# TODO: move to proper file
+def get_JC(jeeqser, challenge):
+  return Jeeqser_Challenge\
+    .all()\
+    .filter('jeeqser =', jeeqser)\
+    .filter('challenge =', challenge)\
+    .fetch(1)
+
 
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
@@ -331,18 +340,28 @@ class ReviewHandler(webapp.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
-        # Retrieve other users' submissions
-        submissions_query = db.GqlQuery(" SELECT * "
-                                        " FROM Attempt "
-                                        " WHERE challenge = :1 "
-                                        " AND active = True "
-                                        " AND flagged = False "
-                                        " ORDER BY vote_count ASC ",
-                                        challenge)
-        submissions = submissions_query.fetch(20)
+        # Check if the user has solved this      
+        if not users.is_current_user_admin():
+            self_challenge = get_JC(self.jeeqser,challenge)
+            qualified = self_challenge and self_challenge[0].status == 'correct'
+        else: 
+            qualified = True
 
-        # TODO: replace this iteration with a data oriented approach
-        submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
+        if qualified:
+            # Retrieve other users' submissions
+            submissions_query = db.GqlQuery(" SELECT * "
+                                              " FROM Attempt "
+                                              " WHERE challenge = :1 "
+                                              " AND active = True "
+                                              " AND flagged = False "
+                                              " ORDER BY vote_count ASC ",
+                                              challenge)
+            submissions = submissions_query.fetch(20)
+
+            # TODO: replace this iteration with a data oriented approach
+            submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
+        else:
+             submissions = []
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
@@ -356,6 +375,7 @@ class ReviewHandler(webapp.RequestHandler):
                 'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
+                'qualified' : qualified
         })
 
         rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
@@ -605,11 +625,7 @@ class RPCHandler(webapp.RequestHandler):
             solution = new_solution
 
         # TODO: We can convert two foreign keys (jeeqser, challenge) into a single key and get the key faster
-        jeeqser_challenge = Jeeqser_Challenge\
-            .all()\
-            .filter('jeeqser = ', self.jeeqser)\
-            .filter('challenge = ', challenge)\
-            .fetch(1)
+        jeeqser_challenge = get_JC(self.jeeqser, challenge)
 
         class Namespace(object): pass
         ns = Namespace()
@@ -722,14 +738,19 @@ class RPCHandler(webapp.RequestHandler):
             if not submission:
                 self.error(StatusCode.forbidden)
                 return
-
+        
+        #Ensure non-admin user is qualified to vote
+        if not users.is_current_user_admin():
+            voter_challenge = get_JC(self.jeeqser, submission.challenge)
+            qualifield = voter_challenge and voter_challenge[0].status == 'correct'
+            
+            if not qualified:
+                self.error(StatusCode.forbidden)
+                return
+        
         if not self.jeeqser.key() in submission.users_voted:
 
-            jeeqser_challenge = Jeeqser_Challenge\
-                .all()\
-                .filter('jeeqser =', submission.author)\
-                .filter('challenge = ', submission.challenge)\
-                .fetch(1)
+            jeeqser_challenge = get_JC(submission.author,submission.challenge)
 
             if len(jeeqser_challenge) == 0:
                 # should never happen but let's guard against it!

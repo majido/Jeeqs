@@ -101,7 +101,11 @@
 
     <div id="submissions">
         {% if submissions|length == 0 %}
-            <p> No Submissions are available to review </p>
+            {%if not qualified %}
+             <h3>You are not qualified to review this challenge.
+                To qualify you have to solve this challenge yourself. </h3>
+            {%endif%}
+            <p> No Submissions are available to review.</p>
         {% else %}
             <h2>Submissions available for review: </h2>
             {% for submission in submissions %}
