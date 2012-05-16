@@ -23,7 +23,6 @@
         $(document).ready(function() {
             $('.submit-vote').bind('click', function() {
 
-                $(this).attr("disabled", "disabled");
                 $initiator = $(this)
 
                 $submission_id = $(this).attr("id").split("__")[1];
@@ -35,6 +34,7 @@
                     return;
                 }
 
+                $(this).attr("disabled", "disabled");
                 $.ajax({
                     url: "/rpc",
                     async: true,
